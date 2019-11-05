@@ -1,6 +1,8 @@
 #pragma once
 
 #include "hash/Spooky.h"
+#include "util/Interval.hpp"
+
 #include <limits>
 #include <stack>
 #include <sux/support/common.hpp>
@@ -25,7 +27,6 @@ public:
   explicit ZuffixArray(Vector<T> string)
       : String(std::move(string)), Suffix(buildSuffixArray(String)), LCP(buildLCP(String, Suffix)),
         Up(String.size() + 1), Down(String.size() + 1), Next(String.size() + 1) {
-
     std::stack<size_t> stack;
     stack.push(0);
 
@@ -210,7 +211,7 @@ public:
     return top;
   }
 
-  std::pair<size_t, size_t> findExact(const Vector<T> &v) const {
+  Interval<size_t> findExact(const Vector<T> &v) const {
     size_t left = 0;
     size_t right = String.size();
     size_t m = v.size();
@@ -223,16 +224,13 @@ public:
         if (v[i] != String[Suffix[left] + i]) break;
       }
 
-      if (i == m) return std::pair(left, right);
-
-      // empty interval
-      if (i < extent_len) return std::pair(1, 0);
+      if (i == m) return Interval(left, right);
+      if (i < extent_len) return Interval<size_t>::empty();
 
       assert(i == extent_len && "i != extent_len");
       assert(m > extent_len && "m > extent_len");
 
-      // empty interval
-      if (left == right) return std::pair(1, 0);
+      if (left == right) return Interval<size_t>::empty();
 
       auto children = getChildren(left, right);
 
@@ -249,15 +247,14 @@ public:
         if (String[Suffix[children[c]] + extent_len] == v[i]) break;
       }
 
-      // empty interval
-      if (c == children.size()) return std::pair(1, 0);
+      if (c == children.size()) return Interval<size_t>::empty();
 
       left = children[c];
       if (c != children.size() - 1) right = children[c + 1] - 1;
     }
   }
 
-  std::pair<size_t, size_t> find(const Vector<T> &v) const {
+  Interval<size_t> find(const Vector<T> &v) const {
     size_t m = v.size();
     size_t pos = fatBinarySearch(v, -1ULL, m);
     size_t left = pos >> 32;
@@ -275,10 +272,8 @@ public:
 
     if (i < name_len) return findExact(v);
 
-    if (i == m) return std::pair(left, right);
-
-    // empty interval
-    if (i < extent_len) return std::pair(1, 0);
+    if (i == m) return Interval(left, right);
+    if (i < extent_len) return Interval<size_t>::empty();
 
     auto children = getChildren(left, right);
 
@@ -295,8 +290,7 @@ public:
       if (String[Suffix[children[c]] + extent_len] == v[i]) break;
     }
 
-    // empty interval
-    if (c == children.size()) return std::pair(1, 0);
+    if (c == children.size()) return Interval<size_t>::empty();
 
     size_t child_left = children[c];
     size_t child_right = c == children.size() - 1 ? right : children[c + 1] - 1;
@@ -308,10 +302,8 @@ public:
       if (v[i] != String[start + i]) break;
     }
 
-    if (i == m) return std::pair(child_left, child_right);
-
-    // empty interval
-    if (i < m) return std::pair(1, 0);
+    if (i == m) return Interval(child_left, child_right);
+    if (i < m) return Interval<size_t>::empty();
 
     assert(i == child_extent_lenght && "i == child_extent_lenght");
     assert(m > child_extent_lenght && "m > child_extent_lenght");
@@ -387,7 +379,7 @@ private:
     return SpookyHash::Hash64(&string + start, length, 0);
   }
 
-  static std::pair<size_t, size_t> interval(size_t pos) { return std::pair(pos >> 32, pos); }
+  static Interval<size_t> interval(size_t pos) { return Interval(pos >> 32, pos); }
 
   static size_t interval(size_t i, size_t j) { return i << 32 | j; }
 };

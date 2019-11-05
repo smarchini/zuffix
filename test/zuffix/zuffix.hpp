@@ -47,9 +47,8 @@ void check(const sux::util::Vector<T> &string, const zarr::ZuffixArray<T> &zuffi
 
   std::unordered_set<size_t> pos;
 
-  size_t length = interval.second - interval.first + 1;
-  for (size_t j = 0; j < length; j++) {
-    size_t p = zuffix.getSuffix()[interval.first + j];
+  for (size_t j = 0; j < interval.length(); j++) {
+    size_t p = zuffix.getSuffix()[interval.from + j];
     pos.insert(p);
     // EXPECT_EQ
   }
@@ -83,8 +82,8 @@ TEST(zuffix, test) {
 
   int8_t _v[] = {0, 1, 0, 1};
   auto v = arrayToVector(_v, sizeof(_v) / sizeof(_v[0]));
-  print_pair(zuffix.find(v));
-  print_pair(zuffix.findExact(v));
+  std::cout << "find: " << zuffix.find(v) << std::endl;
+  std::cout << "findExact: " << zuffix.findExact(v) << std::endl;
 }
 
 TEST(zuffix, test_all) {
