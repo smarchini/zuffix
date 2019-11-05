@@ -1,0 +1,6 @@
+* TODO
+  - classe interval
+  - scelta funzione hash
+  - cyclic hash
+  - classe zmap?
+  - classe suffix array?
