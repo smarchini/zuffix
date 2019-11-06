@@ -1,10 +1,28 @@
 #pragma once
 
 #include "../xoroshiro128pp.hpp"
+
 #include <gtest/gtest.h>
 #include <string>
 #include <unordered_set>
 #include <zuffix/ZuffixArray.hpp>
+#include <zuffix/hash/CyclicHash.hpp>
+#include <zuffix/hash/SpookyV2.h>
+#include <zuffix/random/xoroshiro128plus_engine.hpp>
+
+uint64_t spooky_hash(const void *message, size_t length) {
+  return SpookyHash::Hash64(message, length, 0);
+}
+
+uint64_t cyclic_hash(const void *message, size_t length) {
+  static zuffix::CyclicHash<zuffix::xoroshiro128plus_engine> hash(0, 37);
+  return hash(message, length);
+}
+
+uint64_t broken_spooky_hash(const void *message, size_t length) {
+  static constexpr size_t mask = (1ULL << 37) - 1;
+  return SpookyHash::Hash64(message, length, 0) & mask;
+}
 
 sux::util::Vector<char> stringToVector(std::string string) {
   sux::util::Vector<char> vector(string.length());
@@ -39,8 +57,8 @@ bool array_equals(const sux::util::Vector<T> &vector, const T *array, size_t len
   return true;
 }
 
-template <typename T>
-void check(const sux::util::Vector<T> &string, const zarr::ZuffixArray<T> &zuffix,
+template <typename T, zarr::hash_function HF>
+void check(const sux::util::Vector<T> &string, const zarr::ZuffixArray<T, HF> &zuffix,
            const sux::util::Vector<T> &pattern) {
   auto interval = zuffix.find(pattern);
   EXPECT_EQ(zuffix.findExact(pattern), zuffix.find(pattern));
@@ -71,13 +89,13 @@ sux::util::Vector<int8_t> dna(size_t length) {
 
 TEST(zuffix, abracadabra) {
   std::string abracadabra("ABRACADABRA");
-  zarr::ZuffixArray zuffix(stringToVector(abracadabra));
+  zarr::ZuffixArray<char, spooky_hash> zuffix(stringToVector(abracadabra));
   zuffix.visitPre(0, abracadabra.length(), 0, 0);
 }
 
 TEST(zuffix, test) {
   int8_t s[] = {0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1};
-  zarr::ZuffixArray zuffix(arrayToVector(s, sizeof(s) / sizeof(s[0])));
+  zarr::ZuffixArray<int8_t, spooky_hash> zuffix(arrayToVector(s, sizeof(s) / sizeof(s[0])));
   zuffix.visitPre(0, sizeof(s) / sizeof(s[0]), 0, 0);
 
   int8_t _v[] = {0, 1, 0, 1};
@@ -89,7 +107,7 @@ TEST(zuffix, test) {
 TEST(zuffix, test_all) {
   int8_t s_[] = {0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1};
   sux::util::Vector<int8_t> s = arrayToVector(s_, sizeof(s_) / sizeof(s_[0]));
-  zarr::ZuffixArray<int8_t> zuffix(std::move(s));
+  zarr::ZuffixArray<int8_t, spooky_hash> zuffix(std::move(s));
 
   for (size_t l = 1; l < 15; l++) {
     for (size_t i = 0; i < (1ULL << l); i++) {
@@ -105,7 +123,7 @@ TEST(zuffix, test_all) {
 
 TEST(zuffix, test_const) {
   sux::util::Vector<int8_t> s(5);
-  zarr::ZuffixArray zuffix(std::move(s));
+  zarr::ZuffixArray<int8_t, spooky_hash> zuffix(std::move(s));
 
   for (size_t l = 1; l < 7; l++) {
     for (size_t i = 0; i < (1ULL << l); i++) {
@@ -125,7 +143,7 @@ TEST(zuffix, test_distinct) {
   for (size_t i = 0; i < s.size(); i++)
     s[i] = i;
 
-  zarr::ZuffixArray zuffix(std::move(s));
+  zarr::ZuffixArray<int8_t, spooky_hash> zuffix(std::move(s));
 
   for (size_t l = 1; l < 6; l++) {
     for (size_t i = 0; i < (1ULL << 2 * l); i++) {
@@ -141,7 +159,7 @@ TEST(zuffix, test_distinct) {
 
 TEST(zuffix, dna_1000) {
   auto s = dna(1000);
-  zarr::ZuffixArray zuffix(std::move(s));
+  zarr::ZuffixArray<int8_t, spooky_hash> zuffix(std::move(s));
 
   for (size_t t = 1; t < 100000; t++) {
     auto v = dna(1 + next() % (s.size() + 4));
@@ -151,7 +169,7 @@ TEST(zuffix, dna_1000) {
 
 TEST(zuffix, dna_all) {
   auto s = dna(10);
-  zarr::ZuffixArray zuffix(std::move(s));
+  zarr::ZuffixArray<int8_t, spooky_hash> zuffix(std::move(s));
 
   for (size_t l = 1; l < 12; l++) {
     for (size_t i = 0; i < (1ULL << 2 * l); i++) {
@@ -165,15 +183,17 @@ TEST(zuffix, dna_all) {
   }
 }
 
-// TODO
-// TEST(zuffix, dna_collisions_spooky) {
-//   auto s = dna(1000000);
-//   size_t mask = (1ULL << 37) - 1;
-//   zarr::ZuffixArray zuffix(std::move(s));
-// }
+TEST(zuffix, dna_collisions_spooky) {
+  auto s = dna(1000000);
+  size_t mask = (1ULL << 37) - 1;
+  // we need to typedef this thing to make gtest macro trickeries happy
+  typedef zarr::ZuffixArray<int8_t, broken_spooky_hash> zuffix_type;
+  ASSERT_DEATH(zuffix_type zuffix(std::move(s)), "The element alaredy exists");
+}
 
-// TODO
-// TEST(zuffix, dna_collisions_cyclic) {
-//   auto s = dna(1000000);
-//   zarr::ZuffixArray zuffix(std::move(s));
-// }
+TEST(zuffix, dna_collisions_cyclic) {
+  auto s = dna(1000000);
+  // we need to typedef this thing to make gtest macro trickeries happy
+  typedef zarr::ZuffixArray<int8_t, cyclic_hash> zuffix_type;
+  ASSERT_DEATH(zuffix_type zuffix(std::move(s)), "The element alaredy exists");
+}

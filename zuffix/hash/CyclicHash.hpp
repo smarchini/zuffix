@@ -7,13 +7,14 @@
 
 namespace zuffix {
 
+template <typename RE>
 class CyclicHash {
 public:
-  typedef xoroshiro128plus_engine::result_type seed_type;
+  typedef typename RE::result_type seed_type;
 
 private:
   const uint64_t Mask;
-  xoroshiro128plus_engine Rng;
+  RE Rng;
   uint64_t Map[256];
 
 public:
@@ -25,11 +26,6 @@ public:
   }
 
   void seed(seed_type seed) { Rng.seed(seed); }
-
-  uint64_t operator()(const void *message, size_t length, seed_type seed) {
-    this->seed(seed);
-    return this->operator()(message, length);
-  }
 
   uint64_t operator()(const void *message, size_t length) {
 		uint64_t h = 0;

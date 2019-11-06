@@ -1,6 +1,5 @@
 #pragma once
 
-#include "hash/Spooky.h"
 #include "util/Interval.hpp"
 
 #include <limits>
@@ -12,7 +11,10 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T> class ZuffixArray {
+// Hash function type: it is not used as a function pointer, the compiler can perform inlining
+typedef uint64_t (*hash_function)(const void *, size_t);
+
+template <typename T, hash_function Hash> class ZuffixArray {
 
 public:
   static constexpr char DOLLAR = std::numeric_limits<T>::max();
@@ -24,7 +26,9 @@ private:
   std::unordered_map<size_t, size_t> ZMap;
 
 public:
-  explicit ZuffixArray(Vector<T> string)
+  explicit ZuffixArray(Vector<T> string) : ZuffixArray(std::move(string), 0) {}
+
+  ZuffixArray(Vector<T> string, uint64_t seed)
       : String(std::move(string)), Suffix(buildSuffixArray(String)), LCP(buildLCP(String, Suffix)),
         Up(String.size() + 1), Down(String.size() + 1), Next(String.size() + 1) {
     std::stack<size_t> stack;
@@ -183,7 +187,7 @@ public:
       int64_t f = to & check_mask;
 
       if ((from & check_mask) != f) {
-        auto it = ZMap.find(hash(v, 0, f));
+        auto it = ZMap.find(Hash(&v, f));
         size_t node = it == std::end(ZMap) ? -1ULL : it->second;
         size_t g;
 
@@ -361,7 +365,8 @@ private:
     size_t extent_len = LCP[children[1]];
     size_t handle_len = twoFattest(name_len - 1, extent_len);
 
-    auto [it, res] = ZMap.insert(std::pair(hash(String, Suffix[i], handle_len), interval(i, j)));
+    auto [it, res] =
+        ZMap.insert(std::pair(Hash(&String + Suffix[i], handle_len), interval(i, j)));
 
     assert(res && "The element alaredy exists");
 
@@ -373,10 +378,6 @@ private:
 
   int64_t twoFattest(size_t a, size_t b) {
     return (int64_t)(1L << 63) >> __builtin_clzll(a ^ b) & b;
-  }
-
-  static size_t hash(const Vector<T> &string, size_t start, size_t length) {
-    return SpookyHash::Hash64(&string + start, length, 0);
   }
 
   static Interval<size_t> interval(size_t pos) { return Interval(pos >> 32, pos); }
