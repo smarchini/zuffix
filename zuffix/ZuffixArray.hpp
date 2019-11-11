@@ -314,7 +314,7 @@ private:
   static Vector<size_t> buildSuffixArray(const String<T> &string) {
     // One of the fastest linear time algorithm: https://sites.google.com/site/yuta256/sais
     Vector<size_t> result(string.size());
-    int ret = saisxx((T *)&string, (long *)&result, (long)string.size(), (long)256);
+    int ret = saisxx((T *)&string, (long *)&result, (long)string.size(), 256L);
     assert(ret == 0 && "Error occurred during suffix array construction");
     return result;
   }
