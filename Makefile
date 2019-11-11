@@ -7,11 +7,11 @@ test: bin/test/zuffix bin/test/random
 	./bin/test/zuffix --gtest_color=yes
 	./bin/test/random --gtest_color=yes
 
-bin/test/zuffix: test/zuffix/* zuffix/* 
+bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) test/zuffix/test.cpp zuffix/hash/SpookyV2.cpp -o bin/test/zuffix
+	$(CXX) $(CXXFLAGS) test/zuffix/test.cpp zuffix/external/SpookyV2.cpp -o bin/test/zuffix
 
-bin/test/random: test/random/* zuffix/random/*
+bin/test/random: test/random/* zuffix/* zuffix/*/*
 	@mkdir -p bin/test
 	$(CXX) $(CXXFLAGS) test/random/test.cpp -o bin/test/random
 
