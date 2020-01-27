@@ -4,3 +4,6 @@
 [submodule "externals/r-index"]
 	path = externals/r-index
 	url = git@github.com:nicolaprezza/r-index.git
+[submodule "externals/sux"]
+	path = externals/sux
+	url = git@github.com:vigna/sux.git

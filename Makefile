@@ -1,7 +1,6 @@
-SUX = $(HOME)/src/sux/  # Change me
 DEBUG = -g -O0
 RELEASE = -g -O3 -DNDEBUG
-CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./ -I$(SUX) -lgtest -lbenchmark
+CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./externals/sux/ -I./ -lgtest -lbenchmark
 
 all: test benchmark
 
@@ -20,12 +19,17 @@ bin/test/random: test/random/* zuffix/* zuffix/*/*
 
 
 # BENCHMARK
-benchmark: bin/benchmark/build_suffix_array
+benchmark: bin/benchmark/build_suffix_array bin/benchmark/zuffix_dna
 	./bin/benchmark/build_suffix_array --benchmark_color=yes
+	./bin/benchmark/zuffix_dna --benchmark_color=yes
 
-bin/benchmark/build_suffix_array: benchmark/*
+bin/benchmark/build_suffix_array: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/build_suffix_array.cpp -o bin/benchmark/build_suffix_array
+
+bin/benchmark/zuffix_dna: benchmark/*  zuffix/* zuffix/*/*
+	@mkdir -p bin/benchmark
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/zuffix_dna.cpp zuffix/external/SpookyV2.cpp -o bin/benchmark/zuffix_dna
 
 .PHONY: clean
 
