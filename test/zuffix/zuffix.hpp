@@ -16,7 +16,7 @@ uint64_t spooky_hash(const void *message, size_t length) {
 }
 
 uint64_t cyclic_hash(const void *message, size_t length) {
-  static zuffix::CyclicHash<zuffix::xoroshiro128plus_engine> hash(0, 37);
+  static zarr::CyclicHash<zarr::xoroshiro128plus_engine> hash(0, 37);
   return hash(message, length);
 }
 

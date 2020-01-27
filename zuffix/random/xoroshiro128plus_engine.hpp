@@ -4,7 +4,7 @@
 #include <iostream>
 #include <limits>
 
-namespace zuffix {
+namespace zarr {
 
 class xoroshiro128plus_engine {
 public:

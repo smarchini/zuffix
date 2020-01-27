@@ -5,7 +5,7 @@
 #include <memory>
 #include <random>
 
-namespace zuffix {
+namespace zarr {
 
 template <typename RE>
 class CyclicHash {
@@ -38,6 +38,15 @@ public:
 
 private:
   static inline uint64_t rotl(uint64_t x, int k) { return (x << k) | (x >> (32 - k)); }
+
+  static inline uint64_t murmur_hash_3(uint64_t x) {
+    x ^= x >> 33;
+    x *= 0xff51afd7ed558ccdL;
+    x ^= x >> 33;
+    x *= 0xc4ceb9fe1a85ec53L;
+    x ^= x >> 33;
+    return x;
+  }
 };
 
 } // namespace zuffix

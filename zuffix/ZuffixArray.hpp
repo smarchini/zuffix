@@ -19,7 +19,7 @@ typedef uint64_t (*hash_function)(const void *, size_t);
 template <typename T, hash_function Hash> class ZuffixArray {
 private:
   const String<T> string;
-  const Vector<size_t> suffix, lcp;
+  const Vector<size_t> sa, lcp;
   Vector<size_t> up, down, next;
   std::unordered_map<size_t, size_t> zmap;
 
@@ -27,7 +27,7 @@ public:
   explicit ZuffixArray(String<T> string) : ZuffixArray(std::move(string), 0) {}
 
   ZuffixArray(String<T> str, uint64_t seed)
-      : string(std::move(str)), suffix(buildSuffixArray(string)), lcp(buildLCP(string, suffix)),
+      : string(std::move(str)), sa(buildSuffixArray(string)), lcp(buildLCP(string, sa)),
         up(string.size()), down(string.size()), next(string.size()) {
     std::stack<size_t> stack;
     stack.push(0);
@@ -67,6 +67,36 @@ public:
     }
 
     buildZMap(0, string.length(), 0);
+
+    std::cout << "STRING = [";
+    for (size_t i = 0; i < string.length(); i++)
+      std::cout << string[i] << " ";
+    std::cout << "];" << std::endl;
+
+    std::cout << "suffix = [";
+    for (size_t i = 0; i < sa.size(); i++)
+      std::cout << sa[i] << " ";
+    std::cout << "];" << std::endl;
+
+    std::cout << "lcp = [";
+    for (size_t i = 0; i < lcp.size(); i++)
+      std::cout << lcp[i] << " ";
+    std::cout << "];" << std::endl;
+
+    std::cout << "down = [";
+    for (size_t i = 0; i < down.size(); i++)
+      std::cout << down[i] << " ";
+    std::cout << "];" << std::endl;
+
+    std::cout << "up = [";
+    for (size_t i = 0; i < up.size(); i++)
+      std::cout << up[i] << " ";
+    std::cout << "];" << std::endl;
+
+    std::cout << "next = [";
+    for (size_t i = 0; i < next.size(); i++)
+      std::cout << next[i] << " ";
+    std::cout << "];" << std::endl;
   }
 
   Vector<size_t> getChildren(size_t i, size_t j) const {
@@ -95,7 +125,7 @@ public:
 
   size_t extentLength(size_t node) const { return extentLength(node >> 32, node); }
   size_t extentLength(uint32_t i, uint32_t j) const {
-    if (i == j) return string.length() - suffix[i];
+    if (i == j) return string.length() - sa[i];
 
     if (i == 0 && j == up.size() - 1) return lcp[next[0]];
 
@@ -113,7 +143,7 @@ public:
            ((i != 0 || j != string.length()) && name_len == 1 + max(lcp[i], lcp[j + 1])));
 
     if (i == j) {
-      size_t extent_len = string.size() - suffix[i];
+      size_t extent_len = string.size() - sa[i];
       size_t handle_len = twoFattest(name_len - 1, extent_len);
       cout << " skip: "
            << "[" << name_len << ", " << extent_len << "] ";
@@ -121,7 +151,7 @@ public:
       if (name_len != extent_len) {
         cout << "(" << handle_len << ") ";
 
-        for (size_t k = suffix[i]; k < suffix[i] + handle_len; k++)
+        for (size_t k = sa[i]; k < sa[i] + handle_len; k++)
           cout << string[k];
       }
 
@@ -135,7 +165,7 @@ public:
            << "[" << name_len << ", " << extent_len << "] "
            << "(" << handle_len << ") ";
 
-      for (size_t k = suffix[i]; k < suffix[i] + handle_len; k++)
+      for (size_t k = sa[i]; k < sa[i] + handle_len; k++)
         cout << string[k];
 
       cout << endl;
@@ -215,7 +245,7 @@ public:
       size_t limit = std::min(m, extent_len);
 
       for (; i < limit; i++) {
-        if (v[i] != string[suffix[left] + i]) break;
+        if (v[i] != string[sa[left] + i]) break;
       }
 
       if (i == m) return Interval(left, right);
@@ -231,14 +261,14 @@ public:
       size_t c;
       for (c = 0; c < children.size(); c++) {
         if (c == children.size() - 1 && children[c] == right &&
-            extent_len + 1 == string.size() - suffix[children[c]]) {
+            extent_len + 1 == string.size() - sa[children[c]]) {
 #ifdef DEBUG
           std::cout << "Skipping fake child: (" << right << ", " << right << ")" << std::endl;
 #endif
           continue;
         }
 
-        if (string[suffix[children[c]] + extent_len] == v[i]) break;
+        if (string[sa[children[c]] + extent_len] == v[i]) break;
       }
 
       if (c == children.size()) return Interval<size_t>::empty();
@@ -261,7 +291,7 @@ public:
 
     size_t i;
     for (i = 0; i < limit; i++) {
-      if (v[i] != string[suffix[left] + i]) break;
+      if (v[i] != string[sa[left] + i]) break;
     }
 
     if (i < name_len) return findExact(v);
@@ -274,21 +304,21 @@ public:
     size_t c;
     for (c = 0; c < children.size(); c++) {
       if (c == children.size() - 1 && children[c] == right &&
-          extent_len + 1 == string.size() - suffix[children[c]]) {
+          extent_len + 1 == string.size() - sa[children[c]]) {
 #ifdef DEBUG
         std::cout << "Skipping fake child: (" << right << ", " << right << ")" << std::endl;
 #endif
         continue;
       }
 
-      if (string[suffix[children[c]] + extent_len] == v[i]) break;
+      if (string[sa[children[c]] + extent_len] == v[i]) break;
     }
 
     if (c == children.size()) return Interval<size_t>::empty();
 
     size_t child_left = children[c];
     size_t child_right = c == children.size() - 1 ? right : children[c + 1] - 1;
-    size_t start = suffix[child_left];
+    size_t start = sa[child_left];
     size_t child_extent_lenght = extentLength(child_left, child_right);
 
     size_t child_limit = std::min(m, child_extent_lenght);
@@ -306,7 +336,7 @@ public:
 
   const T *getString() const { return &string; }
 
-  const size_t *getSuffix() const { return &suffix; }
+  const size_t *getSuffix() const { return &sa; }
 
   const size_t *getLCP() const { return &lcp; }
 
@@ -319,13 +349,13 @@ private:
     return result;
   }
 
-  static Vector<size_t> buildLCP(const String<T> &string, const Vector<size_t> &suffix) {
-    Vector<size_t> lcp(suffix.size() + 1);
-    size_t length = suffix.size();
+  static Vector<size_t> buildLCP(const String<T> &string, const Vector<size_t> &sa) {
+    Vector<size_t> lcp(sa.size() + 1);
+    size_t length = sa.size();
 
     for (size_t i = 1; i < length; i++) {
-      while (suffix[i - 1] + lcp[i] < length - 1 && suffix[i] + lcp[i] < length - 1 &&
-             string[suffix[i - 1] + lcp[i]] == string[suffix[i] + lcp[i]])
+      while (sa[i - 1] + lcp[i] < length - 1 && sa[i] + lcp[i] < length - 1 &&
+             string[sa[i - 1] + lcp[i]] == string[sa[i] + lcp[i]])
         lcp[i]++;
     }
 
@@ -342,7 +372,7 @@ private:
     size_t extent_len = lcp[children[1]];
     size_t handle_len = twoFattest(name_len - 1, extent_len);
 
-    auto [it, res] = zmap.insert(std::pair(Hash(&string + suffix[i], handle_len), interval(i, j)));
+    auto [it, res] = zmap.insert(std::pair(Hash(&string + sa[i], handle_len), interval(i, j)));
 
     assert(res && "The element alaredy exists");
 
