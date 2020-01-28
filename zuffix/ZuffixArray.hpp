@@ -1,10 +1,10 @@
 #pragma once
 
-#include "external/sais.hxx"
 #include "util/Interval.hpp"
 #include "util/String.hpp"
 
 #include <limits>
+#include <sais.hxx>
 #include <stack>
 #include <sux/support/common.hpp>
 #include <sux/util/Vector.hpp>
@@ -67,36 +67,6 @@ public:
     }
 
     buildZMap(0, string.length(), 0);
-
-    std::cout << "STRING = [";
-    for (size_t i = 0; i < string.length(); i++)
-      std::cout << string[i] << " ";
-    std::cout << "];" << std::endl;
-
-    std::cout << "suffix = [";
-    for (size_t i = 0; i < sa.size(); i++)
-      std::cout << sa[i] << " ";
-    std::cout << "];" << std::endl;
-
-    std::cout << "lcp = [";
-    for (size_t i = 0; i < lcp.size(); i++)
-      std::cout << lcp[i] << " ";
-    std::cout << "];" << std::endl;
-
-    std::cout << "down = [";
-    for (size_t i = 0; i < down.size(); i++)
-      std::cout << down[i] << " ";
-    std::cout << "];" << std::endl;
-
-    std::cout << "up = [";
-    for (size_t i = 0; i < up.size(); i++)
-      std::cout << up[i] << " ";
-    std::cout << "];" << std::endl;
-
-    std::cout << "next = [";
-    for (size_t i = 0; i < next.size(); i++)
-      std::cout << next[i] << " ";
-    std::cout << "];" << std::endl;
   }
 
   Vector<size_t> getChildren(size_t i, size_t j) const {

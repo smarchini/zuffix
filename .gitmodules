@@ -1,9 +1,9 @@
 [submodule "externals/CSApp"]
-	path = externals/CSApp
+	path = external/CSApp
 	url = git@github.com:mpetri/benchmark-suffix-array.git
 [submodule "externals/r-index"]
-	path = externals/r-index
+	path = external/r-index
 	url = git@github.com:nicolaprezza/r-index.git
 [submodule "externals/sux"]
-	path = externals/sux
+	path = external/sux
 	url = git@github.com:vigna/sux.git

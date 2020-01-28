@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_set>
 #include <zuffix/ZuffixArray.hpp>
-#include <zuffix/external/SpookyV2.h>
+#include <SpookyV2.h>
 #include <zuffix/hash/CyclicHash.hpp>
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 #include <zuffix/util/String.hpp>
