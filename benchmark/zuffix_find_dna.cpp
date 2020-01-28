@@ -27,6 +27,13 @@ chrono::nanoseconds::rep find(const ZuffixArray<char, spooky_hash> &za, size_t m
   return time[reps / 2];
 }
 
+template <class T> string pretty(T value) {
+  std::stringstream ss;
+  ss.imbue(std::locale(""));
+  ss << std::fixed << value;
+  return ss.str();
+}
+
 int main(int argc, char **argv) {
   if (argc < 3) {
     cerr << "Not enough parameters: <text file> <m_1> <m_2> ... <m_k> \n";
@@ -39,7 +46,7 @@ int main(int argc, char **argv) {
   constexpr size_t reps = 5;
   for (size_t i = 2; i < argc; i++) {
     size_t m = stoul(argv[i]);
-    cout << "Pattern length: " << m << ", find time: " << find(za, m, reps) << " ns" << endl;
+    cout << "Pattern length: " << m ", find time: " << pretty(find(za, m, reps)) << " ns" << endl;
   }
 
   return 0;
