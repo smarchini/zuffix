@@ -1,5 +1,7 @@
-#include <benchmark/benchmark.h>
 #include "common.hpp"
+#include "hash.hpp"
+#include <benchmark/benchmark.h>
+#include <zuffix/ZuffixArray.hpp>
 
 using namespace zarr;
 using namespace sux::util;

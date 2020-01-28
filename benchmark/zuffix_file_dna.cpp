@@ -1,7 +1,9 @@
 #include "common.hpp"
+#include "hash.hpp"
 #include <algorithm>
 #include <chrono>
 #include <vector>
+#include <zuffix/ZuffixArray.hpp>
 
 using namespace std;
 using namespace zarr;

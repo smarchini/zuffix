@@ -1,21 +1,14 @@
 #pragma once
 
 #include <fstream>
-#include <iostream>
 #include <random>
 #include <sstream>
 #include <string>
-#include <sux/util/Vector.hpp>
-#include <zuffix/ZuffixArray.hpp>
-#include <SpookyV2.h>
-#include <sais.hxx>
+#include <zuffix/util/String.hpp>
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 
 constexpr char dnabase[] = {'A', 'C', 'G', 'T'};
 
-uint64_t spooky_hash(const void *message, size_t length) {
-  return SpookyHash::Hash64(message, length, 0);
-}
 
 zarr::String<char> file_to_string(std::string filename) {
   std::ifstream file(filename, std::ios::in);
