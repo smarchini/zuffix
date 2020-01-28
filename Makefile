@@ -19,21 +19,21 @@ bin/test/random: test/random/* zuffix/* zuffix/*/*
 
 
 # BENCHMARK
-benchmark: bin/benchmark/build_suffix_array bin/benchmark/zuffix_dna bin/benchmark/zuffix_find_dna
+benchmark: bin/benchmark/build_suffix_array bin/benchmark/zuffix_random_dna bin/benchmark/zuffix_file_dna
 	./bin/benchmark/build_suffix_array --benchmark_color=yes
-	./bin/benchmark/zuffix_dna --benchmark_color=yes
+	./bin/benchmark/zuffix_random_dna --benchmark_color=yes
 
 bin/benchmark/build_suffix_array: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/build_suffix_array.cpp -o bin/benchmark/build_suffix_array
 
-bin/benchmark/zuffix_dna: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/zuffix_random_dna: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/zuffix_dna.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_dna
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/zuffix_random_dna.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_random_dna
 
-bin/benchmark/zuffix_find_dna: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/zuffix_file_dna: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/zuffix_find_dna.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_find_dna
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/zuffix_file_dna.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_file_dna
 
 
 # DATASET

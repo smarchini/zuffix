@@ -27,11 +27,26 @@ chrono::nanoseconds::rep find(const ZuffixArray<char, spooky_hash> &za, size_t m
   return time[reps / 2];
 }
 
-template <class T> string pretty(T value) {
-  std::stringstream ss;
-  ss.imbue(std::locale(""));
-  ss << std::fixed << value;
-  return ss.str();
+chrono::nanoseconds::rep find_exact(const ZuffixArray<char, spooky_hash> &za, size_t m,
+                                    size_t reps) {
+  uint64_t u = 0;
+
+  auto pattern = random_dna(m);
+
+  vector<chrono::nanoseconds::rep> time;
+  time.reserve(reps);
+
+  for (uint64_t i = 0; i < reps; i++) {
+    auto begin = chrono::high_resolution_clock::now();
+    u ^= za.findExact(pattern).length();
+    auto end = chrono::high_resolution_clock::now();
+    time.push_back(chrono::duration_cast<chrono::nanoseconds>(end - begin).count());
+  }
+
+  const volatile uint64_t __attribute__((unused)) unused = u;
+
+  sort(time.begin(), time.end());
+  return time[reps / 2];
 }
 
 int main(int argc, char **argv) {
@@ -46,7 +61,9 @@ int main(int argc, char **argv) {
   constexpr size_t reps = 5;
   for (size_t i = 2; i < argc; i++) {
     size_t m = stoul(argv[i]);
-    cout << "Pattern length: " << m ", find time: " << pretty(find(za, m, reps)) << " ns" << endl;
+    cout << "Pattern length: " << m;
+    cout << ", find: " << pretty(find(za, m, reps)) << " ns";
+    cout << ", find exact: " << pretty(find_exact(za, m, reps)) << " ns" << endl;
   }
 
   return 0;

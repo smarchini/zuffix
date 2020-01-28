@@ -36,3 +36,10 @@ zarr::String<char> random_dna(size_t m) {
 
   return result;
 }
+
+template <class T> std::string pretty(T value) {
+  std::stringstream ss;
+  ss.imbue(std::locale(""));
+  ss << std::fixed << value;
+  return ss.str();
+}
