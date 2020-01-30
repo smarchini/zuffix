@@ -34,10 +34,10 @@ bin/benchmark/zuffix_random_dna: benchmark/*  zuffix/* zuffix/*/*
 bin/benchmark/zuffix_file: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=char benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_char_file
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint8_file
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint16_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint16_file
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint32_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint32_file
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint64_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint64_file
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint8_file
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint16_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint16_file
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint32_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint32_file
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint64_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint64_file
 
 
 # UTILS
@@ -91,3 +91,5 @@ pattern: utils
 
 clean:
 	@rm -rf ./bin
+	@rm -rf ./dataset
+	@rm -rf ./pattern

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include <memory>
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 
 using namespace std;
@@ -43,9 +44,9 @@ int main(int argc, char const *argv[]) {
   text.seekg(dist(rng) * bytes_per_symbol, text.beg);
 
   size_t size = symbols * bytes_per_symbol;
-  char *pattern = new char[size];
-  text.read(pattern, size);
-  cout.write(pattern, size);
+  std::unique_ptr<char[]> pattern(new char[size]);
+  text.read(pattern.get(), size);
+  cout.write(pattern.get(), size);
 
   return 0;
 }

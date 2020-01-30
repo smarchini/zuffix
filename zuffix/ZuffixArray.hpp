@@ -28,12 +28,13 @@ public:
 
   ZuffixArray(String<T> str, uint64_t seed)
       : string(std::move(str)), sa(buildSuffixArray(string)), lcp(buildLCP(string, sa)),
-        up(string.size()), down(string.size()), next(string.size()) {
+        up(string.length()), down(string.length()), next(string.length()) {
+    assert(string[string.length() - 1] == string.DOLLAR && "The string is not prefix free");
     std::stack<size_t> stack;
     stack.push(0);
 
     size_t last = -1ULL;
-    for (size_t i = 1; i <= string.length(); i++) {
+    for (size_t i = 1; i < string.length(); i++) {
       while (lcp[i] < lcp[stack.top()]) {
         last = stack.top();
         stack.pop();
@@ -53,7 +54,7 @@ public:
     stack = std::stack<size_t>();
     stack.push(0);
 
-    for (size_t i = 1; i <= string.length(); i++) {
+    for (size_t i = 1; i < string.length(); i++) {
       while (lcp[i] < lcp[stack.top()])
         stack.pop();
 
@@ -66,7 +67,7 @@ public:
       stack.push(i);
     }
 
-    buildZMap(0, string.length(), 0);
+    buildZMap(0, string.length() - 1, 0);
   }
 
   Vector<size_t> getChildren(size_t i, size_t j) const {
@@ -98,7 +99,7 @@ public:
   size_t extentLength(size_t node) const { return extentLength(node >> 32, node); }
 
   size_t extentLength(uint32_t i, uint32_t j) const {
-    if (i == j) return string.length() - sa[i];
+    if (i == j) return string.length() - sa[i] - 1;
     if (i == 0 && j == up.size() - 1) return lcp[next[0]];
 
     size_t k = up[j + 1];
@@ -110,11 +111,11 @@ public:
     using namespace std;
     cout << std::string(d, '\t') << "[" << i << ", " << j << "] ";
 
-    assert((i == 0 && j == string.length() && name_len == 0) ||
-           ((i != 0 || j != string.length()) && name_len == 1 + max(lcp[i], lcp[j + 1])));
+    assert((i == 0 && j == string.length() - 1 && name_len == 0) ||
+           ((i != 0 || j != string.length() - 1) && name_len == 1 + max(lcp[i], lcp[j + 1])));
 
     if (i == j) {
-      size_t extent_len = string.size() - sa[i];
+      size_t extent_len = string.length() - sa[i];
       size_t handle_len = twoFattest(name_len - 1, extent_len);
       cout << " skip: "
            << "[" << name_len << ", " << extent_len << "] ";
@@ -151,7 +152,7 @@ public:
   size_t fatBinarySearch(const String<T> &v, int64_t from, int64_t to) const {
 #ifdef DEBUG
     std::cout << "fatBinarySearch([ ";
-    for (size_t i = 0; i < v.size(); i++)
+    for (size_t i = 0; i < v.length(); i++)
       std::cout << v[i] << " ";
     std::cout << "], (" << from << ".." << to << "))" << std::endl;
 #endif
@@ -162,7 +163,7 @@ public:
     size_t top = -1ULL;
     if (from == -1) {
       // ALERT: this should return NULL in certain cases
-      top = string.size(); // root
+      top = string.length(); // root
       from = 0;            // extent length
     }
 
@@ -208,8 +209,8 @@ public:
 
   Interval<size_t> findExact(const String<T> &v) const {
     size_t left = 0;
-    size_t right = string.length();
-    size_t m = v.size();
+    size_t right = string.length() - 1;
+    size_t m = v.length();
 
     for (size_t i = 0;; i++) {
       size_t extent_len = extentLength(left, right);
@@ -231,7 +232,7 @@ public:
       size_t c;
       for (c = 0; c < children.size(); c++) {
         if (c == children.size() - 1 && children[c] == right &&
-            extent_len + 1 == string.size() - sa[children[c]]) {
+            extent_len + 1 == string.length() - sa[children[c]]) {
 #ifdef DEBUG
           std::cout << "Skipping fake child: (" << right << ", " << right << ")" << std::endl;
 #endif
@@ -249,13 +250,13 @@ public:
   }
 
   Interval<size_t> find(const String<T> &v) const {
-    size_t m = v.size();
+    size_t m = v.length();
     size_t pos = fatBinarySearch(v, -1ULL, m);
     size_t left = pos >> 32;
     size_t right = pos & 0xFFFFFFFF;
 
     size_t extent_len = extentLength(left, right);
-    size_t name_len = pos == string.length() ? 0 : 1 + std::max(lcp[left], lcp[right + 1]);
+    size_t name_len = pos == string.length() - 1 ? 0 : 1 + std::max(lcp[left], lcp[right + 1]);
 
     size_t limit = std::min(m, extent_len);
 
@@ -274,7 +275,7 @@ public:
     size_t c;
     for (c = 0; c < children.size(); c++) {
       if (c == children.size() - 1 && children[c] == right &&
-          extent_len + 1 == string.size() - sa[children[c]]) {
+          extent_len + 1 == string.length() - sa[children[c]]) {
 #ifdef DEBUG
         std::cout << "Skipping fake child: (" << right << ", " << right << ")" << std::endl;
 #endif
@@ -313,8 +314,8 @@ public:
 private:
   static Vector<size_t> buildSuffixArray(const String<T> &string) {
     // One of the fastest linear time algorithm: https://sites.google.com/site/yuta256/sais
-    Vector<size_t> result(string.size());
-    int ret = saisxx((T *)&string, (long *)&result, (long)string.size(), 256L);
+    Vector<size_t> result(string.length());
+    int ret = saisxx((T *)&string, (long *)&result, (long)string.length(), 256L);
     assert(ret == 0 && "Error occurred during suffix array construction");
     return result;
   }
@@ -335,8 +336,8 @@ private:
   void buildZMap(size_t i, size_t j, size_t name_len) {
     if (i == j) return;
 
-    assert((i == 0 && j == string.length() && name_len == 0) ||
-           ((i != 0 || j != string.length()) && name_len == 1 + std::max(lcp[i], lcp[j + 1])));
+    assert((i == 0 && j == string.length() - 1 && name_len == 0) ||
+           ((i != 0 || j != string.length() - 1) && name_len == 1 + std::max(lcp[i], lcp[j + 1])));
 
     auto children = getChildren(i, j);
     size_t extent_len = lcp[children[1]];

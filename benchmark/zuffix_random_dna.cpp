@@ -16,7 +16,7 @@ static void args(benchmark::internal::Benchmark *b) {
 }
 
 static void BM_Find(benchmark::State &state) {
-  ZuffixArray<char, spooky_hash> zuffix(random_dna(state.range(0)));
+  ZuffixArray<char, spooky_hash> zuffix(random_dna(state.range(0), true));
   auto p = random_dna(state.range(1));
 
   for (auto _ : state) {
@@ -26,7 +26,7 @@ static void BM_Find(benchmark::State &state) {
 BENCHMARK(BM_Find)->Apply(args);
 
 static void BM_FindExact(benchmark::State &state) {
-  ZuffixArray<char, spooky_hash> zuffix(random_dna(state.range(0)));
+  ZuffixArray<char, spooky_hash> zuffix(random_dna(state.range(0), true));
   auto p = random_dna(state.range(1));
 
   for (auto _ : state) {

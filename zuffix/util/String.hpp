@@ -1,8 +1,9 @@
 #pragma once
 
 #include <algorithm>
-#include <sux/util/Vector.hpp>
+#include <cstring>
 #include <string>
+#include <sux/util/Vector.hpp>
 
 namespace zarr {
 
@@ -14,14 +15,21 @@ private:
   sux::util::Vector<T> data;
 
 public:
-  explicit String(size_t length) : data(length + 1) {
-    data[length] = DOLLAR;
+  explicit String(size_t length, bool prefixfree = false) : data(length + prefixfree) {
+    if (prefixfree) data[length] = DOLLAR;
   }
 
-  explicit String(std::string string) : data(string.length() + 1) {
+  // prefix free strings are $ terminated, otherwise there is no special (e.g., \0) ending symbols
+  explicit String(std::string string, bool prefixfree = false)
+      : String(string.length(), prefixfree) {
     for (size_t i = 0; i < string.length(); i++)
       data[i] = string[i];
-    data[string.length()] = DOLLAR;
+    if (prefixfree) data[string.length()] = DOLLAR;
+  }
+
+  String(const void *buffer, size_t bytes, bool prefixfree = false) : String(bytes, prefixfree) {
+    assert(bytes % sizeof(T) == 0 || "Bad size: the string can't be made by half-symbols");
+    std::memcpy(&data, buffer, bytes);
   }
 
   // Delete copy operators
@@ -49,11 +57,8 @@ public:
   /** Returns the given element of the string. */
   inline T &operator[](size_t i) { return data[i]; };
 
-  /** Returns the number of elements of the underlining vector. */
-  inline size_t size() const { return data.size(); }
-
   /** Returns the length of the string. */
-  inline size_t length() const { return data.size() - 1; }
+  inline size_t length() const { return data.size(); }
 };
 
 } // namespace zarr

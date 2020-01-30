@@ -25,19 +25,19 @@ String<char> randomAZ(size_t length) {
 
 template <typename T>
 static Vector<size_t> quicksort(const String<T> &string) {
-  Vector<size_t> result(string.size() + 1);
+  Vector<size_t> result(string.length() + 1);
 
   for (size_t i = 0; i < result.size(); i++)
     result[i] = i;
 
   std::sort(&result, &result + result.size(), [&string](size_t i, size_t j) {
-    while (i < string.size() && j < string.size() && string[i] == string[j]) {
+    while (i < string.length() && j < string.length() && string[i] == string[j]) {
       i++;
       j++;
     }
 
-    if (i == string.size()) return false;
-    if (j == string.size()) return true;
+    if (i == string.length()) return false;
+    if (j == string.length()) return true;
 
     return string[i] < string[j];
   });
@@ -56,8 +56,8 @@ BENCHMARK(BM_Quicksort)->Range(1 << 10, 1 << 20);
 
 template <typename T>
 static Vector<size_t> sais(const String<T> &string) {
-  Vector<size_t> result(string.size());
-  int ret = saisxx((T *)&string, (long *)&result, (long)string.size(), 256L);
+  Vector<size_t> result(string.length());
+  int ret = saisxx((T *)&string, (long *)&result, (long)string.length(), 256L);
   assert(ret == 0 && "Error occurred during suffix array construction");
   return result;
 }

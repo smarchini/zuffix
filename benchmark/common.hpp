@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <fstream>
 #include <random>
 #include <sstream>
@@ -9,15 +10,24 @@
 
 constexpr char dnabase[] = {'A', 'C', 'G', 'T'};
 
-zarr::String<SYMBOLTYPE> file_to_string(std::string filename) {
+zarr::String<SYMBOLTYPE> file_to_string(std::string filename, bool dollar=false) {
   std::ifstream file(filename, std::ios::in);
-  std::stringstream strstream;
-  strstream << file.rdbuf();
-  return zarr::String<SYMBOLTYPE>(strstream.str());
+  file.seekg(0, file.end);
+  int filesize = file.tellg();
+  file.seekg(0, file.beg);
+
+  if (filesize % sizeof(SYMBOLTYPE) != 0) {
+    std::cerr << "Bad file or wrong type: text file can't contain half-symbols\n";
+    exit(-1);
+  }
+
+  std::unique_ptr<char[]> buffer(new char[filesize]);
+  file.read(buffer.get(), filesize);
+  return zarr::String<SYMBOLTYPE>(buffer.get(), filesize, dollar);
 }
 
-zarr::String<char> random_dna(size_t m) {
-  zarr::String<char> result(m);
+zarr::String<char> random_dna(size_t m, bool dollar=false) {
+  zarr::String<char> result(m, dollar);
 
   static std::random_device rd;
   static zarr::xoroshiro128plus_engine rng(rd());
