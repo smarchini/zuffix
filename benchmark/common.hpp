@@ -9,12 +9,11 @@
 
 constexpr char dnabase[] = {'A', 'C', 'G', 'T'};
 
-
-zarr::String<char> file_to_string(std::string filename) {
+zarr::String<SYMBOLTYPE> file_to_string(std::string filename) {
   std::ifstream file(filename, std::ios::in);
   std::stringstream strstream;
   strstream << file.rdbuf();
-  return zarr::String<char>(strstream.str());
+  return zarr::String<SYMBOLTYPE>(strstream.str());
 }
 
 zarr::String<char> random_dna(size_t m) {

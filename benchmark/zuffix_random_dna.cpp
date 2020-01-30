@@ -1,3 +1,6 @@
+// required by common.hpp
+#define SYMBOLTYPE char
+
 #include "common.hpp"
 #include "hash.hpp"
 #include <benchmark/benchmark.h>

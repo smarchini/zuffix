@@ -89,19 +89,20 @@ public:
       }
     }
 
+    // TODO: trimming has a performance cost, better not do it; check for a
+    // suitable value to reserve space
     res.trimToFit();
     return res;
   }
 
   size_t extentLength(size_t node) const { return extentLength(node >> 32, node); }
+
   size_t extentLength(uint32_t i, uint32_t j) const {
     if (i == j) return string.length() - sa[i];
-
     if (i == 0 && j == up.size() - 1) return lcp[next[0]];
 
     size_t k = up[j + 1];
     if (j < k || k <= i) k = down[i];
-
     return lcp[k];
   }
 
@@ -214,9 +215,8 @@ public:
       size_t extent_len = extentLength(left, right);
       size_t limit = std::min(m, extent_len);
 
-      for (; i < limit; i++) {
-        if (v[i] != string[sa[left] + i]) break;
-      }
+      while (i < limit && v[i] != string[sa[left] + i])
+        i++;
 
       if (i == m) return Interval(left, right);
       if (i < extent_len) return Interval<size_t>::empty();
