@@ -41,12 +41,19 @@ bin/benchmark/zuffix_file: benchmark/*  zuffix/* zuffix/*/*
 
 
 # UTILS
-utils: bin/utils/generate_pattern
+utils: bin/utils/generate_pattern pizzachili
 
 bin/utils/generate_pattern: utils/*
 	@mkdir -p bin/utils
 	$(CXX) $(CXXFLAGS) $(RELEASE) utils/generate_pattern.cpp -o bin/utils/generate_pattern
 
+pizzachili:
+	@mkdir -p pizzachili
+	wget -P ./pizzachili "http://pizzachili.dcc.uchile.cl/utils/utils.tar.gz"
+	aunpack -X ./pizzachili -e ./pizzachili/utils.tar.gz
+	mv ./pizzachili/utils/* ./pizzachili
+	rmdir ./pizzachili/utils
+	make -C ./pizzachili
 
 # DATASET
 dataset: dataset/download
@@ -93,3 +100,4 @@ clean:
 	@rm -rf ./bin
 	@rm -rf ./dataset
 	@rm -rf ./pattern
+	@rm -rf ./pizzachili

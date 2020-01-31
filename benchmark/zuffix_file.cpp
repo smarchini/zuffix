@@ -38,6 +38,8 @@ int main(int argc, char **argv) {
 
   if (argc < 3) {
     cerr << "Not enough parameters: <text> <pattern 1> <pattern 2> ... <pattern n> \n";
+    cerr << "To build text and pattern you may want to use Pizza&Chili utils: ";
+    cerr << "http://pizzachili.dcc.uchile.cl/experiments.html \n";
     return -1;
   }
 
