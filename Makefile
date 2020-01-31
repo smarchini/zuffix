@@ -62,7 +62,7 @@ dataset/download:
 
 
 # PATTERN
-pattern: utils
+patterns: utils
 	@mkdir -p pattern
 # dna
 	./bin/utils/generate_pattern ./dataset/dna 1 1 > ./pattern/dna.1

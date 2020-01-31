@@ -45,9 +45,8 @@ int main(int argc, char **argv) {
   cout << "ZuffixArray for text: " << argv[1] << endl;
 
   for (size_t i = 2; i < argc; i++) {
-    auto pattern = file_to_string(argv[i]);
-    auto [result, time] = find(za, pattern);
-    cout << "\t" << argv[i] << ", count:" << result << ", time: " << pretty(time) << " ns" << endl;
+    auto [count, time] = find(za, file_to_string(argv[i]));
+    cout << "\t" << argv[i] << ", count: " << count << ", time: " << pretty(time) << " ns" << endl;
   }
 
   return 0;

@@ -216,7 +216,7 @@ public:
       size_t extent_len = extentLength(left, right);
       size_t limit = std::min(m, extent_len);
 
-      while (i < limit && v[i] != string[sa[left] + i])
+      while (i < limit && v[i] == string[sa[left] + i])
         i++;
 
       if (i == m) return Interval(left, right);
@@ -260,10 +260,14 @@ public:
 
     size_t limit = std::min(m, extent_len);
 
-    size_t i;
-    for (i = 0; i < limit; i++) {
-      if (v[i] != string[sa[left] + i]) break;
-    }
+    //size_t i;
+    //for (i = 0; i < limit; i++) {
+    //if (v[i] != string[sa[left] + i]) break;
+    //}
+
+    size_t i = 0;
+    while (i < limit && v[i] == string[sa[left] + i])
+      i++;
 
     if (i < name_len) return findExact(v);
 
