@@ -1,32 +1,16 @@
 #pragma once
 
-#include <memory>
 #include <fstream>
+#include <memory>
 #include <random>
 #include <sstream>
 #include <string>
-#include <zuffix/util/String.hpp>
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
+#include <zuffix/util/String.hpp>
 
 constexpr char dnabase[] = {'A', 'C', 'G', 'T'};
 
-zarr::String<SYMBOLTYPE> file_to_string(std::string filename, bool dollar=false) {
-  std::ifstream file(filename, std::ios::in);
-  file.seekg(0, file.end);
-  int filesize = file.tellg();
-  file.seekg(0, file.beg);
-
-  if (filesize % sizeof(SYMBOLTYPE) != 0) {
-    std::cerr << "Bad file or wrong type: text file can't contain half-symbols\n";
-    exit(-1);
-  }
-
-  std::unique_ptr<char[]> buffer(new char[filesize]);
-  file.read(buffer.get(), filesize);
-  return zarr::String<SYMBOLTYPE>(buffer.get(), filesize, dollar);
-}
-
-zarr::String<char> random_dna(size_t m, bool dollar=false) {
+zarr::String<char> random_dna(size_t m, bool dollar = false) {
   zarr::String<char> result(m, dollar);
 
   static std::random_device rd;
@@ -44,4 +28,33 @@ template <class T> std::string pretty(T value) {
   ss.imbue(std::locale(""));
   ss << std::fixed << value;
   return ss.str();
+}
+
+template <typename T, sux::util::AllocType AT = sux::util::MALLOC>
+std::tuple<std::string, size_t, size_t, std::vector<zarr::String<T, AT>>>
+load_pizzachili_patterns(std::string filename) {
+  std::vector<zarr::String<T, AT>> res;
+  std::ifstream file(filename, std::ios::in);
+
+  std::string header;
+  std::getline(file, header);
+
+  auto get = [&header](std::string item) {
+    auto from = header.find(item) + item.length() + 1;
+    auto len = header.substr(from).find(" ");
+    return header.substr(from, len);
+  };
+
+  auto number = std::atoi(get("number").c_str());
+  auto length = std::atoi(get("length").c_str());
+
+  res.reserve(number);
+  std::unique_ptr<char[]> buffer(new char[length]);
+
+  for (int i = 0; i < number; i++) {
+    file.read(buffer.get(), length);
+    res.push_back(zarr::String<T, AT>(buffer.get(), length));
+  }
+
+  return std::make_tuple(get("file"), number, length, std::move(res));
 }

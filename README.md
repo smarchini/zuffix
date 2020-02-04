@@ -5,8 +5,9 @@ dependencies:
 - download and initialize external modules: `git submodule update --init --recursive`
 - download and extract the Pizza&Chili dataset: `make dataset`
 - generate valid random patterns form dataset files: `make utils`
-  1. automatically `make patterns`
-  2. or manually `./bin/utils/generate_pattern <text file> <bytes per symbol> <symbols> > outfile`
+  1. automatically `make patterns`;
+  2. or manually, using Pizza&Chili utils (see [experiments]) under the
+     `pizzachili` directory.
 
 ## Tests
 
@@ -30,3 +31,4 @@ time measurements display the required arguments if no argument is present.
 
 [gtest]: https://github.com/google/googletest "Google Test"
 [benchmark]: https://github.com/google/benchmark "Google Benchmark"
+[experiments]: http://pizzachili.dcc.uchile.cl/experiments.html "Pizza&Chili Experiments"

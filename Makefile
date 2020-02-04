@@ -72,26 +72,26 @@ dataset/download:
 patterns: utils
 	@mkdir -p pattern
 # dna
-	./bin/utils/generate_pattern ./dataset/dna 1 1 > ./pattern/dna.1
-	./bin/utils/generate_pattern ./dataset/dna 1 1000 > ./pattern/dna.1000
+	./pizzachili/genpatterns ./dataset/dna 1 100 ./pattern/dna.1 || true
+	./pizzachili/genpatterns ./dataset/dna 1000 100 ./pattern/dna.1000 || true
 # dna.50MB
-	./bin/utils/generate_pattern ./dataset/dna.50MB 1 1 > ./pattern/dna.50MB.1
-	./bin/utils/generate_pattern ./dataset/dna.50MB 1 10 > ./pattern/dna.50MB.10
-	./bin/utils/generate_pattern ./dataset/dna.50MB 1 1000000 > ./pattern/dna.50MB.1000000
-	./bin/utils/generate_pattern ./dataset/dna.50MB 1 10000000 > ./pattern/dna.50MB.10000000
-	./bin/utils/generate_pattern ./dataset/dna.50MB 1 50000000 > ./pattern/dna.50MB.50000000
+	./pizzachili/genpatterns ./dataset/dna.50MB 1 100 ./pattern/dna.50MB.1 || true
+	./pizzachili/genpatterns ./dataset/dna.50MB 10 100 ./pattern/dna.50MB.10 || true
+	./pizzachili/genpatterns ./dataset/dna.50MB 1000000 100 ./pattern/dna.50MB.1000000 || true
+	./pizzachili/genpatterns ./dataset/dna.50MB 10000000 100 ./pattern/dna.50MB.10000000 || true
+	./pizzachili/genpatterns ./dataset/dna.50MB 50000000 100 ./pattern/dna.50MB.50000000 || true
 # dna.100MB
-	./bin/utils/generate_pattern ./dataset/dna.100MB 1 1 > ./pattern/dna.100MB.1
-	./bin/utils/generate_pattern ./dataset/dna.100MB 1 10 > ./pattern/dna.100MB.10
-	./bin/utils/generate_pattern ./dataset/dna.100MB 1 1000000 > ./pattern/dna.100MB.1000000
-	./bin/utils/generate_pattern ./dataset/dna.100MB 1 10000000 > ./pattern/dna.100MB.10000000
-	./bin/utils/generate_pattern ./dataset/dna.100MB 1 100000000 > ./pattern/dna.100MB.100000000
+	./pizzachili/genpatterns ./dataset/dna.100MB 1 100 ./pattern/dna.100MB.1 || true
+	./pizzachili/genpatterns ./dataset/dna.100MB 10 100 ./pattern/dna.100MB.10 || true
+	./pizzachili/genpatterns ./dataset/dna.100MB 1000000 100 ./pattern/dna.100MB.1000000 || true
+	./pizzachili/genpatterns ./dataset/dna.100MB 10000000 100 ./pattern/dna.100MB.10000000 || true
+	./pizzachili/genpatterns ./dataset/dna.100MB 100000000 100 ./pattern/dna.100MB.100000000 || true
 # dna.200MB
-	./bin/utils/generate_pattern ./dataset/dna.200MB 1 1 > ./pattern/dna.200MB.1
-	./bin/utils/generate_pattern ./dataset/dna.200MB 1 10 > ./pattern/dna.200MB.10
-	./bin/utils/generate_pattern ./dataset/dna.200MB 1 1000000 > ./pattern/dna.200MB.1000000
-	./bin/utils/generate_pattern ./dataset/dna.200MB 1 10000000 > ./pattern/dna.200MB.10000000
-	./bin/utils/generate_pattern ./dataset/dna.200MB 1 200000000 > ./pattern/dna.200MB.200000000
+	./pizzachili/genpatterns ./dataset/dna.200MB 1 100 ./pattern/dna.200MB.1 || true
+	./pizzachili/genpatterns ./dataset/dna.200MB 10 100 ./pattern/dna.200MB.10 || true
+	./pizzachili/genpatterns ./dataset/dna.200MB 1000000 100 ./pattern/dna.200MB.1000000 || true
+	./pizzachili/genpatterns ./dataset/dna.200MB 10000000 100 ./pattern/dna.200MB.10000000 || true
+	./pizzachili/genpatterns ./dataset/dna.200MB 200000000 100 ./pattern/dna.200MB.200000000 || true
 
 
 .PHONY: clean dataset

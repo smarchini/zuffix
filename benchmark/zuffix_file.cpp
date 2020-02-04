@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <zuffix/ZuffixArray.hpp>
+#include <zuffix/util/String.hpp>
 
 using namespace std;
 using namespace zarr;
@@ -34,21 +35,40 @@ tuple<size_t, chrono::nanoseconds::rep> find(const ZuffixArray<SYMBOLTYPE, spook
   return make_tuple(result, time[reps / 2]);
 }
 
-int main(int argc, char **argv) {
+tuple<chrono::nanoseconds::rep, chrono::nanoseconds::rep>
+stats(vector<chrono::nanoseconds::rep> record) {
+  sort(record.begin(), record.end());
+  auto median = record[record.size() / 2];
+  return make_tuple(median, max(median - record[0], record[record.size() - 1] - median));
+}
 
+int main(int argc, char **argv) {
   if (argc < 3) {
-    cerr << "Not enough parameters: <text> <pattern 1> <pattern 2> ... <pattern n> \n";
+    cerr << "Not enough parameters: <text> <pattern>\n";
     cerr << "To build text and pattern you may want to use Pizza&Chili utils: ";
     cerr << "http://pizzachili.dcc.uchile.cl/experiments.html \n";
     return -1;
   }
 
-  ZuffixArray<SYMBOLTYPE, spooky_hash> za(file_to_string(argv[1], true));
-  cout << "ZuffixArray for text: " << argv[1] << endl;
+  ZuffixArray<SYMBOLTYPE, spooky_hash> za(file_to_string<SYMBOLTYPE>(argv[1], true));
+  cout << "ZuffixArray for text: " << argv[1] << "\n" << endl;
 
   for (size_t i = 2; i < argc; i++) {
-    auto [count, time] = find(za, file_to_string(argv[i]));
-    cout << "\t" << argv[i] << ", count: " << count << ", time: " << pretty(time) << " ns" << endl;
+    auto [file, number, length, p] = load_pizzachili_patterns<SYMBOLTYPE>(argv[i]);
+    cout << "Pattern: " << file << endl;
+
+    vector<chrono::nanoseconds::rep> record;
+    record.reserve(number);
+
+    for (const auto &pattern : p) {
+      auto [count, time] = find(za, pattern);
+      record.push_back(time);
+      cout << "\tlength: " << pattern.length() << ", count: " << count << ", time: " << pretty(time)
+           << " ns" << endl;
+    }
+
+    auto [median, deviation] = stats(record);
+    cout << "Statistics: " << pretty(median) << " ns +/- " << pretty(deviation) << " ns\n" << endl;
   }
 
   return 0;

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <sux/util/Vector.hpp>
 
@@ -60,5 +61,20 @@ public:
   /** Returns the length of the string. */
   inline size_t length() const { return data.size(); }
 };
+
+template <typename T, sux::util::AllocType AT = sux::util::MALLOC>
+String<T, AT> file_to_string(std::string filename, bool dollar = false) {
+  std::ifstream file(filename, std::ios::in);
+  file.seekg(0, file.end);
+  int filesize = file.tellg();
+  file.seekg(0, file.beg);
+
+  assert(filesize % sizeof(T) == 0 &&
+         "Bad file or wrong type: text file can't contain half-symbols");
+
+  std::unique_ptr<char[]> buffer(new char[filesize]);
+  file.read(buffer.get(), filesize);
+  return zarr::String<T, AT>(buffer.get(), filesize, dollar);
+}
 
 } // namespace zarr
