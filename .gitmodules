@@ -7,3 +7,6 @@
 [submodule "externals/sux"]
 	path = external/sux
 	url = git@github.com:vigna/sux.git
+[submodule "external/sdsl-lite"]
+	path = external/sdsl-lite
+	url = git@github.com:simongog/sdsl-lite.git

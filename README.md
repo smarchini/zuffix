@@ -2,7 +2,7 @@
 
 After cloning the repository it is necessary to download some external
 dependencies:
-- download and initialize external modules: `git submodule update --init --recursive`
+- download and initialize external modules: `make external`
 - download and extract the Pizza&Chili dataset: `make dataset`
 - generate valid random patterns form dataset files: `make utils`
   1. automatically `make patterns`;

@@ -10,7 +10,7 @@ external: external/init external/sdsl external/r-index
 external/init:
 	git submodule update --init --recursive
 
-external/sdsl: external/init bin/r-index/*
+external/sdsl: external/init
 	sed -i 's/$${HOME}/.\/external\/sdsl-lite\/install/' ./external/sdsl-lite/install.sh
 	./external/sdsl-lite/install.sh
 
