@@ -4,6 +4,28 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./external/sux/ -I./external
 
 all: test benchmark
 
+# EXTERNAL
+external: external/init external/sdsl external/r-index
+
+external/init:
+	git submodule update --init --recursive
+
+external/sdsl: external/init bin/r-index/*
+	sed -i 's/$${HOME}/.\/external\/sdsl-lite\/install/' ./external/sdsl-lite/install.sh
+	./external/sdsl-lite/install.sh
+
+external/r-index: external/init external/sdsl
+	sed -i 's/\~\/include/$${PROJECT_SOURCE_DIR}\/..\/sdsl-lite\/install\/include/' ./external/r-index/CMakeLists.txt
+	sed -i 's/\~\/lib/$${PROJECT_SOURCE_DIR}\/..\/sdsl-lite\/install\/lib/' ./external/r-index/CMakeLists.txt
+	mkdir -p ./external/r-index/build/
+	cmake -B ./external/r-index/build/ ./external/r-index/
+	make -C ./external/r-index/build
+	mkdir -p bin/r-index
+	cp ./external/r-index/build/ri-build ./bin/r-index/
+	cp ./external/r-index/build/ri-count ./bin/r-index/
+	cp ./external/r-index/build/ri-locate ./bin/r-index/
+
+
 # TEST
 test: bin/test/zuffix bin/test/random
 	./bin/test/zuffix --gtest_color=yes
