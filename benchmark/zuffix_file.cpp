@@ -36,10 +36,17 @@ tuple<size_t, chrono::nanoseconds::rep> find(const ZuffixArray<SYMBOLTYPE, spook
 }
 
 tuple<chrono::nanoseconds::rep, chrono::nanoseconds::rep>
-stats(vector<chrono::nanoseconds::rep> record) {
-  sort(record.begin(), record.end());
-  auto median = record[record.size() / 2];
-  return make_tuple(median, max(median - record[0], record[record.size() - 1] - median));
+median(vector<chrono::nanoseconds::rep> record) {
+  auto n = record.size();
+  auto mid = record[n / 2];
+  return make_tuple(mid, max(mid - record[0], record[n - 1] - mid));
+}
+
+tuple<chrono::nanoseconds::rep, chrono::nanoseconds::rep>
+average(vector<chrono::nanoseconds::rep> record) {
+  auto n = record.size();
+  auto avg = accumulate(begin(record), end(record), .0) / n;
+  return make_tuple(avg, avg - record[0]);
 }
 
 int main(int argc, char **argv) {
@@ -55,20 +62,27 @@ int main(int argc, char **argv) {
 
   for (size_t i = 2; i < argc; i++) {
     auto [file, number, length, p] = load_pizzachili_patterns<SYMBOLTYPE>(argv[i]);
-    cout << "Pattern: " << file << endl;
+    cout << "Pattern: " << argv[i] << endl;
 
+    uint64_t sum = 0;
     vector<chrono::nanoseconds::rep> record;
     record.reserve(number);
 
     for (const auto &pattern : p) {
       auto [count, time] = find(za, pattern);
+      sum += count;
       record.push_back(time);
       cout << "\tlength: " << pattern.length() << ", count: " << count << ", time: " << pretty(time)
            << " ns" << endl;
     }
 
-    auto [median, deviation] = stats(record);
-    cout << "Statistics: " << pretty(median) << " ns +/- " << pretty(deviation) << " ns\n" << endl;
+    sort(begin(record), end(record));
+    auto [med, devmed] = median(record);
+    auto [avg, devavg] = average(record);
+    cout << "Total number of occurrences: " << sum << endl;
+    cout << "Median time: " << pretty(med) << " ns +/- " << pretty(devmed) << " ns\n";
+    cout << "Average time: " << pretty(avg) << " ns +/- " << pretty(devavg) << " ns\n";
+    cout << "Total time: " << accumulate(begin(record), end(record), .0) / 1000000 << " ms" << endl;
   }
 
   return 0;
