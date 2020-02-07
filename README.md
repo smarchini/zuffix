@@ -9,6 +9,10 @@ dependencies:
   2. or manually, using Pizza&Chili utils (see [experiments]) under the
      `pizzachili` directory.
 
+The external modules consists in [sux] library for internal use, [r-index] and
+[CSA++] data structures for benchmarks/tests comparison and [sdsl-lite] library
+(required by r-index and CSA++).
+
 ## Tests
 
 To build and run tests (requires [gtest]):
@@ -28,7 +32,12 @@ Binaries which use Google Test and Google Benchmark may use some (optional)
 arguments, for more information use `--help`. Binaries which use C++'s STL for
 time measurements display the required arguments if no argument is present.
 
-
 [gtest]: https://github.com/google/googletest "Google Test"
 [benchmark]: https://github.com/google/benchmark "Google Benchmark"
+
+[sux]: https://github.com/vigna/sux "Sux"
+[sdsl-lite]: https://github.com/simongog/sdsl-lite "Succinct Data Structure Library"
+[r-index]: https://github.com/nicolaprezza/r-index "Prezza's r-index"
+[CSA++]: https://github.com/mpetri/benchmark-suffix-array "Petri's CSA++"
+
 [experiments]: http://pizzachili.dcc.uchile.cl/experiments.html "Pizza&Chili Experiments"

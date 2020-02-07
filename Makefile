@@ -2,10 +2,10 @@ DEBUG = -g -O0
 RELEASE = -g -O3 -DNDEBUG
 CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./external/sux/ -I./external/ -I./ -lgtest -lbenchmark
 
-all: test benchmark
+all: external test benchmark
 
 # EXTERNAL
-external: external/init external/sdsl external/r-index
+external: external/init external/sdsl external/r-index external/CSApp
 
 external/init:
 	git submodule update --init --recursive
@@ -19,12 +19,20 @@ external/r-index: external/init external/sdsl
 	sed -i 's/\~\/lib/$${PROJECT_SOURCE_DIR}\/..\/sdsl-lite\/install\/lib/' ./external/r-index/CMakeLists.txt
 	mkdir -p ./external/r-index/build/
 	cmake -B ./external/r-index/build/ ./external/r-index/
-	make -C ./external/r-index/build
+	make -j8 -C ./external/r-index/build
 	mkdir -p bin/r-index
 	cp ./external/r-index/build/ri-build ./bin/r-index/
 	cp ./external/r-index/build/ri-count ./bin/r-index/
 	cp ./external/r-index/build/ri-locate ./bin/r-index/
 
+external/CSApp: external/init
+	rm external/CSApp/test_cases.config
+	touch external/CSApp/test_cases.config
+	mkdir -p ./external/CSApp/build/
+	cmake -B ./external/CSApp/build/ ./external/CSApp/
+	make -j8 -C ./external/CSApp/build/
+	mkdir -p bin/CSApp
+	cp ./external/CSApp/build/*.x ./bin/CSApp
 
 # TEST
 test: bin/test/zuffix bin/test/random
@@ -75,7 +83,8 @@ pizzachili:
 	aunpack -X ./pizzachili -e ./pizzachili/utils.tar.gz
 	mv ./pizzachili/utils/* ./pizzachili
 	rmdir ./pizzachili/utils
-	make -C ./pizzachili
+	make -j8 -C ./pizzachili
+
 
 # DATASET
 dataset: dataset/download
