@@ -24,6 +24,7 @@
 // the CRCs of wholes.  There are also cryptographic hashes, but those are even 
 // slower than MD5.
 //
+#pragma once
 
 #include <stddef.h>
 
@@ -289,6 +290,3 @@ private:
     size_t m_length;             // total length of the input so far
     uint8  m_remainder;          // length of unhashed data stashed in m_data
 };
-
-
-

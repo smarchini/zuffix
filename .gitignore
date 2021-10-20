@@ -4,4 +4,4 @@ pattern/
 pizzachili/
 externals/
 compile_commands.json
-.clangd/
+.cache/
