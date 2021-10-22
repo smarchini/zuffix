@@ -1,26 +1,53 @@
 #!/usr/bin/env python3
 import random
 import string
+import gmpy2
 from time import sleep
 
-# Use '~'=chr(127) instead of '$'=chr(36)
+#-------------------------------------------------------------------------------
+# Functions
+#-------------------------------------------------------------------------------
 def randstr(n, dollar=False):
     s = ''.join(random.choices(list('abc'), k=n))
+    # Use '~'=chr(127) instead of '$'=chr(36)
     return s[:-1] + '~' if dollar else s
 
-def lcp(a, b):
-    i = 0
-    while i < len(a) and i < len(b) and a[i] == b[i]:
-        i += 1
-    return i
+def nu(j):
+    assert j >= 0, "nu is undefined"
+    return bin(j)[2:].count('1')
 
+def rho(j):
+    assert j != 0, "rho is inf"
+    return gmpy2.bit_scan1(j)
+
+def lbda(j):
+    assert j > 0, "lambda is undefined"
+    return len(bin(j)[2:]) - 1
+
+def twoFattest(x, y):
+    allone = (1 << 64) - 1
+    return y & (allone << lbda(x ^ y))
+
+def twoFattestL(x, y):
+    return twoFattest(x+1, y-1)
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# Suffix array construction algorithms
+#-------------------------------------------------------------------------------
 def saca(T):
     return sorted(range(len(T)), key=lambda i: T[i:])
 
 def lcpca(T, SA):
     return [-1] + [ lcp(T[SA[i]:], T[SA[i+1]:]) for i in range(len(SA)-1) ] + [-1]
 
-def ctca(LCP):
+def lcp(a, b):
+    i = 0
+    while i < len(a) and i < len(b) and a[i] == b[i]: i += 1
+    return i
+
+def udnca(LCP):
     n = len(LCP) - 1
     up, down, nextl = [0]*(n+1), [0]*(n+1), [0]*(n+1)
     stack = [0]
@@ -40,7 +67,7 @@ def ctca(LCP):
     assert stack == [0]
     return (up, down, nextl)
 
-def cldca(LCP, UP, DOWN, NEXT):
+def ctca3(LCP, UP, DOWN, NEXT):
     n = len(LCP) - 1
     CLD = [-10000] * n
     CLD[0] = NEXT[0]
@@ -51,7 +78,7 @@ def cldca(LCP, UP, DOWN, NEXT):
     CLD[n-1] = UP[n]
     return CLD
 
-def cldca2(LCP):
+def ctca(LCP):
     n = len(LCP) - 1
     CT = [0] * n
     stack = [0]
@@ -70,20 +97,24 @@ def cldca2(LCP):
     stack.pop()
     assert stack == [0]
     return CT
+#-------------------------------------------------------------------------------
 
-def getlcp(i, j, LCP, UP, DOWN):
+
+#-------------------------------------------------------------------------------
+# Suffix array traversal algorithms
+#-------------------------------------------------------------------------------
+def getlcp3(i, j, LCP, UP, DOWN):
     if i < UP[j] < j:
         return LCP[UP[j]]
     return LCP[DOWN[i]]
 
-def getlcp2(i, j, LCP, CT):
+def getlcp(i, j, LCP, CT):
     if i < CT[j-1] < j:
         return LCP[CT[j-1]]
     return LCP[CT[i]]
 
-#print(f'l = {l}, r = {r}, T[{SA[l]}] = {T[SA[l]]}, T[{SA[r]}] = {T[SA[r]]}, NEXT[{r}] = {NEXT[r]}')
-def getChild(T, SA, LCP, UP, DOWN, NEXT, i, j, a): # d = profondità (in caratteri) del livello
-    d = getlcp(i, j, LCP, UP, DOWN)
+def getChild3(T, SA, LCP, UP, DOWN, NEXT, i, j, a):
+    d = getlcp3(i, j, LCP, UP, DOWN)
     l = i
     if i < UP[j] < j:
         r = UP[j]
@@ -91,16 +122,14 @@ def getChild(T, SA, LCP, UP, DOWN, NEXT, i, j, a): # d = profondità (in caratte
         r = DOWN[i]
     assert d == LCP[r]
     while r != 0 and (SA[l] + d >= len(T) or T[SA[l] + d] != a):
-        #if SA[l] + d < len(T) and T[SA[l] + d] == a: break
         l = r
+        if NEXT[r] == 0:
+            return (l, j)
         r = NEXT[r]
-    if r == 0:
-        r = j
-    if SA[l] + d < len(T) and T[SA[l] + d] == a:
-        return (l, r)
+    if SA[l] + d < len(T) and T[SA[l] + d] == a: return (l, r)
     return (0, -1)
 
-def getChild2(T, SA, LCP, CT, i, j, a):
+def getChild(T, SA, LCP, CT, i, j, a):
     l = i
     if i < CT[j-1] < j:
         r = CT[j-1]
@@ -109,151 +138,144 @@ def getChild2(T, SA, LCP, CT, i, j, a):
     d = LCP[r]
     while l < r and (SA[l] + d >= len(T) or T[SA[l] + d] != a):
         l = r
-        print(f'l = {l}, r = {r}, d = {d}, c = {a}, lcp[r] = {LCP[r]}, lcp[ct[r]] = {LCP[CT[r]]}')
-        if LCP[r] != LCP[CT[r]]:
+        if LCP[r] != LCP[CT[r]] or LCP[r] > LCP[r+1]:
             return (l, j)
         r = CT[r]
-        print(f'l = {l}, r = {r}, sa[l] + d = {SA[l] + d}, t[sa[l] + d] = {T[SA[l] + d]}, c = {a}' )
+    if SA[l] + d < len(T) and T[SA[l] + d] != a: return (0, -1)
     return (l, r)
-
-def isEmpty(i, j):
-    return j <= i
-
-def enhancedStringSearch(T, P, LCP, UP, DOWN, NEXT):
-    found = True
-    c = 0
-    i, j = getChild(T, SA, LCP, UP, DOWN, NEXT, 0, len(T), P[0])
-    print(f'getChild(T, SA, LCP, UP, DOWN, NEXT, {i}, {j}, "{P[c]}")')
-    while not isEmpty(i, j) and c < len(P) and found:
-        if j - i > 1:
-            d = getlcp(i, j, LCP, UP, DOWN)
-            print(f'd = {d}')
-            m = min(d, len(P))
-            found = T[SA[i] + c : SA[i] + m] == P[c : m] # occhio a - 1
-            c = m
-            if c < len(P):
-                print(f'c = {c}, getChild(T, SA, LCP, UP, DOWN, NEXT, {i}, {j}, "{P[c]}")')
-                i, j = getChild(T, SA, LCP, UP, DOWN, NEXT, i, j, P[c])
-        else:
-            found = T[SA[i] + c : SA[i] + len(P)] == P[c : ]# occhio a - 1
-            print(f'else: found = {found} = T[{SA[i]} + {c} : {SA[i]} + {len(P)}] == P[{c} : ]')
-            break
-    if found and not isEmpty(i, j):
-        return (i, j)
-    else:
-        return "non trovato"
+#-------------------------------------------------------------------------------
 
 
-def enhancedStringSearch(T, P, LCP, UP, DOWN, NEXT):
-    found = True
-    c, i, j = 0, 0, len(T)
-    while c < len(P) and not isEmpty(i, j):
-        i, j = getChild(T, SA, LCP, UP, DOWN, NEXT, i, j, P[c])
-        d = getlcp(i, j, LCP, UP, DOWN)
-        print(f'child = [{i}, {j}), d = {d}')
-        if d == -1: d = len(T)
-        m = min(d, len(P))
-        found = T[SA[i] + c : SA[i] + m] == P[c : m] # occhio a - 1
-        c = m
-    if found and not isEmpty(i, j):
-        return (i, j)
-    else:
-        return "non trovato"
-
-def enhancedStringSearch2(T, P, LCP, CT):
-    found = True
-    c, i, j = 0, 0, len(T)
-    while c < len(P) and not isEmpty(i, j):
-        i, j = getChild2(T, SA, LCP, CT, i, j, P[c])
-        d = getlcp2(i, j, LCP, CT)
-        print(f'd = {d}')
-        if d <= 0: d = len(T)
-        m = min(d, len(P))
-        print(f'i = {i}, j = {j}, d = {d}, m = {m}, c = {c}')
-        found = T[SA[i] + c : SA[i] + m] == P[c : m] # occhio a - 1
-        c = m
-    if found and not isEmpty(i, j):
-        return (i, j)
-    else:
-        return "non trovato"
-
-
-
-T = 'ttatctctta'
-SA = saca(T)
-LCP = lcpca(T, SA)
-UP, DOWN, NEXT = ctca(LCP)
-CT = cldca2(LCP)
-assert CT == cldca(LCP, UP, DOWN, NEXT)
-enhancedStringSearch(T, "ta", LCP, UP, DOWN, NEXT)
-enhancedStringSearch2(T, "ta", LCP, CT)
-enhancedStringSearch(T, "t", LCP, UP, DOWN, NEXT)
-enhancedStringSearch2(T, "t", LCP, CT)
-enhancedStringSearch(T, "tac", LCP, UP, DOWN, NEXT)
-enhancedStringSearch2(T, "tac", LCP, CT)
-
-
-T = 'abracadabra~'
-SA = saca(T)
-LCP = lcpca(T, SA)
-UP, DOWN, NEXT = ctca(LCP)
-CT = cldca2(LCP)
-assert CT == cldca(LCP, UP, DOWN, NEXT)
-enhancedStringSearch(T, "ab", LCP, UP, DOWN, NEXT)
-enhancedStringSearch2(T, "ab", LCP, CT)
-enhancedStringSearch(T, "t", LCP, UP, DOWN, NEXT)
-enhancedStringSearch2(T, "t", LCP, CT)
-enhancedStringSearch(T, "aba", LCP, UP, DOWN, NEXT)
-enhancedStringSearch2(T, "aba", LCP, CT)
-
-
-
+#-------------------------------------------------------------------------------
+# Simple search algorithms
+#-------------------------------------------------------------------------------
 def binarySearchSA(T, P, SA, l, r):
-    if r < l: return (l, r)
+    if r <= l: return (l, r)
     c = (l + r) // 2
     i = 0
     while i < len(P):
-        if P[i] < T[SA[c] + i]: return binarySearchSA(T, P, SA, l, c-1)
+        if P[i] < T[SA[c] + i]: return binarySearchSA(T, P, SA, l, c)
         if P[i] > T[SA[c] + i]: return binarySearchSA(T, P, SA, c+1, r)
         i += 1
-    L = binarySearchSA(T, P, SA, l, c-1)
+    L = binarySearchSA(T, P, SA, l, c)
     R = binarySearchSA(T, P, SA, c+1, r)
     return (min(c, L[0]), max(c, R[1]))
 
 def acceleratedBinarySearchSA(T, P, SA, l, r, llcp, rlcp):
-    if r < l: return (l, r)
+    if r <= l: return (l, r)
     c = (l + r) // 2
     i = min(llcp, rlcp)
     while i < len(P) and SA[c] + i < len(T):
-        if P[i] < T[SA[c] + i]: return acceleratedBinarySearchSA(T, P, SA, l, c-1, llcp, i)
+        if P[i] < T[SA[c] + i]: return acceleratedBinarySearchSA(T, P, SA, l, c, llcp, i)
         if P[i] > T[SA[c] + i]: return acceleratedBinarySearchSA(T, P, SA, c+1, r, i, rlcp)
         i += 1
-    L = acceleratedBinarySearchSA(T, P, SA, l, c-1, llcp, i)
+    L = acceleratedBinarySearchSA(T, P, SA, l, c, llcp, i)
     R = acceleratedBinarySearchSA(T, P, SA, c+1, r, i, rlcp)
     return (min(c, L[0]), max(c, R[1]))
+#-------------------------------------------------------------------------------
 
-def testSome(n):
+
+#-------------------------------------------------------------------------------
+# Enhanced search algorithms
+#-------------------------------------------------------------------------------
+def enhancedStringSearch(T, P, SA, LCP, CT):
+    c = 0
+    i, j = 0, len(T)
+    while i < j and c < len(P):
+        i, j = getChild(T, SA, LCP, CT, i, j, P[c])
+        if j - i == 1:
+            if SA[i] + len(P) > len(T): return (1, 0)
+            elif T[SA[i] + c : SA[i] + len(P)] != P[c : len(P)]: return (1, 0)
+            break
+        d = getlcp(i, j, LCP, CT)
+        d = min(d, len(P))
+        if T[SA[i] + c : SA[i] + d] != P[c : d]: return (1, 0)
+        c = d
+    return (i, j)
+
+def enhancedStringSearch3(T, P, SA, LCP, UP, DOWN, NEXT):
+    c = 0
+    i, j = 0, len(T)
+    while i < j and c < len(P):
+        i, j = getChild3(T, SA, LCP, UP, DOWN, NEXT, i, j, P[c])
+        if j - i == 1: # it is a leaf
+            if SA[i] + len(P) > len(T): return (1, 0)
+            elif T[SA[i] + c : SA[i] + len(P)] != P[c : len(P)]: return (1, 0)
+            break
+        d = getlcp3(i, j, LCP, UP, DOWN)
+        d = min(d, len(P))
+        if T[SA[i] + c : SA[i] + d] != P[c : d]: return (1, 0)
+        c = d
+    return (i, j)
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# TODO Zuffification
+#-------------------------------------------------------------------------------
+#def zfill(Z, T, LCP, CT, i, j, name):
+#    if i <= j + 1: return  # leaves are not in Z
+#    # l, r = getChild2(T, SA, LCP, CT, i, j, a): TODO integrarla
+#    handle = twoFattest(name - 1, extent)
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# Test: ttatctctta
+#-------------------------------------------------------------------------------
+T = 'ttatctctta'
+SA = saca(T)
+LCP = lcpca(T, SA)
+UP, DOWN, NEXT = udnca(LCP)
+CT = ctca(LCP)
+assert CT == ctca3(LCP, UP, DOWN, NEXT)
+# print me if you want
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# Test: abracadabra~
+#-------------------------------------------------------------------------------
+T = 'abracadabra~'
+SA = saca(T)
+LCP = lcpca(T, SA)
+UP, DOWN, NEXT = udnca(LCP)
+CT = ctca(LCP)
+assert CT == ctca3(LCP, UP, DOWN, NEXT)
+# print me if you want
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
+# Test: random strings
+#-------------------------------------------------------------------------------
+def assertMatch(T, P, SA, l, r):
+    for i in range(l, r): # [l, r)
+        assert T[SA[i] : SA[i] + len(P)] == P
+
+def testRandom(n):
     cnt = 0
     for i in range(1, n):
         T = randstr(n, dollar=True)
-        P = randstr(random.randint(1, 10))
+        P = randstr(random.randint(1, min(10, len(T))))
         SA = saca(T)
-        x = binarySearchSA(T, P, SA, 0, len(T) - 1)
-        y = acceleratedBinarySearchSA(T, P, SA, 0, len(T) - 1, 0, 0)
-        if x != y:
-            print(f"Error: {x} != {y}")
-            return
-        elif x[0] <= x[1]:
-            print(f'T = {T}, P = {P}, count = {x[1] - x[0] + 1}')
+        LCP = lcpca(T, SA)
+        UP, DOWN, NEXT = udnca(LCP)
+        CT = ctca(LCP)
+        assert CT == ctca3(LCP, UP, DOWN, NEXT)
+        (l1, r1) = binarySearchSA(T, P, SA, 0, len(T)-1)
+        (l2, r2) = acceleratedBinarySearchSA(T, P, SA, 0, len(T)-1, 0, 0)
+        (l3, r3) = enhancedStringSearch(T, P, SA, LCP, CT)
+        (l4, r4) = enhancedStringSearch3(T, P, SA, LCP, UP, DOWN, NEXT)
+        if l1 >= r1 or l2 >= r2 or l3 >= r3:
+            assert l1 >= r1 and l2 >= r2 and l3 >= r3 and l4 >= r4, f'Expected: {l1} >= {r1} and {l2} >= {r2} and {l3} >= {r3} and {l4} >= {r4}'
+        else:
+            assert l1 == l2 == l3 == l4 and r1 == r2 == r3 == r4, f'Expected: {l1} == {r1} and {l2} == {r2} and {l3} == {r3} and {l4} == {r4}'
+            assertMatch(T, P, SA, l1, r1)
             cnt += 1
     return cnt
 
-T = 'abracadabra~'
-P = 'a'
-SA = saca(T)
-print(SA)
-print(binarySearchSA(T, P, SA, 0, len(T)-1))
-print(acceleratedBinarySearchSA(T, P, SA, 0, len(T)-1, 0, 0))
-
-for p in [ "0", "z", "bracad", "abracad", "abracadabra" ]:
-    print(p, "=>", acceleratedBinarySearchSA(T, p, SA, 0, len(T)-1, 0, 0))
+for _ in range(100): testRandom(10)
+for _ in range(100): testRandom(100)
+for _ in range(100): testRandom(127)
+#-------------------------------------------------------------------------------
