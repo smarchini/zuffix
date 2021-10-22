@@ -32,13 +32,13 @@ template <class T> class LInterval {
 	 *
 	 * @return true if the interval is empty, false otherwise
 	 */
-	bool isEmpty() const { return to < from; }
+	bool isEmpty() const { return to <= from; }
 
 	/** Check if the interval is a point interval
 	 *
 	 * @return true if the interval is in a singleton, false otherwise
 	 */
-	bool isSingleton() const { return to == from; }
+	bool isSingleton() const { return from + 1 == to; }
 
 	// TODO Convert (from and to) different kind of intervals and compare
 

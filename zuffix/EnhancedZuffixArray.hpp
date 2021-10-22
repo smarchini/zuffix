@@ -8,19 +8,22 @@
 #include <sux/support/common.hpp>
 #include <sux/util/Vector.hpp>
 #include <tuple>
+#include <unordered_map>
 
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T> class EnhancedSuffixArray {
+template <typename T, hash_function hash> class EnhancedZuffixArray {
   private:
 	const String<T> text;
 	const Vector<size_t> sa;
 	const Vector<ssize_t> lcp;
 	const Vector<size_t> ct;
+	const std::unordered_map<size_t, size_t> zmap;
 
   public:
-	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
+	EnhancedZuffixArray(String<T> string)
+		: text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)), zmap(ZMapConstructByTraversal(0, text.length(), 0)) {}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
 		size_t l = i;
@@ -28,13 +31,9 @@ template <typename T> class EnhancedSuffixArray {
 		ssize_t d = lcp[r];
 		while (l < r && (sa[l] + d >= text.length() || text[sa[l] + d] != c)) {
 			l = r;
-			if (lcp[r] != lcp[ct[r]] || lcp[r] > lcp[r + 1]) return {l, j};
+			if (lcp[r] != lcp[ct[r]]) return {l, j};
 			r = ct[r];
 		}
-
-		// Note: The following line is unnecessary if getChild is only called by find.
-		if (sa[l] + d >= text.length() || text[sa[l] + d] != c) return {1, 0};
-
 		return {l, r};
 	}
 
@@ -43,14 +42,9 @@ template <typename T> class EnhancedSuffixArray {
 		size_t i = 0, j = text.length();
 		while (c < pattern.length() && i < j) {
 			std::tie(i, j) = getChild(i, j, pattern[c]);
-
-			if (j - i == 1) {
-				for (size_t k = c; k < pattern.length(); k++)
-					if (text[sa[i] + k] != pattern[k]) return {1, 0};
-				break;
-			}
-
-			size_t d = min(static_cast<size_t>(getlcp(i, j)), pattern.length());
+			ssize_t d = getlcp(i, j);
+			if (d <= 0) d = text.length();
+			d = min(static_cast<size_t>(d), pattern.length());
 			for (size_t k = c; k < d; k++)
 				if (text[sa[i] + k] != pattern[k]) return {1, 0};
 			c = d;
@@ -68,6 +62,10 @@ template <typename T> class EnhancedSuffixArray {
 
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
+
+	std::unordered_map<size_t, size_t> ZMapConstructByTraversal(size_t i, size_t j, size_t name) {
+
+    }
 };
 
 } // namespace zarr

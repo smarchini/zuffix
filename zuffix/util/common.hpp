@@ -10,6 +10,13 @@ namespace zarr {
 using namespace sux;
 using namespace sux::util;
 
+/** Hash function type
+ *
+ * Prefer template parameters to function pointers, so the compiler can perform
+ * inlining.
+ */
+typedef uint64_t (*hash_function)(const void *, size_t);
+
 /** 2-fattest number in the (a, b] interval
  *
  * The two fattest number within an interval is the number with most trailing

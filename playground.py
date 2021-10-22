@@ -150,6 +150,7 @@ def getChild(T, SA, LCP, CT, i, j, a):
 # Simple search algorithms
 #-------------------------------------------------------------------------------
 def binarySearchSA(T, P, SA, l, r):
+    assert l != -1 and r != -1
     if r <= l: return (l, r)
     c = (l + r) // 2
     i = 0
@@ -162,8 +163,10 @@ def binarySearchSA(T, P, SA, l, r):
     return (min(c, L[0]), max(c, R[1]))
 
 def acceleratedBinarySearchSA(T, P, SA, l, r, llcp, rlcp):
+    assert l != -1 and r != -1
     if r <= l: return (l, r)
     c = (l + r) // 2
+    assert c == l + (r - l) // 2
     i = min(llcp, rlcp)
     while i < len(P) and SA[c] + i < len(T):
         if P[i] < T[SA[c] + i]: return acceleratedBinarySearchSA(T, P, SA, l, c, llcp, i)

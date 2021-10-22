@@ -1,13 +1,6 @@
 #pragma once
 
-#include <SpookyV2.h>
-#include <gtest/gtest.h>
-#include <iostream>
-#include <string>
-#include <unordered_set>
-#include <zuffix/EnhancedSuffixArray.hpp>
-#include <zuffix/random/xoroshiro128plus_engine.hpp>
-#include <zuffix/util/String.hpp>
+#include "util.hpp"
 
 TEST(EnhancedSuffixArray, abracadabra) {
 	std::string t("ABRACADABRA");
@@ -25,10 +18,10 @@ TEST(EnhancedSuffixArray, abracadabra) {
 	const size_t ct[12] = {12, 1, 3, 4, 2, 7, 6, 8, 9, 11, 10, 5};
 	for (size_t i = 0; i < 12; i++) EXPECT_EQ(enhanced.getCT()[i], ct[i]) << "at index " << i;
 
-	EXPECT_EQ(enhanced.find(stringToString("0")), zarr::LInterval<size_t>(1, 0));
-	EXPECT_EQ(enhanced.find(stringToString("Z")), zarr::LInterval<size_t>(1, 0));
-	EXPECT_EQ(enhanced.find(stringToString("ABRACADABR0")), zarr::LInterval<size_t>(1, 0));
-	EXPECT_EQ(enhanced.find(stringToString("ABRACADABRZ")), zarr::LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(stdToZarr("0")), zarr::LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(stdToZarr("Z")), zarr::LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(stdToZarr("ABRACADABR0")), zarr::LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(stdToZarr("ABRACADABRZ")), zarr::LInterval<size_t>(1, 0));
 
 	// // clang-format off
 	std::string patterns[] = {"A",      "B",      "C",      "D",       "R",       "AB",      "BR",       "CA",       "DA",        "RA",         "ABR",
@@ -38,7 +31,6 @@ TEST(EnhancedSuffixArray, abracadabra) {
 
 	for (auto p : patterns) {
 		auto match = enhanced.find(zarr::String<char>(p));
-
 		EXPECT_LE(match.from, match.to) << " on pattern: " << p;
 		for (size_t i = match.from; i < match.to; i++) EXPECT_EQ(t.substr(sa[i], p.length()), p) << t.substr(sa[i], p.length()) << " != " << p;
 	}

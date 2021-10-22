@@ -15,3 +15,5 @@ sux::util::Vector<char> stringToVector(std::string string) {
 	for (size_t i = 0; i < length; i++) result[i] = string[i];
 	return result;
 }
+
+zarr::String<char> stringToString(std::string string, bool dollar = false) { return zarr::String<char>(string, dollar); }

@@ -1,7 +1,8 @@
-//#include "zuffix.hpp"
+#include <gtest/gtest.h>
+
 #include "EnhancedSuffixArray.hpp"
 #include "SimpleSuffixArray.hpp"
-#include <gtest/gtest.h>
+#include "AllTheSame.hpp"
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);
