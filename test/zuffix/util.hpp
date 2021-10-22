@@ -11,7 +11,7 @@
 #include <zuffix/SimpleSuffixArray.hpp>
 #include <zuffix/EnhancedSuffixArray.hpp>
 
-zarr::String<char> stdToZarr(std::string string, bool dollar = false) { return zarr::String<char>(string, dollar); }
+inline zarr::String<char> stdToZarr(std::string string, bool dollar = false) { return zarr::String<char>(string, dollar); }
 
 template <typename T> sux::util::Vector<T> stdToZarr(const T *array, size_t length) {
 	sux::util::Vector<T> result(length);
@@ -26,11 +26,11 @@ template <typename T> sux::util::Vector<T> stdToZarr(const T *array, size_t leng
 // 	return result;
 // }
 
-std::string randstring(const char *charset, size_t length) {
+inline std::string randstring(std::string charset, size_t length) {
 	std::string result;
 	std::random_device rd;
 	zarr::xoroshiro128plus_engine rng(rd());
-	std::uniform_int_distribution<size_t> dist(0, length);
+	std::uniform_int_distribution<size_t> dist(0, charset.length());
 
 	result.reserve(length);
 	for (size_t i = 0; i < length; i++) result += charset[dist(rng)];
