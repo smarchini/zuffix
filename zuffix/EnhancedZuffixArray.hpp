@@ -45,7 +45,7 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		// TODO assert n_[i,j) \preceq P
 		for (size_t k = nlen; k < elen & k < pattern.length(); k++)
-		 	if (pattern[k] != text[sa[i] + k]) return {1, 0};
+			if (pattern[k] != text[sa[i] + k]) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -56,15 +56,15 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
 		size_t i = 0, j = text.length();
-		size_t l = 1, r = pattern.length();
-		while (l <= r) {
-			size_t f = twoFattestLR(l, r);
-			LInterval<size_t> beta = unpack(z[hash(&pattern, f-1)]);
+		size_t l = 0, r = pattern.length();
+		while (l < r) {
+			size_t f = twoFattestR(l, r);
+			LInterval<size_t> beta = unpack(z[hash(&pattern, f - 1)]);
 			if (beta.isEmpty()) {
 				r = f - 1;
 			} else {
-				l = getlcp(l, r);
 				std::tie(i, j) = beta;
+				l = getlcp(i, j) + 1;
 			}
 		}
 		return {i, j};
@@ -101,9 +101,9 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 		ZFillByDFS(l, j, elen + 1);
 	}
 
-	size_t pack(LInterval<size_t> x) { return x.from << 32 | x.to; }
+	size_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 
-	LInterval<size_t> unpack(size_t x) { return {x >> 32, x & 0xffff}; }
+	LInterval<size_t> unpack(size_t x) const { return {x >> 32, x & 0xffff}; }
 };
 
 } // namespace zarr

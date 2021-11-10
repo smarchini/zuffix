@@ -26,6 +26,15 @@ typedef uint64_t (*hash_function)(const void *, size_t);
  */
 inline int64_t twoFattest(size_t a, size_t b) { return (1L << 63) >> __builtin_clzll(a ^ b) & b; }
 
+/** 2-fattest number in the (a, b] interval
+ *
+ * The two fattest number within an interval is the number with most trailing
+ * zeros in binary.
+ *
+ * @return 2-fattest number in (a, b], undefined if a = b
+ */
+inline int64_t twoFattestR(size_t a, size_t b) { return (1L << 63) >> __builtin_clzll(a ^ b) & b; }
+
 /** 2-fattest number in the [a, b] interval
  *
  * The two fattest number within an interval is the number with most trailing
@@ -34,8 +43,8 @@ inline int64_t twoFattest(size_t a, size_t b) { return (1L << 63) >> __builtin_c
  * @return 2-fattest number in [a, b], which is 0 if a <= 0 <= b
  */
 inline int64_t twoFattestLR(size_t a, size_t b) {
-  if (a == 0) return 0;
-  return (1L << 63) >> __builtin_clzll(a ^ b) & b;
+	if (a == 0) return 0;
+	return (1L << 63) >> __builtin_clzll(a - 1 ^ b) & b;
 }
 
 /** Suffix array construction algorithm by explicit sort

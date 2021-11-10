@@ -244,12 +244,12 @@ def dfs(T, LCP, CT, i, j, depth=0):
             break
         r = CT[r]
 
-def zca(T, LCP, CT):
+def zca(T, SA, LCP, CT):
     Z = dict()
-    zfill(Z, T, LCP, CT, 0, len(T), 0)
+    zfill(Z, T, SA, LCP, CT, 0, len(T), 0)
     return Z
 
-def zfill(Z, T, LCP, CT, i, j, name_len):
+def zfill(Z, T, SA, LCP, CT, i, j, name_len):
     if j - i <= 1: return # leaves have no children
     l = i
     if i < CT[j-1] < j:
@@ -264,18 +264,19 @@ def zfill(Z, T, LCP, CT, i, j, name_len):
     Z[handler] = (i, j)
     #########
     while True: # repeat until => do while not
-        zfill(Z, T, LCP, CT, l, r, extent_len + 1)
+        zfill(Z, T, SA, LCP, CT, l, r, extent_len + 1)
         l = r
         r = CT[r]
         if LCP[l] != LCP[CT[l]] or LCP[l] > LCP[l+1]: break
-    zfill(Z, T, LCP, CT, l, j, extent_len + 1)
+    zfill(Z, T, SA, LCP, CT, l, j, extent_len + 1)
 
 # sembrerebbe funzionare
-def exitNode(T, S, LCP, CT, i, j):
+def exitNode(T, S, SA, LCP, CT, i, j):
     namelen = 1 + max(LCP[i], LCP[j])
     #assert T[SA[i] : SA[i] + limit] == S[0 : limit] # WARNING questa assert di merda è da rivedere
     extentlen = len(T) - SA[i] if j - i == 1 else getlcp(i, j, LCP, CT) # it is always an internal node
     print(f"i, j = {i, j}")
+    print(f"T = {T}")
     print(f"S = {S}")
     print(f"namelen = {namelen}")
     print(f"extentlen = {extentlen}")
@@ -287,6 +288,7 @@ def exitNode(T, S, LCP, CT, i, j):
     assert name == S[: len(name)]
     compacted = T[SA[i] + namelen : SA[i] + extentlen]
     portion = S[namelen : extentlen]
+    # if portion == "": return (1, 0)  # TODO ERRORE QUI
     if compacted[: min(len(compacted), len(portion))] != portion[: min(len(compacted), len(portion))]:
         print("string not found")
         return (1, 0) # string not found
@@ -294,56 +296,77 @@ def exitNode(T, S, LCP, CT, i, j):
         (l, r) = getChild(T, SA, LCP, CT, i, j, S[extentlen])
         print(f"getChild(T, SA, LCP, CT, i, j, S[extentlen]) => {i}, {j}, {S[extentlen]} => {(l, r)}")
         if r < l: return (1, 0)
-        return exitNode(T, S, LCP, CT, l, r)
+        return exitNode(T, S, SA, LCP, CT, l, r)
     return (i, j)
 
-def fatBinarySearch(T, S, LCP, CT, Z):
+def fatBinarySearch(T, S, SA, LCP, CT, Z):
     alphai, alphaj = 0, len(T)
-    l, r = 1, len(S)
-    while l <= r:
-        print(f"l: {l}, r: {r}")
-        f = twoFattestLR(l, r)
+    l, r = 0, len(S)
+    while l < r:
+        f = twoFattestLR(l+1, r)
         betal, betar = Z.get(S[0 : f], (1, 0))
+        print(f"l: {l}, r: {r}, f: {f}")
         print(f"handle = {S[0 : f]}")
         print(f"beta = {(betal, betar)}")
         if betal < betar:
-            l = getlcp(l, r, LCP, CT) # it is always an internal node
+            l = getlcp(betal, betar, LCP, CT) + 1 # it is always an internal node
+            print(f"new l: {l}")
+            #l = len(T) - SA[betal] if betar - betal == 1 else getlcp(betal, betar, LCP, CT) # it is always an internal node
             alphai, alphaj = betal, betar
         else:
             r = f - 1
     return (alphai, alphaj)
 
 def zuffixStringSearch(T, P, SA, LCP, CT, Z):
-    i, j = fatBinarySearch(T, P, LCP, CT, Z)
-    return exitNode(T, P, LCP, CT, i, j)
+    i, j = fatBinarySearch(T, P, SA, LCP, CT, Z)
+    return exitNode(T, P, SA, LCP, CT, i, j)
+    #return exitNode(T, P, LCP, CT, 0, len(T))
 #-------------------------------------------------------------------------------
 
 
+#  #-------------------------------------------------------------------------------
+#  # Test: ttatctctta
+#  #-------------------------------------------------------------------------------
+#  T = 'ttatctctta'
+#  SA = saca(T)
+#  LCP = lcpca(T, SA)
+#  UP, DOWN, NEXT = udnca(LCP)
+#  CT = ctca(LCP)
+#  assert CT == ctca3(LCP, UP, DOWN, NEXT)
+#  Z = zca(T, SA, LCP, CT)
+#  # print me if you want
+#  #-------------------------------------------------------------------------------
+#
+#
+#  #-------------------------------------------------------------------------------
+#  # Test: abracadabra~
+#  #-------------------------------------------------------------------------------
+#  T = 'abracadabra~'
+#  SA = saca(T)
+#  LCP = lcpca(T, SA)
+#  UP, DOWN, NEXT = udnca(LCP)
+#  CT = ctca(LCP)
+#  assert CT == ctca3(LCP, UP, DOWN, NEXT)
+#  Z = zca(T, SA, LCP, CT)
+#  # print me if you want
+#  #-------------------------------------------------------------------------------
+#
 #-------------------------------------------------------------------------------
-# Test: ttatctctta
+# Test: bug
 #-------------------------------------------------------------------------------
-T = 'ttatctctta'
+T = 'bbbcabbcc~'
+P = 'bbcbbcbac'
 SA = saca(T)
 LCP = lcpca(T, SA)
 UP, DOWN, NEXT = udnca(LCP)
 CT = ctca(LCP)
 assert CT == ctca3(LCP, UP, DOWN, NEXT)
-Z = zca(T, LCP, CT)
-# print me if you want
-#-------------------------------------------------------------------------------
+Z = zca(T, SA, LCP, CT)
 
-
-#-------------------------------------------------------------------------------
-# Test: abracadabra~
-#-------------------------------------------------------------------------------
-T = 'abracadabra~'
-SA = saca(T)
-LCP = lcpca(T, SA)
-UP, DOWN, NEXT = udnca(LCP)
-CT = ctca(LCP)
-assert CT == ctca3(LCP, UP, DOWN, NEXT)
-Z = zca(T, LCP, CT)
-# print me if you want
+enhancedStringSearch(T, P, SA, LCP, CT)
+exitNode(T, P, SA, LCP, CT, 0, len(T))
+fatBinarySearch(T, P, SA, LCP, CT, Z)
+zuffixStringSearch(T, P, SA, LCP, CT, Z)
 #-------------------------------------------------------------------------------
 
 
@@ -359,18 +382,25 @@ def testRandom(n):
     for i in range(1, n):
         T = randstr(n, dollar=True)
         P = randstr(random.randint(1, min(10, len(T))))
+        print("START HERE")
+        print(f"T = {T}")
+        print(f"P = {P}")
         SA = saca(T)
         LCP = lcpca(T, SA)
         UP, DOWN, NEXT = udnca(LCP)
         CT = ctca(LCP)
+        Z = zca(T, SA, LCP, CT)
         assert CT == ctca3(LCP, UP, DOWN, NEXT)
         (l1, r1) = binarySearchSA(T, P, SA, 0, len(T)-1)
         (l2, r2) = acceleratedBinarySearchSA(T, P, SA, 0, len(T)-1, 0, 0)
         (l3, r3) = enhancedStringSearch(T, P, SA, LCP, CT)
         (l4, r4) = enhancedStringSearch3(T, P, SA, LCP, UP, DOWN, NEXT)
         (l5, r5) = zuffixStringSearch(T, P, SA, LCP, CT, Z)
+        print(f'zuffixStringSearch("{T}", "{P}", {SA}, {LCP}, {CT}, {Z})')
+        print(f"Z = {Z}")
+        print(f"result = {zuffixStringSearch(T, P, SA, LCP, CT, Z)}")
         if l1 >= r1 or l2 >= r2 or l3 >= r3 or l4 >= r4 or l5 >= r5:
-            assert l1 >= r1 and l2 >= r2 and l3 >= r3 and l4 >= r4  and l5 >= r5, f'Expected: {l1} >= {r1} and {l2} >= {r2} and {l3} >= {r3} and {l4} >= {r4} and {l5} >= {r5}'
+            assert l1 >= r1 and l2 >= r2 and l3 >= r3 and l4 >= r4 and l5 >= r5, f'Expected: {l1} >= {r1} and {l2} >= {r2} and {l3} >= {r3} and {l4} >= {r4} and {l5} >= {r5}'
         else:
             assert l1 == l2 == l3 == l4 == l5 and r1 == r2 == r3 == r4 == r5, f'Expected: {l1} == {l2} == {l3} == {l4} == {l5} and {r1} == {r2} == {r3} == {r4} == {r5}'
             assertMatch(T, P, SA, l1, r1)
