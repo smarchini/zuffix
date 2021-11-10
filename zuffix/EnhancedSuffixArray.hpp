@@ -26,13 +26,11 @@ template <typename T> class EnhancedSuffixArray {
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t d = lcp[r];
-		while (l < r && (sa[l] + d >= text.length() || text[sa[l] + d] != c)) {
+		while (l < r && r < j && (sa[l] + d >= text.length() || text[sa[l] + d] != c)) {
 			l = r;
-			if (lcp[r] != lcp[ct[r]] || lcp[r] > lcp[r + 1]) return {l, j};
-			r = ct[r];
+			r = (lcp[r] != lcp[ct[r]] || lcp[r] > lcp[r + 1]) ? j : ct[r];
 		}
 
-		// Note: The following line is unnecessary if getChild is only called by find.
 		if (sa[l] + d >= text.length() || text[sa[l] + d] != c) return {1, 0};
 
 		return {l, r};

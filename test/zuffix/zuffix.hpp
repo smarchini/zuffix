@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../xoroshiro128pp.hpp"
-
+#include "util.hpp"
 #include <SpookyV2.h>
 #include <gtest/gtest.h>
 #include <string>
@@ -56,6 +55,7 @@ template <typename T, zarr::hash_function HF> void check(const zarr::String<T> &
 	for (int64_t p = 0; p < limit; p++) EXPECT_EQ(string_equals(pattern, &string + p, pattern.length()), pos.find(p) != std::end(pos));
 }
 
+/*
 zarr::String<int8_t> dna(size_t length, bool dollar = false) {
 	zarr::String<int8_t> result(length, dollar);
 
@@ -66,13 +66,22 @@ zarr::String<int8_t> dna(size_t length, bool dollar = false) {
 
 	return result;
 }
+*/
 
 TEST(zuffix, abracadabra) {
 	std::string abracadabra("ABRACADABRA");
 	zarr::ZuffixArray<char, spooky_hash> zuffix{zarr::String<char>(abracadabra, true)};
 	zuffix.visitPre(0, abracadabra.length(), 0, 0);
+
+	std::cout << "test find: " << zuffix.findExact(zarr::String<char>(std::string("A"))) << std::endl;
+	std::cout << "test find: " << zuffix.findExact(zarr::String<char>(std::string("AB"))) << std::endl;
+	std::cout << "test find: " << zuffix.findExact(zarr::String<char>(std::string("ABR"))) << std::endl;
+	std::cout << "test find: " << zuffix.findExact(zarr::String<char>(std::string("CAD"))) << std::endl;
+	std::cout << "test find: " << zuffix.findExact(zarr::String<char>(std::string("CADR"))) << std::endl;
+	std::cout << "test find: " << zuffix.findExact(zarr::String<char>(std::string("ABRAD"))) << std::endl;
 }
 
+/*
 TEST(zuffix, test) {
 	int8_t s[] = {0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 126};
 	zarr::ZuffixArray<int8_t, spooky_hash> zuffix(arrayToString(s, sizeof(s) / sizeof(s[0]), true));
@@ -172,3 +181,4 @@ TEST(zuffix, dna_collisions_cyclic) {
 	typedef zarr::ZuffixArray<int8_t, cyclic_hash> zuffix_type;
 	ASSERT_DEATH(zuffix_type zuffix(std::move(s)), "The element alaredy exists");
 }
+*/

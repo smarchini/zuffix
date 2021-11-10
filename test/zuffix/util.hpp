@@ -5,11 +5,14 @@
 #include <random>
 #include <string>
 
+#include <SpookyV2.h>
+
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 #include <zuffix/util/String.hpp>
 
-#include <zuffix/SimpleSuffixArray.hpp>
 #include <zuffix/EnhancedSuffixArray.hpp>
+#include <zuffix/EnhancedZuffixArray.hpp>
+#include <zuffix/SimpleSuffixArray.hpp>
 
 inline zarr::String<char> stdToZarr(std::string string, bool dollar = false) { return zarr::String<char>(string, dollar); }
 
@@ -36,3 +39,5 @@ inline std::string randstring(std::string charset, size_t length) {
 	for (size_t i = 0; i < length; i++) result += charset[dist(rng)];
 	return result;
 }
+
+uint64_t spooky(const void *message, size_t length) { return SpookyHash::Hash64(message, length, 0); }

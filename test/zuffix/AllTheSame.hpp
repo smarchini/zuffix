@@ -6,10 +6,12 @@
 inline void fixedLength(std::string text, std::string charset, size_t plen) {
 	zarr::SimpleSuffixArray<char> simple{zarr::String<char>(text, true)};
 	zarr::EnhancedSuffixArray<char> enhanced{zarr::String<char>(text, true)};
+	zarr::EnhancedZuffixArray<char, spooky> zuffix{zarr::String<char>(text, true)};
 
     for (int i = 0; i < 100; i++) {
       auto p = stdToZarr(randstring(charset, plen));
       EXPECT_EQ(simple.find(p), enhanced.find(p));
+      EXPECT_EQ(simple.find(p), zuffix.find(p));
     }
 }
 

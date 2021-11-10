@@ -25,11 +25,17 @@ def lbda(j):
     return len(bin(j)[2:]) - 1
 
 def twoFattest(x, y):
+    # come da descrizione, quindi (x .. y]
     allone = (1 << 64) - 1
     return y & (allone << lbda(x ^ y))
 
 def twoFattestL(x, y):
     return twoFattest(x+1, y-1)
+
+def twoFattestLR(x, y):
+    if x == 0: return 0
+    allone = (1 << 64) - 1
+    return y & (allone << lbda((x-1) ^ y))
 #-------------------------------------------------------------------------------
 
 
@@ -139,7 +145,9 @@ def getChild(T, SA, LCP, CT, i, j, a):
     while l < r and (SA[l] + d >= len(T) or T[SA[l] + d] != a):
         l = r
         if LCP[r] != LCP[CT[r]] or LCP[r] > LCP[r+1]:
-            return (l, j)
+            # return (l, j)  # WARNING NOPE, getChild3 might be wrong too!
+            r = j
+            break
         r = CT[r]
     if SA[l] + d < len(T) and T[SA[l] + d] != a: return (0, -1)
     return (l, r)
@@ -214,12 +222,100 @@ def enhancedStringSearch3(T, P, SA, LCP, UP, DOWN, NEXT):
 
 
 #-------------------------------------------------------------------------------
-# TODO Zuffification
+# Zuffification # TODO clean me and most importantly FIX ME
 #-------------------------------------------------------------------------------
-#def zfill(Z, T, LCP, CT, i, j, name):
-#    if i <= j + 1: return  # leaves are not in Z
-#    # l, r = getChild2(T, SA, LCP, CT, i, j, a): TODO integrarla
-#    handle = twoFattest(name - 1, extent)
+def dfs(T, LCP, CT, i, j, depth=0):
+    if j - i <= 1: return # leaves have no children
+    l = i
+    if i < CT[j-1] < j:
+        r = CT[j-1]
+    else:
+        r = CT[i]
+    d = LCP[r]
+    while l < r:
+        print(f"{' '*depth}[{l}, {r})")
+        sleep(1)
+        dfs(T, LCP, CT, l, r, depth=depth+1)
+        l = r
+        if LCP[r] != LCP[CT[r]] or LCP[r] > LCP[r+1]:
+            print(f"{' '*depth}[{l}, {j})")
+            sleep(1)
+            dfs(T, LCP, CT, l, j, depth=depth+1)
+            break
+        r = CT[r]
+
+def zca(T, LCP, CT):
+    Z = dict()
+    zfill(Z, T, LCP, CT, 0, len(T), 0)
+    return Z
+
+def zfill(Z, T, LCP, CT, i, j, name_len):
+    if j - i <= 1: return # leaves have no children
+    l = i
+    if i < CT[j-1] < j:
+        r = CT[j-1]
+    else:
+        r = CT[i]
+    d = LCP[r]  # lcp value
+    # ZFILL
+    extent_len = d
+    handler_len = twoFattestLR(name_len, extent_len)
+    handler = T[SA[i] : SA[i] + handler_len + 1]
+    Z[handler] = (i, j)
+    #########
+    while True: # repeat until => do while not
+        zfill(Z, T, LCP, CT, l, r, extent_len + 1)
+        l = r
+        r = CT[r]
+        if LCP[l] != LCP[CT[l]] or LCP[l] > LCP[l+1]: break
+    zfill(Z, T, LCP, CT, l, j, extent_len + 1)
+
+# sembrerebbe funzionare
+def exitNode(T, S, LCP, CT, i, j):
+    namelen = 1 + max(LCP[i], LCP[j])
+    #assert T[SA[i] : SA[i] + limit] == S[0 : limit] # WARNING questa assert di merda è da rivedere
+    extentlen = len(T) - SA[i] if j - i == 1 else getlcp(i, j, LCP, CT) # it is always an internal node
+    print(f"i, j = {i, j}")
+    print(f"S = {S}")
+    print(f"namelen = {namelen}")
+    print(f"extentlen = {extentlen}")
+    print(f"name = {T[SA[i] : SA[i] + namelen]}")
+    print(f"extent = {T[SA[i] : SA[i] + extentlen]}")
+    print(f"compacted = {T[SA[i] + namelen : SA[i] + extentlen]}")
+    print(f"portion = {S[namelen : extentlen]}")
+    name = T[SA[i] : SA[i] + namelen]
+    assert name == S[: len(name)]
+    compacted = T[SA[i] + namelen : SA[i] + extentlen]
+    portion = S[namelen : extentlen]
+    if compacted[: min(len(compacted), len(portion))] != portion[: min(len(compacted), len(portion))]:
+        print("string not found")
+        return (1, 0) # string not found
+    if extentlen < len(S):
+        (l, r) = getChild(T, SA, LCP, CT, i, j, S[extentlen])
+        print(f"getChild(T, SA, LCP, CT, i, j, S[extentlen]) => {i}, {j}, {S[extentlen]} => {(l, r)}")
+        if r < l: return (1, 0)
+        return exitNode(T, S, LCP, CT, l, r)
+    return (i, j)
+
+def fatBinarySearch(T, S, LCP, CT, Z):
+    alphai, alphaj = 0, len(T)
+    l, r = 1, len(S)
+    while l <= r:
+        print(f"l: {l}, r: {r}")
+        f = twoFattestLR(l, r)
+        betal, betar = Z.get(S[0 : f], (1, 0))
+        print(f"handle = {S[0 : f]}")
+        print(f"beta = {(betal, betar)}")
+        if betal < betar:
+            l = getlcp(l, r, LCP, CT) # it is always an internal node
+            alphai, alphaj = betal, betar
+        else:
+            r = f - 1
+    return (alphai, alphaj)
+
+def zuffixStringSearch(T, P, SA, LCP, CT, Z):
+    i, j = fatBinarySearch(T, P, LCP, CT, Z)
+    return exitNode(T, P, LCP, CT, i, j)
 #-------------------------------------------------------------------------------
 
 
@@ -232,6 +328,7 @@ LCP = lcpca(T, SA)
 UP, DOWN, NEXT = udnca(LCP)
 CT = ctca(LCP)
 assert CT == ctca3(LCP, UP, DOWN, NEXT)
+Z = zca(T, LCP, CT)
 # print me if you want
 #-------------------------------------------------------------------------------
 
@@ -245,6 +342,7 @@ LCP = lcpca(T, SA)
 UP, DOWN, NEXT = udnca(LCP)
 CT = ctca(LCP)
 assert CT == ctca3(LCP, UP, DOWN, NEXT)
+Z = zca(T, LCP, CT)
 # print me if you want
 #-------------------------------------------------------------------------------
 
@@ -270,10 +368,11 @@ def testRandom(n):
         (l2, r2) = acceleratedBinarySearchSA(T, P, SA, 0, len(T)-1, 0, 0)
         (l3, r3) = enhancedStringSearch(T, P, SA, LCP, CT)
         (l4, r4) = enhancedStringSearch3(T, P, SA, LCP, UP, DOWN, NEXT)
-        if l1 >= r1 or l2 >= r2 or l3 >= r3:
-            assert l1 >= r1 and l2 >= r2 and l3 >= r3 and l4 >= r4, f'Expected: {l1} >= {r1} and {l2} >= {r2} and {l3} >= {r3} and {l4} >= {r4}'
+        (l5, r5) = zuffixStringSearch(T, P, SA, LCP, CT, Z)
+        if l1 >= r1 or l2 >= r2 or l3 >= r3 or l4 >= r4 or l5 >= r5:
+            assert l1 >= r1 and l2 >= r2 and l3 >= r3 and l4 >= r4  and l5 >= r5, f'Expected: {l1} >= {r1} and {l2} >= {r2} and {l3} >= {r3} and {l4} >= {r4} and {l5} >= {r5}'
         else:
-            assert l1 == l2 == l3 == l4 and r1 == r2 == r3 == r4, f'Expected: {l1} == {r1} and {l2} == {r2} and {l3} == {r3} and {l4} == {r4}'
+            assert l1 == l2 == l3 == l4 == l5 and r1 == r2 == r3 == r4 == r5, f'Expected: {l1} == {l2} == {l3} == {l4} == {l5} and {r1} == {r2} == {r3} == {r4} == {r5}'
             assertMatch(T, P, SA, l1, r1)
             cnt += 1
     return cnt
