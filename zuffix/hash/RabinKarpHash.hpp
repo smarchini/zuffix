@@ -1,8 +1,5 @@
 #pragma once
 
-#include <iostream>
-using namespace std;
-
 #include <cstddef>
 #include <cstdint>
 
@@ -10,39 +7,24 @@ namespace zarr {
 
 template <typename T> class RabinKarpHash {
   public:
+	const uint64_t magic = 0xf9531; // TODO chiedere a Vigna dei numeri buoni
 
   private:
 	T *string;
-	size_t pos = 0;
-	uint64_t state = 0, magic = 0xf7031; // TODO chiedere a Vigna dei numeri buoni
+	uint64_t state = 0;
+	size_t lpos = 0, rpos = 0;
+	uint64_t lmul = magic, rmul = magic;
 
   public:
 	RabinKarpHash(T *string) : string(string) {}
 
-	uint64_t operator+=(size_t n) { // plus to the right
-		for (size_t i = 0; i < n; i++, magic *= magic, pos++) state += string[pos] * magic;
-		// cout << "hash += " << n << " = " << state << endl;
+	uint64_t operator()(size_t from, size_t len) {
+		for (; lpos < from; lpos++, lmul *= magic) state -= string[lpos] * lmul;
+		for (; lpos > from; lpos--, lmul /= magic) state += string[lpos] * lmul;
+		for (; rpos < from + len; rpos++, rmul *= magic) state += string[rpos] * rmul;
+		for (; rpos > from + len; rpos--, rmul /= magic) state -= string[rpos] * rmul;
 		return state;
 	}
-
-	uint64_t operator-=(size_t n) { // minus to the right
-		// WARNING division, uhm...
-		for (size_t i = 0; i < n; i++, magic /= magic, pos--) state -= string[pos] * magic;
-		// cout << "hash -= " << n << " = " << state << endl;
-		return state;
-	}
-
-	uint64_t operator()(size_t n) {
-		uint64_t x = n < pos ? *this += pos - n : *this += n - pos;
-		cout << "hash(" << n << ") = " << state << endl;
-        return x;
-	}
-
-  uint64_t slow_for_testing(size_t from, size_t to) {
-    for (size_t i = 0; i < from; i++, magic *= magic, pos++); // skip
-    for (size_t i = from; i < to; i++, magic *= magic, pos++) state += string[pos] * magic;
-    return state;
-  }
 };
 
 } // namespace zarr

@@ -27,7 +27,7 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 
   public:
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		htz.resize(1 << 11); // TODO not really
+		htz.resize(1 << 13); // TODO not really
 		ZFillByDFS(0, text.length(), 0, RabinKarpHash(&text));
 	}
 
@@ -49,7 +49,7 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		// TODO assert n_[i,j) \preceq P
-		for (size_t k = nlen; k < elen & k < pattern.length(); k++)
+		for (size_t k = nlen; k < elen && k < pattern.length(); k++)
 			if (pattern[k] != text[sa[i] + k]) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
@@ -66,8 +66,7 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
 			// LInterval<size_t> beta = unpack(z[hash(&pattern, f - 1)]);
-			LInterval<size_t> beta = unpack(htz[h(f) % htz.size()]);
-			;
+			LInterval<size_t> beta = unpack(htz[h(0, f) % htz.size()]);
 			if (beta.isEmpty()) {
 				r = f - 1;
 			} else {
@@ -101,9 +100,8 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
 		// z[hash(&text[sa[i]], hlen)] = pack({i, j});
-		cout << "[ " << i << " .. " << j << " ) ";
 		//htz[h(sa[i] + hlen) % htz.size()] = pack({i, j});
-		htz[h.slow_for_testing(sa[i], hlen) % htz.size()] = pack({i, j});
+		htz[h(sa[i], hlen) % htz.size()] = pack({i, j});
 		do {
 			ZFillByDFS(l, r, elen + 1, h);
 			l = r;
