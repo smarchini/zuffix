@@ -35,9 +35,10 @@ external/CSApp: external/init
 	cp ./external/CSApp/build/*.x ./bin/CSApp
 
 # TEST
-test: bin/test/zuffix bin/test/random
-	./bin/test/zuffix --gtest_color=yes
+test: bin/test/zuffix bin/test/random bin/test/hash
 	./bin/test/random --gtest_color=yes
+	./bin/test/hash --gtest_color=yes
+	./bin/test/zuffix --gtest_color=yes
 
 bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
 	@mkdir -p bin/test
@@ -47,6 +48,9 @@ bin/test/random: test/random/* zuffix/* zuffix/*/*
 	@mkdir -p bin/test
 	$(CXX) $(CXXFLAGS) $(DEBUG) test/random/test.cpp -o bin/test/random
 
+bin/test/hash: test/hash/* zuffix/* zuffix/*/*
+	@mkdir -p bin/test
+	$(CXX) $(CXXFLAGS) $(DEBUG) test/hash/test.cpp -o bin/test/hash
 
 # BENCHMARK
 benchmark: bin/benchmark/build_suffix_array bin/benchmark/zuffix_random_dna bin/benchmark/zuffix_file
