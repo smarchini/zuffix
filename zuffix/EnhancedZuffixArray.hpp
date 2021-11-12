@@ -4,6 +4,8 @@
 #include "util/String.hpp"
 #include "util/common.hpp"
 
+#include "hash/RabinKarpHash.hpp"
+
 #include <limits>
 #include <sux/support/common.hpp>
 #include <sux/util/Vector.hpp>
@@ -13,17 +15,20 @@
 namespace zarr {
 using ::sux::util::Vector;
 
+// TODO RabinKarp should be a template argument
 template <typename T, hash_function hash> class EnhancedZuffixArray {
   private:
 	const String<T> text;
 	const Vector<size_t> sa;
 	const Vector<ssize_t> lcp;
 	const Vector<size_t> ct;
-	std::unordered_map<size_t, size_t> z;
+	// std::unordered_map<size_t, size_t> z;
+	Vector<size_t> htz; // TODO this will replace z
 
   public:
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		ZFillByDFS(0, text.length(), 0);
+		htz.resize(1 << 11); // TODO not really
+		ZFillByDFS(0, text.length(), 0, RabinKarpHash(&text));
 	}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
@@ -55,11 +60,14 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 	}
 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
+		RabinKarpHash h(&pattern);
 		size_t i = 0, j = text.length();
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
-			LInterval<size_t> beta = unpack(z[hash(&pattern, f - 1)]);
+			// LInterval<size_t> beta = unpack(z[hash(&pattern, f - 1)]);
+			LInterval<size_t> beta = unpack(htz[h(f) % htz.size()]);
+			;
 			if (beta.isEmpty()) {
 				r = f - 1;
 			} else {
@@ -86,19 +94,22 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	void ZFillByDFS(size_t i, size_t j, size_t nlen) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, RabinKarpHash<T> h) {
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
-		z[hash(&text[sa[i]], hlen)] = pack({i, j});
+		// z[hash(&text[sa[i]], hlen)] = pack({i, j});
+		cout << "[ " << i << " .. " << j << " ) ";
+		//htz[h(sa[i] + hlen) % htz.size()] = pack({i, j});
+		htz[h.slow_for_testing(sa[i], hlen) % htz.size()] = pack({i, j});
 		do {
-			ZFillByDFS(l, r, elen + 1);
+			ZFillByDFS(l, r, elen + 1, h);
 			l = r;
 			r = ct[r];
 		} while (lcp[l] == lcp[ct[l]] && lcp[l] <= lcp[l + 1]);
-		ZFillByDFS(l, j, elen + 1);
+		ZFillByDFS(l, j, elen + 1, h);
 	}
 
 	size_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
