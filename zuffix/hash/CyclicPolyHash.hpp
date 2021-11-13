@@ -8,32 +8,30 @@ using namespace std;
 
 namespace zarr {
 
-// TODO scrivere unit test per le rolling hash functions
 template <typename T, size_t sigma> class CyclicPolyHash {
   private:
 	T *string;
 	uint64_t state = 0;
-	size_t lpos = 0, rpos = 0;
+	size_t l = 0, r = 0;
 	uint64_t h[sigma];
 
   public:
-	CyclicPolyHash(T *string, uint64_t seed = 43) : string(string) {
+	CyclicPolyHash(T *string, uint64_t seed = 3) : string(string) {
 		xoroshiro128plus_engine rng(seed);
 		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
 	}
 
 	uint64_t operator()(size_t from, size_t length) {
-		for (; lpos < from; lpos++) state ^= rotl(h[string[lpos]], lpos);
-		for (; lpos > from; lpos--) state ^= rotl(h[string[lpos]], lpos);
-		for (; rpos < from + length; rpos++) state ^= rotl(h[string[rpos]], rpos);
-		for (; rpos > from + length; rpos--) state ^= rotl(h[string[rpos]], rpos);
-        //cout << "hash(" << from << ", " << length << ") = " << state << endl;
+		for (; l < from; l++) state = state ^ rot(h[string[l]], r - l);
+		for (; l > from; l--) state = state ^ rot(h[string[l - 1]], r - l + 1);
+		for (; r < from + length; r++) state = rot(state ^ h[string[r]], 1);
+		for (; r > from + length; r--) state = rot(state, 64 - 1) ^ h[string[r - 1]];
 		return state;
 	}
 
   private:
-	static inline uint64_t rotl(uint64_t x, int k) { return (x << k) | (x >> (64 - k)); }
+	static inline uint64_t rot(uint64_t x, int k) { return (x << k) | (x >> (64 - k)); }
 };
 
 } // namespace zarr

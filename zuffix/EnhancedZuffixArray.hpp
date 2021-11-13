@@ -4,8 +4,8 @@
 #include "util/String.hpp"
 #include "util/common.hpp"
 
-#include "hash/RabinKarpHash.hpp"
 #include "hash/CyclicPolyHash.hpp"
+#include "hash/RabinKarpHash.hpp"
 
 #include <limits>
 #include <sux/support/common.hpp>
@@ -27,9 +27,9 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 
   public:
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		z.resize(round_pow2(text.length()) << 3); // TODO tweak me
-		//ZFillByDFS(0, text.length(), 0, RabinKarpHash(&text));
-		ZFillByDFS(0, text.length(), 0, CyclicPolyHash<T, 256>(&text));
+		z.resize(max(round_pow2(text.length()) << 1, (uint64_t)1 << 20)); // TODO tweak me
+		// ZFillByDFS(0, text.length(), 0, RabinKarpHash(&text));
+		ZFillByDFS(0, text.length(), 0, CyclicPolyHash<T, 128>(&text));
 	}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
@@ -62,12 +62,11 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
 		// RabinKarpHash h(&pattern);
-		CyclicPolyHash<T, 256> h(&pattern);
+		CyclicPolyHash<T, 128> h(&pattern);
 		size_t i = 0, j = text.length();
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
-			// LInterval<size_t> beta = unpack(z[hash(&pattern, f - 1)]);
 			LInterval<size_t> beta = unpack(z[h(0, f) % z.size()]);
 			if (beta.isEmpty()) {
 				r = f - 1;
@@ -95,8 +94,8 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	//void ZFillByDFS(size_t i, size_t j, size_t nlen, RabinKarpHash<T> h) {
-	void ZFillByDFS(size_t i, size_t j, size_t nlen, CyclicPolyHash<T, 256> h) {
+	// void ZFillByDFS(size_t i, size_t j, size_t nlen, RabinKarpHash<T> h) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, CyclicPolyHash<T, 128> h) {
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
@@ -111,10 +110,9 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 		ZFillByDFS(l, j, elen + 1, h);
 	}
 
-
 	size_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 
-	LInterval<size_t> unpack(size_t x) const { return {x >> 32, x & 0xffff}; }
+	LInterval<size_t> unpack(size_t x) const { return {x >> 32, x & 0xffffffff}; }
 };
 
 } // namespace zarr

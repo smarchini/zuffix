@@ -18,6 +18,8 @@ TEST(EnhancedZuffixArray, abracadabra) {
 	const size_t ct[12] = {12, 1, 3, 4, 2, 7, 6, 8, 9, 11, 10, 5};
 	for (size_t i = 0; i < 12; i++) EXPECT_EQ(zuffix.getCT()[i], ct[i]) << "at index " << i;
 
+	EXPECT_EQ(zuffix.find(stdToZarr("ABRACADABRA")), zarr::LInterval<size_t>(0, 1));
+	EXPECT_EQ(zuffix.find(stdToZarr("ABRACAD")), zarr::LInterval<size_t>(0, 1));
 	EXPECT_EQ(zuffix.find(stdToZarr("0")), zarr::LInterval<size_t>(1, 0));
 	EXPECT_EQ(zuffix.find(stdToZarr("Z")), zarr::LInterval<size_t>(1, 0));
 	EXPECT_EQ(zuffix.find(stdToZarr("ABRACADABR0")), zarr::LInterval<size_t>(1, 0));
