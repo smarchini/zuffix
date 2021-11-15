@@ -12,7 +12,7 @@ namespace zarr {
 template <class T> class LInterval {
   private:
   public:
-	const T from, to;
+	T from, to;
 	// explicit LInterval(T point) : LInterval(point, point + 1) {}
 	LInterval(T from, T to) : from(std::move(from)), to(std::move(to)) {}
 
@@ -56,6 +56,12 @@ template <class T> class LInterval {
 	 * @return false if the other interval is equals to this, true otherwise.
 	 */
 	bool operator!=(const LInterval<T> &oth) const { return !(this == oth); }
+
+	/** Check if one interval strictly contains another
+	 *
+	 * @return true if the other interval is strictly contained in this
+	 */
+	bool contains(const LInterval<T> &oth) const { return from <= oth.from && oth.to <= to && (from != oth.from || oth.to != to); }
 
 	/** Serialize the interval in a human-readable format */
 	friend std::ostream &operator<<(std::ostream &os, const LInterval<T> &interval) { return os << "[" << interval.from << ", " << interval.to << ")"; }

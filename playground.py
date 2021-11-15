@@ -411,3 +411,18 @@ for _ in range(100): testRandom(10)
 for _ in range(100): testRandom(100)
 for _ in range(100): testRandom(127)
 #-------------------------------------------------------------------------------
+
+def getParent(T, SA, LCP, CT):
+    stack = [ [0, 0, len(T)] ]
+    for i in range(1, len(T)):
+        lb = i - 1
+        while LCP[i] < stack[-1][0]:
+            stack[-1][2] = i
+            interval = stack.pop()
+            print(f'{interval[0]}-[{interval[1]} .. {interval[2]})')
+            lb = interval[1]
+        if LCP[i] > stack[-1][0]:
+            stack.append([LCP[i], lb, i])
+        print(stack)
+
+getParent(T, SA, LCP, CT)

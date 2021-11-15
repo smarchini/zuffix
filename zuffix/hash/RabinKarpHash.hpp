@@ -7,9 +7,8 @@ namespace zarr {
 
 template <typename T> class RabinKarpHash {
   public:
-	// md = 1 mod 2^64
-	const uint64_t m = 0xf7c35;
-	const uint64_t d = 0xe94870e35dd4f61d;
+	const uint64_t m = 0x100000001b3;      // FNV prime
+	const uint64_t d = 0xce965057aff6957b; // md = 1 mod 2^64
 
   private:
 	T *string;

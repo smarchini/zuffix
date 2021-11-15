@@ -4,7 +4,7 @@
 
 TEST(EnhancedZuffixArray, abracadabra) {
 	std::string t("ABRACADABRA");
-	zarr::EnhancedZuffixArray<char, spooky> zuffix{zarr::String<char>(t, true)};
+	zarr::EnhancedZuffixArray<char, zarr::RabinKarpHash> zuffix{zarr::String<char>(t, true)};
 
 	EXPECT_EQ(zuffix.getSA().size(), 12);
 	const size_t sa[12] = {0, 7, 3, 5, 10, 1, 8, 4, 6, 2, 9, 11};

@@ -16,8 +16,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-// TODO RabinKarp should be a template argument
-template <typename T, hash_function hash> class EnhancedZuffixArray {
+template <typename T, template <typename U> class RH> class EnhancedZuffixArray {
   private:
 	const String<T> text;
 	const Vector<size_t> sa;
@@ -28,8 +27,7 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
   public:
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		z.resize(max(round_pow2(text.length()) << 1, (uint64_t)1 << 20)); // TODO tweak me
-		// ZFillByDFS(0, text.length(), 0, RabinKarpHash(&text));
-		ZFillByDFS(0, text.length(), 0, CyclicPolyHash<T, 128>(&text));
+		ZFillByDFS(0, text.length(), 0, RH<T>(&text));
 	}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
@@ -49,7 +47,6 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) const {
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
-		// TODO assert n_[i,j) \preceq P
 		for (size_t k = nlen; k < elen && k < pattern.length(); k++)
 			if (pattern[k] != text[sa[i] + k]) return {1, 0};
 		if (elen < pattern.length()) {
@@ -61,21 +58,26 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
 	}
 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
-		// RabinKarpHash h(&pattern);
-		CyclicPolyHash<T, 128> h(&pattern);
-		size_t i = 0, j = text.length();
+		RH<T> h(&pattern);
+		LInterval<size_t> alpha = {0, text.length()};
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
 			LInterval<size_t> beta = unpack(z[h(0, f) % z.size()]);
 			if (beta.isEmpty()) {
 				r = f - 1;
+			} else if (!alpha.contains(beta)) {
+				break;
 			} else {
-				std::tie(i, j) = beta;
-				l = getlcp(i, j) + 1;
+				alpha = beta;
+				l = getlcp(alpha.from, alpha.to) + 1;
 			}
 		}
-		return {i, j};
+		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		for (size_t k = min(nlen, pattern.length()); k > 0; k--) {
+			if (pattern[k - 1] != text[sa[alpha.from] + k - 1]) return {0, text.length()};
+		}
+		return alpha;
 	}
 
 	LInterval<size_t> find(const String<T> &pattern) {
@@ -94,8 +96,7 @@ template <typename T, hash_function hash> class EnhancedZuffixArray {
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	// void ZFillByDFS(size_t i, size_t j, size_t nlen, RabinKarpHash<T> h) {
-	void ZFillByDFS(size_t i, size_t j, size_t nlen, CyclicPolyHash<T, 128> h) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> h) {
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
