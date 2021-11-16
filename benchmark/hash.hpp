@@ -5,6 +5,9 @@
 #include <zuffix/hash/CyclicHash.hpp>
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 
+#include <zuffix/hash/RabinKarpHash.hpp>
+#include <zuffix/hash/CyclicPolyHash.hpp>
+
 uint64_t spooky_hash(const void *message, size_t length) {
   return SpookyHash::Hash64(message, length, 0);
 }
@@ -18,3 +21,5 @@ uint64_t broken_spooky_hash(const void *message, size_t length) {
   static constexpr size_t mask = (1ULL << 37) - 1;
   return SpookyHash::Hash64(message, length, 0) & mask;
 }
+
+template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;

@@ -25,7 +25,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	Vector<size_t> z;
 
   public:
-	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySAIS(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		z.resize(max(round_pow2(text.length()) << 1, (uint64_t)1 << 20)); // TODO tweak me
 		ZFillByDFS(0, text.length(), 0, RH<T>(&text));
 	}

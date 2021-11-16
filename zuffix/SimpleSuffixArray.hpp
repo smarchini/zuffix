@@ -18,7 +18,7 @@ template <typename T> class SimpleSuffixArray {
 	const Vector<size_t> sa;
 
   public:
-	SimpleSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)) {}
+	SimpleSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySAIS(text)) {}
 
 	LInterval<size_t> find(const String<T> &pattern) const { return acceleratedBinarySearch(pattern, 0, text.length(), 0, 0); }
 

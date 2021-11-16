@@ -26,8 +26,8 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String 
 		if (dollar) data[string.length()] = DOLLAR;
 	}
 
-	String(const void *buffer, size_t bytes, bool dollar = false) : String(bytes, dollar) {
-		assert(bytes % sizeof(T) == 0 || "Bad size: the string can't be made by half-symbols");
+	explicit String(const void *buffer, size_t bytes, bool dollar = false) : String(bytes, dollar) {
+		assert(bytes % sizeof(T) == 0 || "Bad size: bytes should be a multiple of sizeof(T)");
 		std::memcpy(&data, buffer, bytes);
 	}
 

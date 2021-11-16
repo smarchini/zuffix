@@ -3,6 +3,19 @@
 #include "util.hpp"
 #include <iostream>
 
+TEST(AllTheSame, saca) {
+	zarr::String<char> t(std::string("ABRACADABRA"), true);
+
+	auto sort = zarr::SAConstructBySort(t);
+	auto divsufsort = zarr::SAConstructByDivSufSort(t);
+	auto sais = zarr::SAConstructBySAIS(t);
+
+	for (size_t i = 0; i < sort.size(); i++) {
+		EXPECT_EQ(sort[i], divsufsort[i]) << "at index " << i;
+		EXPECT_EQ(sort[i], sais[i]) << "at index " << i;
+	}
+}
+
 inline void fixedLength(std::string text, std::string charset, size_t plen) {
 	zarr::SimpleSuffixArray<char> simple{zarr::String<char>(text, true)};
 	zarr::EnhancedSuffixArray<char> enhanced{zarr::String<char>(text, true)};

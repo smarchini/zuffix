@@ -2,6 +2,8 @@
 
 #include "String.hpp"
 #include <cstdint>
+#include <divsufsort.h>
+#include <sais.hxx>
 #include <stack>
 #include <sux/util/Vector.hpp>
 
@@ -44,7 +46,7 @@ inline int64_t twoFattestR(size_t a, size_t b) { return (1L << 63) >> __builtin_
  */
 inline int64_t twoFattestLR(size_t a, size_t b) {
 	if (a == 0) return 0;
-	return (1L << 63) >> __builtin_clzll(a - 1 ^ b) & b;
+	return (1L << 63) >> __builtin_clzll((a - 1) ^ b) & b;
 }
 
 /** Suffix array construction algorithm by explicit sort
@@ -60,6 +62,33 @@ template <typename T> inline Vector<size_t> SAConstructBySort(const String<T> &s
 		while (string[lhs + i] == string[rhs + i]) i++;
 		return string[lhs + i] < string[rhs + i];
 	});
+	return result;
+}
+
+/** Suffix array construction algorithm: DivSufSort
+ *
+ * @return The array SA
+ */
+template <typename T> inline Vector<size_t> SAConstructByDivSufSort(const String<T> &string) {
+	size_t n = string.length();
+	Vector<size_t> result(n);
+
+	// TODO NOPE
+	Vector<int> internal(n);
+	divsufsort((const unsigned char *)&string, &internal, n);
+	for (size_t i = 0; i < n; i++) result[i] = internal[i];
+
+	return result;
+}
+
+/** Suffix array construction algorithm: DivSufSort
+ *
+ * @return The array SA
+ */
+template <typename T> inline Vector<size_t> SAConstructBySAIS(const String<T> &string) {
+	size_t n = string.length();
+	Vector<size_t> result(n);
+	saisxx((char *)&string, (long *)&result, (long)string.length(), 256L);
 	return result;
 }
 

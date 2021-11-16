@@ -15,7 +15,7 @@ zarr::String<char> random_dna(size_t m, bool dollar = false) {
 
   static std::random_device rd;
   static zarr::xoroshiro128plus_engine rng(rd());
-  std::uniform_int_distribution<char> dist(0, 4);
+  std::uniform_int_distribution<uint8_t> dist(0, 4);
 
   for (size_t i = 0; i < m; i++)
     result[i] = dnabase[dist(rng)];

@@ -20,7 +20,7 @@ template <typename T> class EnhancedSuffixArray {
 	const Vector<size_t> ct;
 
   public:
-	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
+	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySAIS(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
 		size_t l = i;

@@ -1,11 +1,12 @@
 DEBUG = -g -O0
 RELEASE = -g -O3 -DNDEBUG
-CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./external/sux/ -I./external/ -I./ -lgtest -lbenchmark
+CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./ #-I./external/sux/ -I./external/ -I./
+LDLIBS=-lgtest -lbenchmark -lpthread -ldivsufsort -lspooky
 
-all: external test benchmark
+all: test benchmark
 
 # EXTERNAL
-external: external/init external/sdsl external/r-index external/CSApp
+external: external/init external/sdsl external/r-index external/CSApp external/libdivsufsort
 
 external/init:
 	git submodule update --init --recursive
@@ -34,6 +35,12 @@ external/CSApp: external/init
 	mkdir -p bin/CSApp
 	cp ./external/CSApp/build/*.x ./bin/CSApp
 
+external/libdivsufsort: external/init
+	mkdir -p ./external/libdivsufsort/build/
+	cmake -B ./external/libdivsufsort/build/ -DCMAKE_BUILD_TYPE="Release" -DCMAKE_INSTALL_PREFIX="./external/libdivsufsort/install" ./external/libdivsufsort
+	make -j8 -C ./external/libdivsufsort/build
+	make -j8 -C ./external/libdivsufsort/build install
+
 # TEST
 test: bin/test/zuffix bin/test/random bin/test/hash
 	./bin/test/random --gtest_color=yes
@@ -42,36 +49,36 @@ test: bin/test/zuffix bin/test/random bin/test/hash
 
 bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) test/zuffix/test.cpp external/SpookyV2.cpp -o bin/test/zuffix
+	$(CXX) $(CXXFLAGS) $(DEBUG) test/zuffix/test.cpp external/SpookyV2.cpp -o bin/test/zuffix $(LDLIBS)
 
 bin/test/random: test/random/* zuffix/* zuffix/*/*
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) test/random/test.cpp -o bin/test/random
+	$(CXX) $(CXXFLAGS) $(DEBUG) test/random/test.cpp -o bin/test/random $(LDLIBS)
 
 bin/test/hash: test/hash/* zuffix/* zuffix/*/*
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) test/hash/test.cpp -o bin/test/hash
+	$(CXX) $(CXXFLAGS) $(DEBUG) test/hash/test.cpp -o bin/test/hash $(LDLIBS)
 
 # BENCHMARK
-benchmark: bin/benchmark/build_suffix_array bin/benchmark/zuffix_random_dna bin/benchmark/zuffix_file
-	./bin/benchmark/build_suffix_array --benchmark_color=yes
-	./bin/benchmark/zuffix_random_dna --benchmark_color=yes
+benchmark: bin/benchmark/saca bin/benchmark/find_random_dna bin/benchmark/zuffix_file
+	./bin/benchmark/saca --benchmark_color=yes
+	./bin/benchmark/find_random_dna --benchmark_color=yes
 
-bin/benchmark/build_suffix_array: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/saca: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/build_suffix_array.cpp -o bin/benchmark/build_suffix_array
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/saca.cpp -o bin/benchmark/saca $(LDLIBS)
 
-bin/benchmark/zuffix_random_dna: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/find_random_dna: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/zuffix_random_dna.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_random_dna
+	$(CXX) $(CXXFLAGS) $(DEBUG) benchmark/find_random_dna.cpp external/SpookyV2.cpp -o bin/benchmark/find_random_dna $(LDLIBS)
 
 bin/benchmark/zuffix_file: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=char benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_char_file
-#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint8_file
-#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint16_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint16_file
-#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint32_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint32_file
-#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint64_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint64_file
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=char benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_char_file $(LDLIBS)
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint8_file $(LDLIBS)
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint16_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint16_file $(LDLIBS)
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint32_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint32_file $(LDLIBS)
+#	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint64_t benchmark/zuffix_file.cpp external/SpookyV2.cpp -o bin/benchmark/zuffix_uint64_file $(LDLIBS)
 
 
 # UTILS
@@ -79,7 +86,7 @@ utils: bin/utils/generate_pattern pizzachili
 
 bin/utils/generate_pattern: utils/*
 	@mkdir -p bin/utils
-	$(CXX) $(CXXFLAGS) $(RELEASE) utils/generate_pattern.cpp -o bin/utils/generate_pattern
+	$(CXX) $(CXXFLAGS) $(RELEASE) utils/generate_pattern.cpp -o bin/utils/generate_pattern $(LDLIBS)
 
 pizzachili:
 	@mkdir -p pizzachili
