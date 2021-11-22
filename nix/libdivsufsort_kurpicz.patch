@@ -1,0 +1,28 @@
+diff --git a/include/divsufsort.h.cmake b/include/divsufsort.h.cmake
+index a62a11b..a89f55e 100644
+--- a/include/divsufsort.h.cmake
++++ b/include/divsufsort.h.cmake
+@@ -75,6 +75,10 @@ DIVSUFSORT_API
+ saint_t
+ divsufsort@W64BIT@(const sauchar_t *T, saidx@W64BIT@_t *SA, saidx@W64BIT@_t n);
+ 
++DIVSUFSORT_API
++saint_t
++divsuflcpsort(const sauchar_t *T, saidx@W64BIT@_t *SA, saidx@W64BIT@_t *LCP, saidx@W64BIT@_t n);
++
+ /**
+  * Constructs the suffix array of a given string.
+  * @param T[0..n-1] The input string.
+diff --git a/lib/divsufsort.c b/lib/divsufsort.c
+index 1c43e9e..500837e 100644
+--- a/lib/divsufsort.c
++++ b/lib/divsufsort.c
+@@ -718,7 +718,7 @@ divsuflcpsort(const sauchar_t *T, saidx_t *SA, saidx_t *LCP, saidx_t n) {
+   return err;
+ }
+ 
+-saidx_t
++saint_t
+ divsufsort(const sauchar_t *T, saidx_t *SA, saidx_t n) {
+   saidx_t *bucket_A, *bucket_B;
+   saidx_t m;

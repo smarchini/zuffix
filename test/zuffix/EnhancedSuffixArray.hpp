@@ -1,10 +1,11 @@
 #pragma once
 
-#include "util.hpp"
+#include "../common.hpp"
 
 TEST(EnhancedSuffixArray, abracadabra) {
+	using namespace zarr;
 	std::string t("ABRACADABRA");
-	zarr::EnhancedSuffixArray<char> enhanced{zarr::String<char>(t, true)};
+	EnhancedSuffixArray<char> enhanced{String<char>(t, true)};
 
 	EXPECT_EQ(enhanced.getSA().size(), 12);
 	const size_t sa[12] = {0, 7, 3, 5, 10, 1, 8, 4, 6, 2, 9, 11};
@@ -18,19 +19,25 @@ TEST(EnhancedSuffixArray, abracadabra) {
 	const size_t ct[12] = {12, 1, 3, 4, 2, 7, 6, 8, 9, 11, 10, 5};
 	for (size_t i = 0; i < 12; i++) EXPECT_EQ(enhanced.getCT()[i], ct[i]) << "at index " << i;
 
-	EXPECT_EQ(enhanced.find(stdToZarr("0")), zarr::LInterval<size_t>(1, 0));
-	EXPECT_EQ(enhanced.find(stdToZarr("Z")), zarr::LInterval<size_t>(1, 0));
-	EXPECT_EQ(enhanced.find(stdToZarr("ABRACADABR0")), zarr::LInterval<size_t>(1, 0));
-	EXPECT_EQ(enhanced.find(stdToZarr("ABRACADABRZ")), zarr::LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(String<char>("0")), LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(String<char>("Z")), LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(String<char>("ABRACADABR0")), LInterval<size_t>(1, 0));
+	EXPECT_EQ(enhanced.find(String<char>("ABRACADABRZ")), LInterval<size_t>(1, 0));
 
-	// // clang-format off
-	std::string patterns[] = {"A",      "B",      "C",      "D",       "R",       "AB",      "BR",       "CA",       "DA",        "RA",         "ABR",
-							  "BRA",    "CAD",    "DAB",    "ABRA",    "BRAC",    "CADA",    "DABR",     "ABRAC",    "BRACA",     "CADAB",      "DABRA",
-							  "ABRACA", "BRACAD", "CADABR", "ABRACAD", "BRACADA", "CADABRA", "ABRACADA", "BRACADAB", "ABRACADAB", "ABRACADABR", "ABRACADABRA"};
-	// // clang-format on
+	// clang-format off
+	std::string patterns[] = { "A", "B", "C", "D", "R",
+							   "AB", "BR", "CA", "DA", "RA",
+							   "ABR", "BRA", "CAD", "DAB",
+							   "ABRA", "BRAC", "CADA", "DABR",
+							   "ABRAC", "BRACA", "CADAB", "DABRA",
+							   "ABRACA", "BRACAD", "CADABR",
+							   "ABRACAD", "BRACADA", "CADABRA",
+							   "ABRACADA", "BRACADAB",
+							   "ABRACADAB", "ABRACADABR", "ABRACADABRA" };
+	// clang-format on
 
 	for (auto p : patterns) {
-		auto match = enhanced.find(zarr::String<char>(p));
+		auto match = enhanced.find(String<char>(p));
 		EXPECT_LE(match.from, match.to) << " on pattern: " << p;
 		for (size_t i = match.from; i < match.to; i++) EXPECT_EQ(t.substr(sa[i], p.length()), p) << t.substr(sa[i], p.length()) << " != " << p;
 	}

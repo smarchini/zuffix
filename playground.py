@@ -310,6 +310,7 @@ def fatBinarySearch(T, S, SA, LCP, CT, Z):
         print(f"beta = {(betal, betar)}")
         if betal < betar:
             l = getlcp(betal, betar, LCP, CT) + 1 # it is always an internal node
+            assert l >= f
             print(f"new l: {l}")
             #l = len(T) - SA[betal] if betar - betal == 1 else getlcp(betal, betar, LCP, CT) # it is always an internal node
             alphai, alphaj = betal, betar
@@ -354,19 +355,19 @@ def zuffixStringSearch(T, P, SA, LCP, CT, Z):
 #-------------------------------------------------------------------------------
 # Test: bug
 #-------------------------------------------------------------------------------
-T = 'bbbcabbcc~'
-P = 'bbcbbcbac'
-SA = saca(T)
-LCP = lcpca(T, SA)
-UP, DOWN, NEXT = udnca(LCP)
-CT = ctca(LCP)
-assert CT == ctca3(LCP, UP, DOWN, NEXT)
-Z = zca(T, SA, LCP, CT)
-
-enhancedStringSearch(T, P, SA, LCP, CT)
-exitNode(T, P, SA, LCP, CT, 0, len(T))
-fatBinarySearch(T, P, SA, LCP, CT, Z)
-zuffixStringSearch(T, P, SA, LCP, CT, Z)
+# T = 'bbbcabbcc~'
+# P = 'bbcbbcbac'
+# SA = saca(T)
+# LCP = lcpca(T, SA)
+# UP, DOWN, NEXT = udnca(LCP)
+# CT = ctca(LCP)
+# assert CT == ctca3(LCP, UP, DOWN, NEXT)
+# Z = zca(T, SA, LCP, CT)
+#
+# enhancedStringSearch(T, P, SA, LCP, CT)
+# exitNode(T, P, SA, LCP, CT, 0, len(T))
+# fatBinarySearch(T, P, SA, LCP, CT, Z)
+# zuffixStringSearch(T, P, SA, LCP, CT, Z)
 #-------------------------------------------------------------------------------
 
 
@@ -407,9 +408,9 @@ def testRandom(n):
             cnt += 1
     return cnt
 
-for _ in range(100): testRandom(10)
-for _ in range(100): testRandom(100)
-for _ in range(100): testRandom(127)
+# for _ in range(100): testRandom(10)
+# for _ in range(100): testRandom(100)
+# for _ in range(100): testRandom(127)
 #-------------------------------------------------------------------------------
 
 def getParent(T, SA, LCP, CT):
@@ -426,3 +427,25 @@ def getParent(T, SA, LCP, CT):
         print(stack)
 
 getParent(T, SA, LCP, CT)
+
+
+def fibonacci(n):
+    prec, curr = 'a', 'ab'
+    for i in range(n):
+        prec, curr = curr, curr+prec
+    return curr
+
+
+def fiblen(n):
+    prec, curr = 1, 2
+    for i in range(n):
+        prec, curr = curr, curr+prec
+    return curr
+
+T = fibonacci(10)
+SA = saca(T)
+LCP = lcpca(T, SA)
+UP, DOWN, NEXT = udnca(LCP)
+CT = ctca(LCP)
+assert CT == ctca3(LCP, UP, DOWN, NEXT)
+Z = zca(T, SA, LCP, CT)

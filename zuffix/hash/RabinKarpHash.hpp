@@ -1,7 +1,6 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
+#include "functions.hpp"
 
 namespace zarr {
 
@@ -11,20 +10,36 @@ template <typename T> class RabinKarpHash {
 	const uint64_t d = 0xce965057aff6957b; // md = 1 mod 2^64
 
   private:
-	T *string;
+	const T *string;
 	uint64_t state = 0;
-	size_t l = 0, r = 0;
+	const uint8_t *l, *r;
 	uint64_t pow = 1;
 
   public:
-	RabinKarpHash(T *string) : string(string) {}
+	RabinKarpHash(T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
+
+	uint64_t operator()(size_t to) { return (*this)(0, to); }
 
 	uint64_t operator()(size_t from, size_t length) {
-		for (; l < from; l++, pow *= d) state -= string[l] * pow * d;
-		for (; l > from; l--, pow *= m) state += string[l - 1] * pow;
-		for (; r < from + length; r++, pow *= m) state = state * m + string[r];
-		for (; r > from + length; r--, pow *= d) state = (state - string[r - 1]) * d;
-		return state;
+		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
+		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
+
+		for (; l < b; l++, pow *= d) state -= l[0] * pow * d;
+		for (; l > b; l--, pow *= m) state += l[-1] * pow;
+		for (; r < e; r++, pow *= m) state = state * m + r[0];
+		for (; r > e; r--, pow *= d) state = (state - r[-1]) * d;
+
+		l = reinterpret_cast<const uint8_t *>(string + from);
+		r = reinterpret_cast<const uint8_t *>(string + from + length);
+		return state ^ fmix64(length);
+	}
+
+	uint64_t immediate(size_t from, size_t length) const {
+		uint64_t result = 0;
+		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
+		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
+		for (; b < e; b++) result = result * m + (*b);
+		return result ^ fmix64(length);
 	}
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <tuple>
 #include <utility>
 
 namespace zarr {
@@ -10,23 +11,18 @@ namespace zarr {
  * @tparam T the data type of the interval.
  */
 template <class T> class LInterval {
-  private:
   public:
 	T from, to;
-	// explicit LInterval(T point) : LInterval(point, point + 1) {}
-	LInterval(T from, T to) : from(std::move(from)), to(std::move(to)) {}
 
+	LInterval(T from, T to) : from(std::move(from)), to(std::move(to)) {}
 	constexpr LInterval() = default;
 	constexpr LInterval(LInterval &&) = default;
 	constexpr LInterval(const LInterval &) = default;
 	LInterval<T> &operator=(LInterval<T> &&) = default;
 	LInterval<T> &operator=(const LInterval<T> &) = default;
 
-	// T getFrom() const { std::cout << "pippo" << std::endl; return from; }
-	// T getTo() const { std::cout << "pippo" << std::endl; return to; }
-
 	/** Length of the interval */
-	T length() const { return to - from; }
+	T length() const { return isEmpty() ? 0 : to - from; }
 
 	/** Check if the interval is empty
 	 *
@@ -39,8 +35,6 @@ template <class T> class LInterval {
 	 * @return true if the interval is in a singleton, false otherwise
 	 */
 	bool isSingleton() const { return from + 1 == to; }
-
-	// TODO Convert (from and to) different kind of intervals and compare
 
 	/** Check if two interval are equals. Two empty intervals are always equals.
 	 *
@@ -55,19 +49,23 @@ template <class T> class LInterval {
 	 *
 	 * @return false if the other interval is equals to this, true otherwise.
 	 */
-	bool operator!=(const LInterval<T> &oth) const { return !(this == oth); }
+	bool operator!=(const LInterval<T> &oth) const { return !(*this == oth); }
 
 	/** Check if one interval strictly contains another
 	 *
 	 * @return true if the other interval is strictly contained in this
 	 */
-	bool contains(const LInterval<T> &oth) const { return from <= oth.from && oth.to <= to && (from != oth.from || oth.to != to); }
+	bool contains(const LInterval<T> &oth) const { return (from <= oth.from) && (oth.to <= to) && ((*this) != oth); }
 
 	/** Serialize the interval in a human-readable format */
 	friend std::ostream &operator<<(std::ostream &os, const LInterval<T> &interval) { return os << "[" << interval.from << ", " << interval.to << ")"; }
 
-	// WARNING dirty hack, maybe undefined behavior
-	operator std::tuple<T &, T &>() { return std::tie(const_cast<T &>(from), const_cast<T &>(to)); }
+	/** Enable C++17 syntasx
+	 * - auto [from, to] = something();
+	 * - std::tie(from, to) = something();
+	 *
+	 **/
+	operator std::tuple<T &, T &>() { return std::tie(from, to); } // Not an hack
 };
 
 } // namespace zarr

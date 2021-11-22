@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "xoroshiro128plus.hpp"
+#include "saca.hpp"
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);

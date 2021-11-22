@@ -5,11 +5,13 @@ stdenv.mkDerivation rec {
   version = "2";
 
   src = fetchurl {
-    urls = [
-      "https://burtleburtle.net/bob/c/SpookyV2.h"
-      "https://burtleburtle.net/bob/c/SpookyV2.cpp"
-    ];
+    url = "https://burtleburtle.net/bob/c/SpookyV2.h";
     sha256 = "2504yaf+rJflinqjoIEl0tdJxllrrIKoZ0QLcy23tg4=";
+  };
+
+  srcpp = fetchurl {
+    url = "https://burtleburtle.net/bob/c/SpookyV2.cpp";
+    sha256= "+scf1H04GuZ94Ongvr7ryGcSycrjE4I2YYQrPXJlv5I=";
   };
 
   # It is just the file. No unpacking needed. Seems like we need to create
@@ -21,7 +23,7 @@ stdenv.mkDerivation rec {
     mkdir -p $out/lib
     echo "#pragma once" >> $out/include/SpookyV2.h
     cat ${src} >> $out/include/SpookyV2.h
-    g++ -fpic -shared ${src} -o $out/lib/libspooky.so
+    g++ -fpic -shared ${srcpp} -I $out/include -o $out/lib/libspooky.so
   '';
 
   meta = {

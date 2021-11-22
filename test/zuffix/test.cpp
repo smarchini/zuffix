@@ -1,15 +1,13 @@
 #include <gtest/gtest.h>
 
+#include "../common.hpp"
+
+// clang-format off
 #include "SimpleSuffixArray.hpp"
-
 #include "EnhancedSuffixArray.hpp"
-
 #include "EnhancedZuffixArray.hpp"
-
 #include "AllTheSame.hpp"
-
-#include "zuffix.hpp"
-
+// clang-format on
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);

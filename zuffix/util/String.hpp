@@ -13,22 +13,28 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String 
 	static constexpr char DOLLAR = std::numeric_limits<T>::max();
 
   private:
-	sux::util::Vector<T> data;
+	sux::util::Vector<T, AT> data;
 
   public:
 	explicit String(size_t length, bool dollar = false) : data(length + dollar) {
 		if (dollar) data[length] = DOLLAR;
 	}
 
-	// Prefix free strings are $ terminated, otherwise there is no special (e.g., \0) ending delimiter
+	// Prefix-free strings are $ terminated, otherwise there is no ending delimiter
 	explicit String(std::string string, bool dollar = false) : String(string.length(), dollar) {
 		for (size_t i = 0; i < string.length(); i++) data[i] = string[i];
 		if (dollar) data[string.length()] = DOLLAR;
 	}
 
 	explicit String(const void *buffer, size_t bytes, bool dollar = false) : String(bytes, dollar) {
-		assert(bytes % sizeof(T) == 0 || "Bad size: bytes should be a multiple of sizeof(T)");
+		assert(bytes % sizeof(T) == 0 && "Bad size: bytes should be a multiple of sizeof(T)");
 		std::memcpy(&data, buffer, bytes);
+	}
+
+	String<T> substring(size_t from, size_t length) {
+		String<T> result(length);
+		std::memcpy(&result.data, &data + from, length * sizeof(T));
+		return result;
 	}
 
 	// Delete copy operators
@@ -57,18 +63,5 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String 
 	/** Returns the length of the string. */
 	inline size_t length() const { return data.size(); }
 };
-
-template <typename T, sux::util::AllocType AT = sux::util::MALLOC> String<T, AT> file_to_string(std::string filename, bool dollar = false) {
-	std::ifstream file(filename, std::ios::in);
-	file.seekg(0, file.end);
-	int filesize = file.tellg();
-	file.seekg(0, file.beg);
-
-	assert(filesize % sizeof(T) == 0 && "Bad file or wrong type: text file can't contain half-symbols");
-
-	std::unique_ptr<char[]> buffer(new char[filesize]);
-	file.read(buffer.get(), filesize);
-	return zarr::String<T, AT>(buffer.get(), filesize, dollar);
-}
 
 } // namespace zarr

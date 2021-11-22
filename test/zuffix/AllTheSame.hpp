@@ -1,77 +1,49 @@
 #pragma once
 
-#include "util.hpp"
-#include <iostream>
+#include "../common.hpp"
 
-TEST(AllTheSame, saca) {
-	zarr::String<char> t(std::string("ABRACADABRA"), true);
+TEST(AllTheSame, fibonacci) {
+	using namespace zarr;
+	std::string text = fibonacci(10);
 
-	auto sort = zarr::SAConstructBySort(t);
-	auto divsufsort = zarr::SAConstructByDivSufSort(t);
-	auto sais = zarr::SAConstructBySAIS(t);
+	SimpleSuffixArray<char> simple{String<char>(text, true)};
+	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
+	EnhancedZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
+	EnhancedZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
+	EnhancedZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
-	for (size_t i = 0; i < sort.size(); i++) {
-		EXPECT_EQ(sort[i], divsufsort[i]) << "at index " << i;
-		EXPECT_EQ(sort[i], sais[i]) << "at index " << i;
+	for (int i = 1; i <= 10; i++) {
+		String<char> p = String<char>(fibonacci(i));
+		EXPECT_EQ(simple.find(p), rabinkarp.find(p));
+		EXPECT_EQ(simple.find(p), cyclicpoly.find(p));
+		EXPECT_EQ(simple.find(p), bad.find(p));
 	}
 }
 
-inline void fixedLength(std::string text, std::string charset, size_t plen) {
-	zarr::SimpleSuffixArray<char> simple{zarr::String<char>(text, true)};
-	zarr::EnhancedSuffixArray<char> enhanced{zarr::String<char>(text, true)};
+inline void fixlen(std::string charset, size_t n, size_t m) {
+	using namespace zarr;
+	std::string text = random(charset, n);
 
-	zarr::EnhancedZuffixArray<char, ShittyBitHash> zuffixsb{zarr::String<char>(text, true)};
-	zarr::EnhancedZuffixArray<char, zarr::RabinKarpHash> zuffixrk{zarr::String<char>(text, true)};
-	zarr::EnhancedZuffixArray<char, CyclicPoly128Hash> zuffixcp{zarr::String<char>(text, true)};
+	SimpleSuffixArray<char> simple{String<char>(text, true)};
+	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
+	EnhancedZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
+	EnhancedZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
+	EnhancedZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
 	for (int i = 0; i < 100; i++) {
-		auto p = stdToZarr(randstring(charset, plen));
-		EXPECT_EQ(simple.find(p), enhanced.find(p));
-		EXPECT_EQ(simple.find(p), zuffixsb.find(p));
-		EXPECT_EQ(simple.find(p), zuffixrk.find(p));
-		EXPECT_EQ(simple.find(p), zuffixcp.find(p));
+		auto p = String<char>(random(charset, m));
+		EXPECT_EQ(simple.find(p), rabinkarp.find(p));
+		EXPECT_EQ(simple.find(p), cyclicpoly128.find(p));
+		EXPECT_EQ(simple.find(p), bad.find(p));
 	}
 }
 
-inline void battery(std::string s) {
-	fixedLength(randstring(s, 10), s, 0);
-	fixedLength(randstring(s, 10), s, 1);
-	fixedLength(randstring(s, 10), s, 2);
-	fixedLength(randstring(s, 10), s, 3);
-	fixedLength(randstring(s, 10), s, 4);
-	fixedLength(randstring(s, 10), s, 5);
-	fixedLength(randstring(s, 10), s, 6);
-	fixedLength(randstring(s, 10), s, 7);
-	fixedLength(randstring(s, 10), s, 8);
-	fixedLength(randstring(s, 10), s, 9);
-	fixedLength(randstring(s, 10), s, 10);
-
-	fixedLength(randstring(s, 100), s, 5);
-	fixedLength(randstring(s, 100), s, 10);
-	fixedLength(randstring(s, 100), s, 20);
-	fixedLength(randstring(s, 100), s, 30);
-	fixedLength(randstring(s, 100), s, 40);
-	fixedLength(randstring(s, 100), s, 50);
-	fixedLength(randstring(s, 100), s, 60);
-	fixedLength(randstring(s, 100), s, 70);
-	fixedLength(randstring(s, 100), s, 80);
-	fixedLength(randstring(s, 100), s, 90);
-
-	fixedLength(randstring(s, 1000), s, 3);
-	fixedLength(randstring(s, 1000), s, 5);
-	fixedLength(randstring(s, 1000), s, 7);
-	fixedLength(randstring(s, 1000), s, 9);
-
-	fixedLength(randstring(s, 10000), s, 13);
-	fixedLength(randstring(s, 10000), s, 15);
-	fixedLength(randstring(s, 10000), s, 20);
-	fixedLength(randstring(s, 10000), s, 30);
+inline void battery(std::string charset) {
+	for (size_t n = 10; n < 10000; n *= 10)
+		for (size_t m = 1; m < n; m *= 10) fixlen(charset, n, m);
 }
 
-TEST(AllTheSame, sigma2) { battery("ab"); }
-
-TEST(AllTheSame, sigma4) { battery("ACGT"); }
-
-TEST(AllTheSame, sigma26) { battery("abcdefghijklmnopqrstuvwxyz"); }
-
-TEST(AllTheSame, sigma72) { battery("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"); }
+TEST(AllTheSame, ab) { battery("ab"); }
+TEST(AllTheSame, ACGT) { battery("ACGT"); }
+TEST(AllTheSame, az) { battery("abcdefghijklmnopqrstuvwxyz"); }
+TEST(AllTheSame, azAZ09) { battery("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"); }

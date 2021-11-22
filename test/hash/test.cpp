@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "RabinKarpHash.hpp"
+#include "hash.hpp"
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);

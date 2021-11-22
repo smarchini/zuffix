@@ -1,13 +1,11 @@
 #pragma once
 
+#include <sux/support/common.hpp>
+#include <sux/util/Vector.hpp>
+
 #include "util/LInterval.hpp"
 #include "util/String.hpp"
 #include "util/common.hpp"
-
-#include <limits>
-#include <sux/support/common.hpp>
-#include <sux/util/Vector.hpp>
-#include <unordered_map>
 
 namespace zarr {
 using ::sux::util::Vector;
