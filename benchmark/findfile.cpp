@@ -30,18 +30,20 @@ tuple<size_t, chrono::nanoseconds::rep> find(DATASTRUCTURETYPE &ds, const String
 
 int main(int argc, char **argv) {
 	if (argc < 3) {
-		cerr << "Not enough parameters: <text> <pattern>\n";
+		cerr << "Not enough parameters: <text.index> <pattern>\n";
 		cerr << "To build text and pattern you may want to use Pizza&Chili utils: ";
 		cerr << "http://pizzachili.dcc.uchile.cl/experiments.html \n";
 		return -1;
 	}
 
-	DATASTRUCTURETYPE ds(file_to_string<SYMBOLTYPE>(argv[1]));
-	cout << STRINGIFY(DATASTRUCTURETYPE) << " for " << argv[1] << "\n" << endl;
+	std::ifstream file(argv[1], std::ios::in);
+	DATASTRUCTURETYPE ds;
+	file >> ds;
+	cout << STRINGIFY(DATASTRUCTURETYPE) << ": " << argv[1] << "\n" << endl;
 
 	for (int i = 2; i < argc; i++) {
-		auto [file, number, length, p] = load_pizzachili_patterns<SYMBOLTYPE>(argv[i]);
 		cout << "Pattern: " << argv[i] << endl;
+		auto [file, number, length, p] = load_pizzachili_patterns<SYMBOLTYPE>(argv[i]);
 
 		uint64_t sum = 0;
 		vector<chrono::nanoseconds::rep> record;

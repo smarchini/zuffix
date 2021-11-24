@@ -12,7 +12,7 @@ TEST(AllTheSame, fibonacci) {
 	EnhancedZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
 	EnhancedZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
-	for (int i = 1; i <= 10; i++) {
+	for (int i = 2; i < 10; i++) {
 		String<char> p = String<char>(fibonacci(i));
 		EXPECT_EQ(simple.find(p), rabinkarp.find(p));
 		EXPECT_EQ(simple.find(p), cyclicpoly.find(p));

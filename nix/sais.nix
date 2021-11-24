@@ -14,6 +14,6 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ cmake ];
 
   meta = {
-    description = "SA-IS algorithm";
+    description = "SA-IS: an implementation of the induced sorting algorithm";
   };
 }

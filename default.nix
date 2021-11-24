@@ -7,15 +7,19 @@ pkgs.mkShell {
 
     nativeBuildInputs = with pkgs; [
       pkg-config
-      clang_13
+      llvmPackages_latest.clang
+      gcc_latest
+      #(callPackage ./nix/r-index.nix { })
+      #(callPackage ./nix/csapp.nix { })
     ];
 
     buildInputs = with pkgs; [
       gtest
       gbenchmark
       xxHash
+      llvmPackages_13.openmp
       (callPackage ./nix/sux.nix { })
-      (callPackage ./nix/sais.nix { })
+      (callPackage ./nix/libsais.nix { })
       (callPackage ./nix/libdivsufsort.nix { })
       #(callPackage ./nix/spooky.nix { })
       #(callPackage ./nix/smasher.nix { })

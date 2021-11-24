@@ -12,11 +12,13 @@ using ::sux::util::Vector;
 
 template <typename T> class SimpleSuffixArray {
   private:
-	const String<T> text;
-	const Vector<size_t> sa;
+	String<T> text;
+	Vector<size_t> sa;
 
   public:
-	SimpleSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySAIS(text)) {}
+	SimpleSuffixArray() {}
+
+	SimpleSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)) {}
 
 	LInterval<size_t> find(const String<T> &pattern) const { return acceleratedBinarySearch(pattern, 0, text.length(), 0, 0); }
 
@@ -39,6 +41,9 @@ template <typename T> class SimpleSuffixArray {
 		auto right = acceleratedBinarySearch(pattern, c + 1, r, i, rlcp);
 		return {min(c, left.from), max(c, right.to)};
 	}
+
+	friend std::ostream &operator<<(std::ostream &os, const SimpleSuffixArray<T> &ds) { return os << ds.text << ds.sa; }
+	friend std::istream &operator>>(std::istream &is, SimpleSuffixArray<T> &ds) { return is >> ds.text >> ds.sa; }
 };
 
 } // namespace zarr

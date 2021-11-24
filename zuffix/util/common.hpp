@@ -3,7 +3,7 @@
 #include "String.hpp"
 #include <cstdint>
 #include <divsufsort64.h>
-#include <sais.hxx>
+#include <libsais64.h>
 #include <stack>
 #include <sux/util/Vector.hpp>
 
@@ -61,10 +61,22 @@ template <typename T> inline Vector<size_t> SAConstructByDivSufSort(const String
  *
  * @return The array SA
  */
-template <typename T> inline Vector<size_t> SAConstructBySAIS(const String<T> &string) {
+// template <typename T> inline Vector<size_t> SAConstructBySAIS(const String<T> &string) {
+// 	size_t n = string.length();
+// 	Vector<size_t> result(n);
+// 	saisxx((char *)&string, (long *)&result, (long)string.length(), 256L);
+// 	return result;
+// }
+
+/** Suffix array construction algorithm: IlyaGrebnov's libsais
+ *
+ * @return The array SA
+ */
+template <typename T> inline Vector<size_t> SAConstructByGrebnovSAIS(const String<T> &string) {
 	size_t n = string.length();
 	Vector<size_t> result(n);
-	saisxx((char *)&string, (long *)&result, (long)string.length(), 256L);
+	// saisxx((char *)&string, (long *)&result, (long)string.length(), 256L);
+	libsais64((const uint8_t *)&string, (int64_t *)&result, n, 0, nullptr);
 	return result;
 }
 
@@ -90,25 +102,24 @@ template <typename T> inline Vector<ssize_t> LCPConstructByStrcmp(const String<T
 /** SA+LCP array construction algorithm: extended DivSufSort
  *
  */
-template <typename T> inline void SALCPConstructByDivSufSort(Vector<size_t> &sa, Vector<ssize_t> &lcp, const String<T> &string) {
-	size_t n = string.length();
-	sa.reserve(n);
-	lcp.reserve(n + 1);
-	// TODO https://github.com/kurpicz/libdivsufsort
-	// divsuflcpsort(&string, &sa, &lcp + 1, n);
-	lcp[0] = lcp[n] = -1;
-}
+// template <typename T> inline void SALCPConstructByDivSufSort(Vector<size_t> &sa, Vector<ssize_t> &lcp, String<T> &string) {
+// 	size_t n = string.length();
+// 	sa.resize(n);
+// 	lcp.resize(n + 1);
+// 	//divsuflcpsort64((const unsigned char *)&string, (int64_t *)&sa, (int64_t *)&lcp, n);
+// 	lcp[0] = lcp[n] = -1;
+// }
 
 /** SA+LCP array construction algorithm: extended SA-IS
  *
  */
-template <typename T> inline void SALCPConstructBySAIS(Vector<size_t> &sa, Vector<ssize_t> &lcp, const String<T> &string) {
-	size_t n = string.length();
-	sa.reserve(n);
-	lcp.reserve(n + 1);
-	// TODO https://github.com/kurpicz/sais-lite-lcp
-	lcp[0] = lcp[n] = -1;
-}
+// template <typename T> inline void SALCPConstructBySAIS(Vector<size_t> &sa, Vector<ssize_t> &lcp, const String<T> &string) {
+// 	size_t n = string.length();
+// 	sa.reserve(n);
+// 	lcp.reserve(n + 1);
+// 	// TODO https://github.com/kurpicz/sais-lite-lcp
+// 	lcp[0] = lcp[n] = -1;
+// }
 
 /** CT (child table) array construction algorithm by Abouelhoda's paper
  *
@@ -136,6 +147,29 @@ inline Vector<size_t> CTConstructByAbouelhoda(const Vector<ssize_t> &lcp) {
 	}
 
 	return result;
+}
+
+template <typename T> inline Vector<ssize_t> LCPConstructionByKarkkainenPsi(const String<T> &string, const Vector<size_t> &sa) {
+	// using namespace std;
+	size_t n = sa.size();
+	Vector<size_t> plcp(n + 1);
+	for (size_t i = 0, sai = n; i < n; sai = sa[i], i++) plcp[sa[i]] = sai;
+	// for (size_t i = 0; i < n; i++) cout << "plcp[" << i << "] = " <<  plcp[i] << endl;
+
+	size_t maxl = 0;
+	for (size_t i = 0, l = 0; i < n; i++) {
+		while (string[i + l] == string[plcp[i] + l]) l++;
+		plcp[i] = l;
+		if (l) {
+			maxl = max(maxl, l);
+			l--;
+		}
+	}
+
+	Vector<ssize_t> lcp(n + 1);
+	for (size_t i = 1; i < n; i++) lcp[i] = plcp[sa[i]];
+	lcp[0] = lcp[n] = -1;
+	return lcp;
 }
 
 } // namespace zarr

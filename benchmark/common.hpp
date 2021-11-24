@@ -24,8 +24,8 @@
 template <typename T> using CyclicPoly4Hash = zarr::CyclicPolyHash<T, 4>;
 template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;
 
-zarr::String<char> random(size_t n, const char *charset, size_t sigma) {
-	zarr::String<char> result(n);
+zarr::String<uint8_t> random(size_t n, const uint8_t *charset, size_t sigma) {
+	zarr::String<uint8_t> result(n);
 	static std::random_device rd;
 	static zarr::xoroshiro128plus_engine rng(rd());
 	std::uniform_int_distribution<uint8_t> dist(0, sigma - 1);

@@ -12,13 +12,15 @@ using ::sux::util::Vector;
 
 template <typename T> class EnhancedSuffixArray {
   private:
-	const String<T> text;
-	const Vector<size_t> sa;
-	const Vector<ssize_t> lcp;
-	const Vector<size_t> ct;
+	String<T> text;
+	Vector<size_t> sa;
+	Vector<ssize_t> lcp;
+	Vector<size_t> ct;
 
   public:
-	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySAIS(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
+	EnhancedSuffixArray() {}
+
+	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructionByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
 		size_t l = i;
@@ -64,6 +66,9 @@ template <typename T> class EnhancedSuffixArray {
 
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
+
+	friend std::ostream &operator<<(std::ostream &os, const EnhancedSuffixArray<T> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct; }
+	friend std::istream &operator>>(std::istream &is, EnhancedSuffixArray<T> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct; }
 };
 
 } // namespace zarr

@@ -16,6 +16,8 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String 
 	sux::util::Vector<T, AT> data;
 
   public:
+	String() {}
+
 	explicit String(size_t length, bool dollar = false) : data(length + dollar) {
 		if (dollar) data[length] = DOLLAR;
 	}
@@ -62,6 +64,10 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String 
 
 	/** Returns the length of the string. */
 	inline size_t length() const { return data.size(); }
+
+  private:
+	friend std::ostream &operator<<(std::ostream &os, const String<T, AT> &s) { return os << s.data; }
+	friend std::istream &operator>>(std::istream &is, String<T, AT> &s) { return is >> s.data; }
 };
 
 } // namespace zarr

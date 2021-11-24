@@ -12,14 +12,16 @@ using ::sux::util::Vector;
 
 template <typename T, template <typename U> class RH> class EnhancedZuffixArray {
   private:
-	const String<T> text;
-	const Vector<size_t> sa;
-	const Vector<ssize_t> lcp;
-	const Vector<size_t> ct;
+	String<T> text;
+	Vector<size_t> sa;
+	Vector<ssize_t> lcp;
+	Vector<size_t> ct;
 	Vector<size_t> z;
 
   public:
-	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySAIS(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	EnhancedZuffixArray() {}
+
+	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructionByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		z.resize(max(round_pow2(text.length()) << 2, 1UL << 25)); // TODO tweak me
 		ZFillByDFS(0, text.length(), 0, RH<T>(&text));
 		// ZFillByBottomUp();
@@ -102,7 +104,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t hlen = twoFattestLR(nlen, elen);
 		assert(dept <= hlen);
 
-		z[h(sa[i], hlen) % z.size()] = pack({i, j});
+		z[h.immediate(sa[i], hlen) % z.size()] = pack({i, j});
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, dept + 1);
@@ -161,6 +163,9 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	size_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 
 	LInterval<size_t> unpack(size_t x) const { return {x >> 32, x & 0xffffffff}; }
+
+	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
+	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
 };
 
 } // namespace zarr

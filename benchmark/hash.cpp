@@ -10,9 +10,10 @@ static void BM_RabinKarpHash(benchmark::State &state) {
 	static std::random_device rd;
 	static xoroshiro128plus_engine rng(rd());
 	std::uniform_int_distribution<size_t> dist(0, n - 1);
-	auto string = random(n, "abcdefghijklmnopqrstuvwxyz", 26);
+	uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";
+	auto string = random(n, charset, 26);
 
-	RabinKarpHash<char> h(&string);
+	RabinKarpHash<uint8_t> h(&string);
 
 	for (auto _ : state) {
 		size_t a = dist(rng), b = dist(rng);
@@ -45,9 +46,10 @@ static void BM_CyclicPoly128(benchmark::State &state) {
 	static std::random_device rd;
 	static xoroshiro128plus_engine rng(rd());
 	std::uniform_int_distribution<size_t> dist(0, n - 1);
-	auto string = random(n, "abcdefghijklmnopqrstuvwxyz", 26);
+	uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";
+	auto string = random(n, charset, 26);
 
-	CyclicPolyHash<char, 128> h(&string);
+	CyclicPolyHash<uint8_t, 128> h(&string);
 
 	for (auto _ : state) {
 		size_t a = dist(rng), b = dist(rng);
@@ -80,9 +82,10 @@ static void BM_O1(benchmark::State &state) {
 	static std::random_device rd;
 	static xoroshiro128plus_engine rng(rd());
 	std::uniform_int_distribution<size_t> dist(0, n - 1);
-	auto string = random(n, "abcdefghijklmnopqrstuvwxyz", 26);
+	uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";
+	auto string = random(n, charset, 26);
 
-	O1Hash<char> h(&string);
+	O1Hash<uint8_t> h(&string);
 
 	for (auto _ : state) {
 		size_t a = dist(rng), b = dist(rng);
@@ -115,9 +118,10 @@ static void BM_XXH3(benchmark::State &state) {
 	static std::random_device rd;
 	static xoroshiro128plus_engine rng(rd());
 	std::uniform_int_distribution<size_t> dist(0, n - 1);
-	auto string = random(n, "abcdefghijklmnopqrstuvwxyz", 26);
+	uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";
+	auto string = random(n, charset, 26);
 
-	XXH3Hash<char> h(&string);
+	XXH3Hash<uint8_t> h(&string);
 
 	for (auto _ : state) {
 		size_t a = dist(rng), b = dist(rng);

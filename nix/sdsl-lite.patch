@@ -1,0 +1,28 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 657949f..9b21045 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -118,7 +118,7 @@ else()
+     message(WARNING "git not found. Cloning of submodules will not work.")
+ endif()
+ 
+-add_subdirectory(external)
++#add_subdirectory(external)
+ add_subdirectory(include)
+ add_subdirectory(lib)
+ 
+diff --git a/include/sdsl/construct_sa.hpp b/include/sdsl/construct_sa.hpp
+index cacb862..93b362f 100644
+--- a/include/sdsl/construct_sa.hpp
++++ b/include/sdsl/construct_sa.hpp
+@@ -25,8 +25,8 @@
+ #include "config.hpp"
+ #include "int_vector.hpp"
+ 
+-#include "divsufsort.h"
+-#include "divsufsort64.h"
++#include <divsufsort.h>
++#include <divsufsort64.h>
+ 
+ #include "qsufsort.hpp"
+ 

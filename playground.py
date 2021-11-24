@@ -437,7 +437,7 @@ def fibonacci(n):
 
 
 def fiblen(n):
-    prec, curr = 1, 2
+    prec, curr = 1, 1
     for i in range(n):
         prec, curr = curr, curr+prec
     return curr
