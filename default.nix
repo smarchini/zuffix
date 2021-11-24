@@ -3,14 +3,14 @@ pkgs.mkShell {
     packages = with pkgs; [
       bear 
       (callPackage ./nix/pizzachili.nix { })
+      (callPackage ./nix/r-index.nix { })
+      #(callPackage ./nix/csapp.nix { })
     ];
 
     nativeBuildInputs = with pkgs; [
       pkg-config
       llvmPackages_latest.clang
       gcc_latest
-      #(callPackage ./nix/r-index.nix { })
-      #(callPackage ./nix/csapp.nix { })
     ];
 
     buildInputs = with pkgs; [
@@ -21,7 +21,5 @@ pkgs.mkShell {
       (callPackage ./nix/sux.nix { })
       (callPackage ./nix/libsais.nix { })
       (callPackage ./nix/libdivsufsort.nix { })
-      #(callPackage ./nix/spooky.nix { })
-      #(callPackage ./nix/smasher.nix { })
     ];
 }

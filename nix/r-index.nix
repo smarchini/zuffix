@@ -15,7 +15,7 @@ stdenv.mkDerivation rec {
 
   buildInputs = with pkgs; [
     (callPackage ./sdsl-lite.nix { })
-    (callPackage ./libdivsufsort-sdsl.nix { })
+    (callPackage ./libdivsufsort.nix { })
   ];
 
   buildPhase = ''

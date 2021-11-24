@@ -84,7 +84,7 @@ static void BM_LCPByFisherPsiFibonacci(benchmark::State &state) {
 }
 BENCHMARK(BM_LCPByFisherPsiFibonacci)->Range(10, 20);
 
-static void BM_CTAbouelhoda(benchmark::State &state) {
+static void BM_CTByAbouelhoda(benchmark::State &state) {
 	auto n = state.range(0);
 	uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";
 	auto string = random(n, charset, 26);
@@ -95,6 +95,6 @@ static void BM_CTAbouelhoda(benchmark::State &state) {
 		benchmark::DoNotOptimize(CTConstructByAbouelhoda(lcp));
 	}
 }
-BENCHMARK(BM_CTAbouelhoda)->Range(1 << 10, 1 << 20);
+BENCHMARK(BM_CTByAbouelhoda)->Range(1 << 10, 1 << 20);
 
 BENCHMARK_MAIN();

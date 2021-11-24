@@ -19,25 +19,3 @@ stdenv.mkDerivation rec {
     description = "Library to construct the suffix array and the BW transformed string";
   };
 }
-
-  # stdenv.mkDerivation rec {
-  #   name = "libdivsufsort";
-  #   version = "master";
-  #
-  #   src = fetchFromGitHub {
-  #       owner = "kurpicz";
-  #       repo = "libdivsufsort";
-  #       rev = "${version}";
-  #       sha256 = "uJ2hNYTVb5yQNLJfmIsmMyDutliOAcSXN6gVjN3nEt8=";
-  #   };
-  #
-  #   patches = [ ./libdivsufsort_kurpicz.patch ];
-  #
-  #   cmakeFlags = [ "-DBUILD_SHARED_LIBS=OFF" "-DBUILD_DIVSUFSORT64=ON" "-DBUILD_EXAMPLES=ON" "-DUSE_OPENMP=OFF" ];
-  #
-  #   nativeBuildInputs = [ cmake ];
-  #
-  #   meta = {
-  #     description = "Library to construct the suffix array and the BW transformed string";
-  #   };
-  # }
