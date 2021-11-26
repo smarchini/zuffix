@@ -35,6 +35,17 @@ static void BM_Enhanced(benchmark::State &state) {
 }
 BENCHMARK(BM_Enhanced)->Apply(args);
 
+static void BM_ZuffixCRC64(benchmark::State &state) {
+	size_t n = state.range(0), m = state.range(1);
+	EnhancedZuffixArray<char, CRC64Hash> ds(fibonacci(n, true));
+	uint64_t cnt = 0;
+	String<char> p = fibonacci(m);
+	for (auto _ : state) benchmark::DoNotOptimize(cnt = ds.find(p).length());
+	state.counters["cnt"] = cnt;
+}
+BENCHMARK(BM_ZuffixCRC64)->Apply(args);
+
+
 static void BM_ZuffixRabinKarp(benchmark::State &state) {
 	size_t n = state.range(0), m = state.range(1);
 	EnhancedZuffixArray<char, RabinKarpHash> ds(fibonacci(n, true));

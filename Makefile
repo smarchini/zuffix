@@ -1,7 +1,7 @@
 CXX = g++
 DEBUG = -g -O0
-RELEASE = -g -O3 -fno-omit-frame-pointer -mavx -mavx2 -msse2 -fopenmp -funroll-loops
-CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./  #-I./external/sux/ -I./external/ -I./
+RELEASE = -g -O3 -fno-omit-frame-pointer -mavx -mavx2 -msse2  -msse4.2 -fopenmp -funroll-loops -msse4.2
+CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -mavx -mavx2 -msse2 -msse4.2 -I./  #-I./external/sux/ -I./external/ -I./
 LDLIBS=-lgtest -lbenchmark -lpthread -lsais64 -lsais -ldivsufsort64 -lxxhash
 
 all: test benchmark

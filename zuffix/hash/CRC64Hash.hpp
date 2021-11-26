@@ -41,7 +41,7 @@ template <typename T> class CRC64Hash {
 
 		l = reinterpret_cast<const uint8_t *>(string + from);
 		r = reinterpret_cast<const uint8_t *>(string + from + length);
-		return 0;
+		return state;
 	}
 
 	uint64_t immediate(size_t from, size_t length) const {

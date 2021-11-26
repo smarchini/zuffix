@@ -62,6 +62,26 @@ static void BM_Enhanced(benchmark::State &state) {
 }
 BENCHMARK(BM_Enhanced)->Apply(args);
 
+static void BM_ZuffixCRC64(benchmark::State &state) {
+	size_t n = state.range(0), m = state.range(1);
+	auto t = random(n, charset, 4);
+	EnhancedZuffixArray<uint8_t, CRC64Hash> zuffix(t.substring(0, n));
+
+	static std::random_device rd;
+	static zarr::xoroshiro128plus_engine rng(rd());
+	std::uniform_int_distribution<uint8_t> dist(0, n - m);
+
+	int64_t nonempty = 0;
+	for (auto _ : state) {
+		size_t from = dist(rng);
+		auto p = t.substring(from, m);
+		benchmark::DoNotOptimize(nonempty += !zuffix.find(p).isEmpty());
+	}
+
+	state.counters["nonempty"] = nonempty;
+}
+BENCHMARK(BM_ZuffixCRC64)->Apply(args);
+
 static void BM_ZuffixRabinKarp(benchmark::State &state) {
 	size_t n = state.range(0), m = state.range(1);
 	auto t = random(n, charset, 4);
