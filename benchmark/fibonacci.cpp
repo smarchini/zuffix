@@ -7,8 +7,8 @@ using namespace sux::util;
 
 static void args(benchmark::internal::Benchmark *b) {
 	// { text_length, pattern_length }
-	for (long i = 22; i < 25; i++)
-		b->Args({25, i}); //   1 MiB text - i KiB pattern
+	for (long i = 17; i < 20; i++)
+		b->Args({20, i}); //   1 MiB text - i KiB pattern
 						  // or (long i = 15; i < 23; i ++) b->Args({23, i});    //   1 MiB text - i KiB pattern
 						  // for (long i = 5; i <= 20; i += 5) b->Args({1L << 20, i << 10});    //   1 MiB text - i KiB pattern
 						  // for (long i = 5; i <= 20; i += 5) b->Args({50L << 20, i << 20});   //  50 MiB text - i MiB pattern
@@ -47,7 +47,7 @@ BENCHMARK(BM_ZuffixRabinKarp)->Apply(args);
 
 static void BM_ZuffixCyclicPoly128(benchmark::State &state) {
 	size_t n = state.range(0), m = state.range(1);
-	EnhancedZuffixArray<char, RabinKarpHash> ds(fibonacci(n, true));
+	EnhancedZuffixArray<char, CyclicPoly128Hash> ds(fibonacci(n, true));
 	uint64_t cnt = 0;
 	String<char> p = fibonacci(m);
 	for (auto _ : state) benchmark::DoNotOptimize(cnt = ds.find(p).length());

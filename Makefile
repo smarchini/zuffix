@@ -1,3 +1,4 @@
+CXX = g++
 DEBUG = -g -O0
 RELEASE = -g -O3 -fno-omit-frame-pointer -mavx -mavx2 -msse2 -fopenmp -funroll-loops
 CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -I./  #-I./external/sux/ -I./external/ -I./
@@ -41,11 +42,11 @@ bin/benchmark/saca: benchmark/*  zuffix/* zuffix/*/*
 
 bin/benchmark/hash: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(DEBUG) benchmark/hash.cpp -o bin/benchmark/hash $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/hash.cpp -o bin/benchmark/hash $(LDLIBS)
 
 bin/benchmark/find_random_dna: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(DEBUG) benchmark/find_random_dna.cpp -o bin/benchmark/find_random_dna $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/find_random_dna.cpp -o bin/benchmark/find_random_dna $(LDLIBS)
 
 bin/benchmark/fibonacci: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark

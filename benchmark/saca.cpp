@@ -48,7 +48,7 @@ static void BM_LCPByStrcmp(benchmark::State &state) {
 		benchmark::DoNotOptimize(LCPConstructByStrcmp(string, sa));
 	}
 }
-BENCHMARK(BM_LCPByStrcmp)->Range(1 << 10, 1 << 20);
+BENCHMARK(BM_LCPByStrcmp)->Range(1 << 10, 1 << 18);
 
 static void BM_LCPByFisherPsi(benchmark::State &state) {
 	auto n = state.range(0);
@@ -60,7 +60,7 @@ static void BM_LCPByFisherPsi(benchmark::State &state) {
 		benchmark::DoNotOptimize(LCPConstructionByKarkkainenPsi(string, sa));
 	}
 }
-BENCHMARK(BM_LCPByFisherPsi)->Range(1 << 10, 1 << 20);
+BENCHMARK(BM_LCPByFisherPsi)->Range(1 << 10, 1 << 18);
 
 static void BM_LCPByStrcmpFibonacci(benchmark::State &state) {
 	auto n = state.range(0);
@@ -73,7 +73,7 @@ static void BM_LCPByStrcmpFibonacci(benchmark::State &state) {
 }
 BENCHMARK(BM_LCPByStrcmpFibonacci)->Range(10, 20);
 
-static void BM_LCPByFisherPsiFibonacci(benchmark::State &state) {
+static void BM_LCPByKarkkainenPsiFibonacci(benchmark::State &state) {
 	auto n = state.range(0);
 	auto string = fibonacci(n);
 	auto sa = SAConstructByDivSufSort(string);
@@ -82,19 +82,19 @@ static void BM_LCPByFisherPsiFibonacci(benchmark::State &state) {
 		benchmark::DoNotOptimize(LCPConstructionByKarkkainenPsi(string, sa));
 	}
 }
-BENCHMARK(BM_LCPByFisherPsiFibonacci)->Range(10, 20);
+BENCHMARK(BM_LCPByKarkkainenPsiFibonacci)->Range(10, 20);
 
 static void BM_CTByAbouelhoda(benchmark::State &state) {
 	auto n = state.range(0);
 	uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";
 	auto string = random(n, charset, 26);
-	auto sa = SAConstructByDivSufSort(string);
-	auto lcp = LCPConstructByStrcmp(string, sa);
+	auto sa = SAConstructByGrebnovSAIS(string);
+	auto lcp = LCPConstructionByKarkkainenPsi(string, sa);
 
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(CTConstructByAbouelhoda(lcp));
 	}
 }
-BENCHMARK(BM_CTByAbouelhoda)->Range(1 << 10, 1 << 20);
+BENCHMARK(BM_CTByAbouelhoda)->Range(1 << 10, 1 << 18);
 
 BENCHMARK_MAIN();

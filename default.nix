@@ -16,9 +16,10 @@ pkgs.mkShell {
     buildInputs = with pkgs; [
       gtest
       gbenchmark
-      xxHash
+      # xxHash
       llvmPackages_13.openmp
       (callPackage ./nix/sux.nix { })
+      (callPackage ./nix/xxhash.nix { })
       (callPackage ./nix/libsais.nix { })
       (callPackage ./nix/libdivsufsort.nix { })
     ];

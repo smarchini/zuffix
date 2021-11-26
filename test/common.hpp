@@ -7,6 +7,7 @@
 #include <zuffix/EnhancedZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
 
+#include <zuffix/hash/CRC64Hash.hpp>
 #include <zuffix/hash/CyclicPolyHash.hpp>
 #include <zuffix/hash/O1Hash.hpp>
 #include <zuffix/hash/RabinKarpHash.hpp>

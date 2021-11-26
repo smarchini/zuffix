@@ -7,7 +7,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "IlyaGrebnov";
     repo = "libsais";
-    rev = "${version}";
+    rev = "v${version}";
     sha256 = "NHvdLWM4+TYZoy0lpeUSinjDsgKTFleLyo8IKm3fm7k=";
   };
 
