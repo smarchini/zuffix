@@ -22,13 +22,13 @@
 
 stdenv.mkDerivation rec {
   pname = "xxHash";
-  version = "0.8.0";
+  version = "dev";
 
   src = fetchFromGitHub {
     owner = "Cyan4973";
     repo = "xxHash";
-    rev = "v${version}";
-    sha256 = "SlHVLubTt8vNIpqQckZ4/ziW+p27+zpEqBlJphvV+sU=";
+    rev = "${version}";
+    sha256 = "ddj2urd4azUVNBeapmQNGmoUPW2+U1UUQ9S2dtUwVDY=";
   };
 
   patches = [ ./xxhash.patch ];
