@@ -10,11 +10,11 @@ template <typename T> class XXH3Hash {
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;
-  static constexpr size_t C = 1 << 20;
-  XXH3_state_t *state = XXH3_createState();
+	static constexpr size_t C = 1 << 20;
+	XXH3_state_t *state = XXH3_createState();
 
   public:
-	XXH3Hash(T *string) : XXH3Hash(string, 0) {}
+	XXH3Hash(T *string) : string(string), statetable(0) {}
 
 	// TODO parametrizzare 6 e 64 (constexpr)
 	XXH3Hash(T *string, size_t length) : string(string), statetable(length / C + 1) {
@@ -35,7 +35,7 @@ template <typename T> class XXH3Hash {
 	}
 
 	uint64_t operator()(size_t to) {
-    if (statetable.size() == 0) return immediate(0, to);
+		if (statetable.size() == 0) return immediate(0, to);
 		XXH3_copyState(state, statetable[to / C]);
 		XXH3_64bits_update(state, string, to % C);
 		return XXH3_64bits_digest(state);

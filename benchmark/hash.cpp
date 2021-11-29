@@ -11,23 +11,23 @@ static void args(benchmark::internal::Benchmark *b) {
 }
 
 #define BM_PREFIX(NAME, DS)                                                                                                                                                                            \
-	static void BM_##NAME##prefix(benchmark::State &state) {                                                                                                                                           \
+	static void BM_##NAME##_prefix(benchmark::State &state) {                                                                                                                                          \
 		auto n = state.range(0);                                                                                                                                                                       \
 		static std::random_device rd;                                                                                                                                                                  \
 		static xoroshiro128plus_engine rng(rd());                                                                                                                                                      \
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
-		DS h(&string);                                                                                                                                                                                 \
+		DS h(&string, n);                                                                                                                                                                              \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng);                                                                                                                                                                      \
 			benchmark::DoNotOptimize(h(a));                                                                                                                                                            \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##prefix)->Apply(args);
+	BENCHMARK(BM_##NAME##_prefix)->Apply(args);
 
 #define BM_MIDDLE(NAME, DS)                                                                                                                                                                            \
-	static void BM_##NAME##middle(benchmark::State &state) {                                                                                                                                           \
+	static void BM_##NAME##_middle(benchmark::State &state) {                                                                                                                                          \
 		auto n = state.range(0);                                                                                                                                                                       \
 		static std::random_device rd;                                                                                                                                                                  \
 		static xoroshiro128plus_engine rng(rd());                                                                                                                                                      \
@@ -41,10 +41,10 @@ static void args(benchmark::internal::Benchmark *b) {
 			benchmark::DoNotOptimize(h(from, len));                                                                                                                                                    \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##middle)->Apply(args);
+	BENCHMARK(BM_##NAME##_middle)->Apply(args);
 
 #define BM_IMMEDIATE(NAME, DS)                                                                                                                                                                         \
-	static void BM_##NAME##immediate(benchmark::State &state) {                                                                                                                                        \
+	static void BM_##NAME##_immediate(benchmark::State &state) {                                                                                                                                       \
 		auto n = state.range(0);                                                                                                                                                                       \
 		static std::random_device rd;                                                                                                                                                                  \
 		static xoroshiro128plus_engine rng(rd());                                                                                                                                                      \
@@ -58,7 +58,7 @@ static void args(benchmark::internal::Benchmark *b) {
 			benchmark::DoNotOptimize(h.immediate(from, len));                                                                                                                                          \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##immediate)->Apply(args);
+	BENCHMARK(BM_##NAME##_immediate)->Apply(args);
 
 #define COMMA ,
 
