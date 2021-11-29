@@ -22,13 +22,13 @@ template <typename T, size_t sigma> class CyclicPolyHash {
 		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
 	}
 
-	CyclicPolyHash(const T *string, size_t length) : string(string), statetable(length / 64 + 1) {
+	CyclicPolyHash(const T *string, size_t length) : string(string), statetable(length / C + 1) {
 		xoroshiro128plus_engine rng(0); // fixed seed
 		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
 
 		uint64_t hash = 0;
-		for (size_t i; i < length; i++) {
+		for (size_t i = 0; i < length; i++) {
 			if (i % C == 0) statetable[i / C] = hash;
 			hash = rotate(hash ^ h[string[i]], 1);
 		}

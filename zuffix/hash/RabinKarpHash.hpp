@@ -22,7 +22,7 @@ template <typename T> class RabinKarpHash {
   public:
 	RabinKarpHash(T *string) : string(string), statetable(0), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
 
-	RabinKarpHash(T *string, size_t length) : string(string), statetable(length / 64 + 1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {
+	RabinKarpHash(T *string, size_t length) : string(string), statetable(length / C + 1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {
 		uint64_t hash = 0;
 		const uint8_t *b = reinterpret_cast<const uint8_t *>(string);
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + length);

@@ -23,8 +23,9 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructionByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		z.resize(max(round_pow2(text.length()) << 2, 1UL << 25)); // TODO tweak me
-		//ZFillByDFS(0, text.length(), 0, RH<T>(&text));
-		ZFillByBottomUp();
+		RH<T> hash(&text);
+		ZFillByDFS(0, text.length(), 0, hash);
+		//ZFillByBottomUp();
 	}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
@@ -96,7 +97,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> h, size_t dept = 0) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> &h, size_t dept = 0) {
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];

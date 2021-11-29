@@ -7,7 +7,7 @@ using namespace sux::util;
 
 static void args(benchmark::internal::Benchmark *b) {
 	// { text_length, pattern_length }
-	for (long i = 27; i <= 29; i++) b->Args({29, i});
+	for (long i = 20; i <= 23; i++) b->Args({23, i});
 }
 
 #define BM(NAME, DS)                                                                                                                                                                                   \
