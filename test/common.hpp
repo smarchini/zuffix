@@ -44,6 +44,7 @@ template <typename T> class BadHash {
 
   public:
 	BadHash(T *string) : string(string) {}
+	BadHash(T *string, size_t length) : string(string) { /* discard length */ }
 
 	uint64_t operator()(size_t to) {
 		for (; r < to; r++) state ^= string[r] & 0b11;

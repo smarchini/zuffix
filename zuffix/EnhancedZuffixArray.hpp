@@ -23,8 +23,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructionByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		z.resize(max(round_pow2(text.length()) << 2, 1UL << 25)); // TODO tweak me
-		ZFillByDFS(0, text.length(), 0, RH<T>(&text));
-		// ZFillByBottomUp();
+		//ZFillByDFS(0, text.length(), 0, RH<T>(&text));
+		ZFillByBottomUp();
 	}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
@@ -55,12 +55,12 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	}
 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
-		RH<T> h(&pattern);
+		RH<T> h(&pattern, pattern.length());
 		LInterval<size_t> alpha = {0, text.length()};
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
-			LInterval<size_t> beta = unpack(z[h.immediate(0, f) % z.size()]);
+			LInterval<size_t> beta = unpack(z[h(f) % z.size()]);
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			if (beta.isEmpty() || elen <= f) {
 				r = f - 1;

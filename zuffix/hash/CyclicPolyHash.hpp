@@ -1,19 +1,25 @@
 #pragma once
 
 #include "functions.hpp"
+#include <sux/util/Vector.hpp>
 
 namespace zarr {
+using ::sux::util::Vector;
 
 template <typename T, size_t sigma> class CyclicPolyHash {
   private:
 	const T *string;
+	Vector<uint64_t> statetable;
 	uint64_t state = 0;
 	size_t l = 0, r = 0;
 	uint64_t h[sigma];
 
   public:
-	CyclicPolyHash(const T *string, uint64_t seed = 0) : string(string) {
-		xoroshiro128plus_engine rng(seed);
+	CyclicPolyHash(const T *string) : CyclicPolyHash(string, 0) {}
+
+	// TODO
+	CyclicPolyHash(const T *string, size_t length) : string(string), statetable(length / 64 + 1) {
+		xoroshiro128plus_engine rng(0); // fixed seed
 		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
 	}

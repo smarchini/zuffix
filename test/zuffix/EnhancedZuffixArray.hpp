@@ -45,42 +45,21 @@ TEST(EnhancedZuffixArray, abracadabra) {
 	}
 }
 
-TEST(EnhancedZuffixArray, RabinKarp) {
-	using namespace zarr;
-	std::string t = fibonacci(10);
-	EnhancedZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};
-	for (size_t i = 1; i <= 10; i++) {
-		auto match = zuffix.find(String<char>(fibonacci(i)));
-		EXPECT_LE(match.from, match.to) << " on fibonacci: " << i;
+#define TS(NAME, DS)                                                                                                                                                                                   \
+	TEST(EnhancedZuffixArray, NAME) {                                                                                                                                                                  \
+		using namespace zarr;                                                                                                                                                                          \
+		std::string t = fibonacci(10);                                                                                                                                                                 \
+		EnhancedZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};                                                                                                                        \
+		for (size_t i = 1; i <= 10; i++) {                                                                                                                                                             \
+			auto match = zuffix.find(String<char>(fibonacci(i)));                                                                                                                                      \
+			EXPECT_LE(match.from, match.to) << " on fibonacci: " << i;                                                                                                                                 \
+		}                                                                                                                                                                                              \
 	}
-}
 
-TEST(EnhancedZuffixArray, CyclicPoly128) {
-	using namespace zarr;
-	std::string t = fibonacci(10);
-	EnhancedZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};
-	for (size_t i = 1; i <= 10; i++) {
-		auto match = zuffix.find(String<char>(fibonacci(i)));
-		EXPECT_LE(match.from, match.to) << " on fibonacci: " << i;
-	}
-}
+#define COMMA ,
 
-TEST(EnhancedZuffixArray, O1) {
-	using namespace zarr;
-	std::string t = fibonacci(10);
-	EnhancedZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};
-	for (size_t i = 1; i <= 10; i++) {
-		auto match = zuffix.find(String<char>(fibonacci(i)));
-		EXPECT_LE(match.from, match.to) << " on fibonacci: " << i;
-	}
-}
-
-TEST(EnhancedZuffixArray, XXH3) {
-	using namespace zarr;
-	std::string t = fibonacci(10);
-	EnhancedZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};
-	for (size_t i = 1; i <= 10; i++) {
-		auto match = zuffix.find(String<char>(fibonacci(i)));
-		EXPECT_LE(match.from, match.to) << " on fibonacci: " << i;
-	}
-}
+TS(RabinKarp, EnhancedZuffixArray<char COMMA RabinKarpHash>)
+TS(CyclicPoly128, EnhancedZuffixArray<char COMMA CyclicPoly128Hash>)
+TS(O1, EnhancedZuffixArray<char COMMA O1Hash>)
+TS(XXH3, EnhancedZuffixArray<char COMMA XXH3Hash>)
+TS(CRC64, EnhancedZuffixArray<char COMMA CRC64Hash>)

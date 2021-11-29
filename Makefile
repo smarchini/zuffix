@@ -30,10 +30,10 @@ bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
 	$(CXX) $(CXXFLAGS) $(DEBUG) test/zuffix/test.cpp -o bin/test/zuffix $(LDLIBS)
 
 # BENCHMARK
-benchmark: bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random_dna bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile
+benchmark: bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile
 	./bin/benchmark/saca --benchmark_color=yes
 	./bin/benchmark/hash --benchmark_color=yes
-	./bin/benchmark/find_random_dna --benchmark_color=yes
+	./bin/benchmark/find_random --benchmark_color=yes
 	./bin/benchmark/fibonacci --benchmark_color=yes
 
 bin/benchmark/saca: benchmark/*  zuffix/* zuffix/*/*
@@ -44,9 +44,9 @@ bin/benchmark/hash: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/hash.cpp -o bin/benchmark/hash $(LDLIBS)
 
-bin/benchmark/find_random_dna: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/find_random: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/find_random_dna.cpp -o bin/benchmark/find_random_dna $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/find_random.cpp -o bin/benchmark/find_random $(LDLIBS)
 
 bin/benchmark/fibonacci: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
@@ -131,7 +131,7 @@ dataset/zuffix: bin/benchmark/build dataset/text
 	./bin/benchmark/build8/EnhancedZuffixArray_XXH3 ./dataset/text/dna.200MB > ./dataset/zuffix8/dna.200MB.zuffix.xxh3
 	./bin/benchmark/build8/EnhancedZuffixArray_XXH3 ./dataset/text/sources.200MB > ./dataset/zuffix8/sources.200MB.zuffix.xxh3
 
-bear: bin/test/random bin/test/hash bin/test/saca bin/test/zuffix bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random_dna bin/benchmark/fibonacci bin/benchmark/findfile
+bear: bin/test/random bin/test/hash bin/test/saca bin/test/zuffix bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/findfile
 
 .PHONY: clean dataset
 

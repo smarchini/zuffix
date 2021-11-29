@@ -1,8 +1,10 @@
 #pragma once
 
 #include "functions.hpp"
+#include <sux/util/Vector.hpp>
 
 namespace zarr {
+using ::sux::util::Vector;
 
 template <typename T> class RabinKarpHash {
   public:
@@ -11,12 +13,16 @@ template <typename T> class RabinKarpHash {
 
   private:
 	const T *string;
+	Vector<uint64_t> statetable;
 	uint64_t state = 0;
 	const uint8_t *l, *r;
 	uint64_t pow = 1;
 
   public:
-	RabinKarpHash(T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
+	RabinKarpHash(T *string) : RabinKarpHash(string, 0) {}
+
+	// TODO
+	RabinKarpHash(T *string, size_t length) : string(string), statetable(length / 64 + 1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
 
 	uint64_t operator()(size_t to) { return (*this)(0, to); }
 

@@ -75,7 +75,6 @@ template <typename T> inline Vector<size_t> SAConstructByDivSufSort(const String
 template <typename T> inline Vector<size_t> SAConstructByGrebnovSAIS(const String<T> &string) {
 	size_t n = string.length();
 	Vector<size_t> result(n);
-	// saisxx((char *)&string, (long *)&result, (long)string.length(), 256L);
 	libsais64((const uint8_t *)&string, (int64_t *)&result, n, 0, nullptr);
 	return result;
 }
