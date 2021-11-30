@@ -1,6 +1,7 @@
 { pkgs ? import <nixpkgs> { }, }:
 pkgs.mkShell {
     packages = with pkgs; [
+      glibcLocales
       bear 
       (callPackage ./nix/pizzachili.nix { })
       (callPackage ./nix/r-index.nix { })

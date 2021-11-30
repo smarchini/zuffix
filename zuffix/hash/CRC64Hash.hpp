@@ -29,6 +29,7 @@ template <typename T> class CRC64Hash {
 	uint64_t operator()(size_t to) { return (*this)(0, to); }
 
 	uint64_t operator()(size_t from, size_t length) {
+		state = 0;
 		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
 

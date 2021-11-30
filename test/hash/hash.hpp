@@ -21,7 +21,7 @@ TEST(hash, RabinKarp) { battery(zarr::RabinKarpHash<char>(&abracadabra)); }
 TEST(hash, CyclicPoly128) { battery(zarr::CyclicPolyHash<char, 128>(&abracadabra)); }
 TEST(hash, O1) { battery(zarr::O1Hash<char>(&abracadabra)); }
 TEST(hash, XXH3) { battery(zarr::XXH3Hash<char>(&abracadabra)); }
-// TEST(hash, CRC64) { battery(zarr::CRC64Hash<char>("abracadabra~")); }
+TEST(hash, CRC64) { battery(zarr::CRC64Hash<char>(&abracadabra)); }
 
 zarr::String<char> fibo(fibonacci(30));
 
@@ -29,3 +29,4 @@ TEST(longhash, RabinKarp) { battery(zarr::RabinKarpHash(&fibo, fibo.length())); 
 TEST(longhash, CyclicPoly128) { battery(zarr::CyclicPolyHash<char, 128>(&fibo, fibo.length())); }
 TEST(longhash, O1) { battery(zarr::O1Hash<char>(&fibo, fibo.length())); }
 TEST(longhash, XXH3) { battery(zarr::XXH3Hash<char>(&fibo, fibo.length())); }
+TEST(longhash, CRC64) { battery(zarr::CRC64Hash<char>(&fibo, fibo.length())); }
