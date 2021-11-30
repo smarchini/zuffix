@@ -24,7 +24,7 @@ static void args(benchmark::internal::Benchmark *b) {
 			benchmark::DoNotOptimize(h(a));                                                                                                                                                            \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##_prefix)->Apply(args);
+	BENCHMARK(BM_##NAME##_prefix)->Apply(args)->Iterations(100);
 
 #define BM_MIDDLE(NAME, DS)                                                                                                                                                                            \
 	static void BM_##NAME##_middle(benchmark::State &state) {                                                                                                                                          \
@@ -41,7 +41,7 @@ static void args(benchmark::internal::Benchmark *b) {
 			benchmark::DoNotOptimize(h(from, len));                                                                                                                                                    \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##_middle)->Apply(args);
+	BENCHMARK(BM_##NAME##_middle)->Apply(args)->Iterations(100);
 
 #define BM_IMMEDIATE(NAME, DS)                                                                                                                                                                         \
 	static void BM_##NAME##_immediate(benchmark::State &state) {                                                                                                                                       \
@@ -58,7 +58,7 @@ static void args(benchmark::internal::Benchmark *b) {
 			benchmark::DoNotOptimize(h.immediate(from, len));                                                                                                                                          \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##_immediate)->Apply(args);
+	BENCHMARK(BM_##NAME##_immediate)->Apply(args)->Iterations(100);
 
 #define COMMA ,
 

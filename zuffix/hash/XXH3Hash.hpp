@@ -15,8 +15,8 @@ template <typename T> class XXH3Hash {
 
   public:
 	XXH3Hash(T *string) : string(string), statetable(1) {
-		statetable[0] = XXH3_createState();
-		XXH3_64bits_update(statetable[0], string, 0);
+		// statetable[0] = XXH3_createState();
+		// XXH3_64bits_update(statetable[0], string, 0);
 	}
 
 	~XXH3Hash() {
