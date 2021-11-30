@@ -25,7 +25,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		z.resize(max(round_pow2(text.length()) << 2, 1UL << 25)); // TODO tweak me
 		RH<T> hash(&text);
 		ZFillByDFS(0, text.length(), 0, hash);
-		//ZFillByBottomUp();
+		// ZFillByBottomUp();
 	}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
@@ -56,7 +56,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	}
 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
-		RH<T> h(&pattern, pattern.length());
+		RH<T> h(&pattern);
 		LInterval<size_t> alpha = {0, text.length()};
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
@@ -139,16 +139,10 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
 				ssize_t elen = getlcp(intervali, intervalj);
 				size_t hlen = twoFattestLR(nlen, elen);
-				// assert(z[h(sa[intervali], hlen) % z.size()] == pack(LInterval<size_t>(intervali, intervalj)));
 
-				// hlen = twoFattestR(intervali, intervalj);
-				// std::cout << "saving: " << intervall << "-[" << intervali << " .. " << intervalj << ") = " << hlen << std::endl;
 				// if (hlen > 1024) {
-				// std::cout << "hlen: " << hlen << std::endl;
 				z[h.immediate(sa[intervali], hlen) % z.size()] = pack({intervali, intervalj});
-				//}
-
-				// std::cout << intervall << "-[" << intervali << " .. " << intervalj << ")" << std::endl;
+				// }
 
 				lb = intervali;
 			}
@@ -158,7 +152,6 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				stackj.pushBack(i);
 			}
 		}
-		// std::cout << "stack size: " << stackl.size() << ", " << stacki.size() << ", " << stackj.size() << std::endl;
 	}
 
 	size_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }

@@ -18,7 +18,7 @@ static void args(benchmark::internal::Benchmark *b) {
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
-		DS h(&string, n);                                                                                                                                                                              \
+		DS h(&string);                                                                                                                                                                                 \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng);                                                                                                                                                                      \
 			benchmark::DoNotOptimize(h(a));                                                                                                                                                            \

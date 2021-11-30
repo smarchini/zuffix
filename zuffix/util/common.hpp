@@ -57,17 +57,6 @@ template <typename T> inline Vector<size_t> SAConstructByDivSufSort(const String
 	return result;
 }
 
-/** Suffix array construction algorithm: SA-IS
- *
- * @return The array SA
- */
-// template <typename T> inline Vector<size_t> SAConstructBySAIS(const String<T> &string) {
-// 	size_t n = string.length();
-// 	Vector<size_t> result(n);
-// 	saisxx((char *)&string, (long *)&result, (long)string.length(), 256L);
-// 	return result;
-// }
-
 /** Suffix array construction algorithm: IlyaGrebnov's libsais
  *
  * @return The array SA
@@ -97,28 +86,6 @@ template <typename T> inline Vector<ssize_t> LCPConstructByStrcmp(const String<T
 
 	return result;
 }
-
-/** SA+LCP array construction algorithm: extended DivSufSort
- *
- */
-// template <typename T> inline void SALCPConstructByDivSufSort(Vector<size_t> &sa, Vector<ssize_t> &lcp, String<T> &string) {
-// 	size_t n = string.length();
-// 	sa.resize(n);
-// 	lcp.resize(n + 1);
-// 	//divsuflcpsort64((const unsigned char *)&string, (int64_t *)&sa, (int64_t *)&lcp, n);
-// 	lcp[0] = lcp[n] = -1;
-// }
-
-/** SA+LCP array construction algorithm: extended SA-IS
- *
- */
-// template <typename T> inline void SALCPConstructBySAIS(Vector<size_t> &sa, Vector<ssize_t> &lcp, const String<T> &string) {
-// 	size_t n = string.length();
-// 	sa.reserve(n);
-// 	lcp.reserve(n + 1);
-// 	// TODO https://github.com/kurpicz/sais-lite-lcp
-// 	lcp[0] = lcp[n] = -1;
-// }
 
 /** CT (child table) array construction algorithm by Abouelhoda's paper
  *

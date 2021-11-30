@@ -16,28 +16,28 @@ template <typename T, size_t sigma> class CyclicPolyHash {
 	uint64_t h[sigma];
 
   public:
-	CyclicPolyHash(const T *string) : string(string), statetable(0) {
+	CyclicPolyHash(const T *string) : string(string), statetable(1) {
 		xoroshiro128plus_engine rng(0); // fixed seed
 		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
-	}
-
-	CyclicPolyHash(const T *string, size_t length) : string(string), statetable(length / C + 1) {
-		xoroshiro128plus_engine rng(0); // fixed seed
-		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
-		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
-
-		uint64_t hash = 0;
-		for (size_t i = 0; i < length; i++) {
-			if (i % C == 0) statetable[i / C] = hash;
-			hash = rotate(hash ^ h[string[i]], 1);
-		}
+		statetable[0] = immediate(0, 0) ^ fmix64(0); // TODO rifare meglio
 	}
 
 	uint64_t operator()(size_t to) {
-		if (statetable.size() == 0) return (*this)(0, to);
-		uint64_t hash = statetable[to / C];
-		for (size_t i = (to / C) * C; i < to; i++) hash = rotate(hash ^ h[string[i]], 1);
+		size_t tpos = to / C;
+		if (statetable.size() <= tpos) {
+			const size_t last = statetable.size() - 1;
+			uint64_t hash = statetable[last];
+			statetable.resize(tpos + 1);
+			for (size_t i = last * C; i < to; i++) { // last + 1?
+				if (i % C == 0) statetable[i / C] = hash;
+				hash = rotate(hash ^ h[string[i]], 1);
+			}
+			return hash ^ fmix64(to);
+		}
+
+		uint64_t hash = statetable[tpos];
+		for (size_t i = tpos * C; i < to; i++) hash = rotate(hash ^ h[string[i]], 1);
 		return hash ^ fmix64(to);
 	}
 

@@ -20,23 +20,28 @@ template <typename T> class RabinKarpHash {
 	uint64_t pow = 1;
 
   public:
-	RabinKarpHash(T *string) : string(string), statetable(0), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
-
-	RabinKarpHash(T *string, size_t length) : string(string), statetable(length / C + 1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {
-		uint64_t hash = 0;
-		const uint8_t *b = reinterpret_cast<const uint8_t *>(string);
-		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + length);
-		for (size_t i = 0; b < e; b++, i++) {
-			if (i % C == 0) statetable[i / C] = hash;
-			hash = hash * m + b[0];
-		}
+	RabinKarpHash(T *string) : string(string), statetable(1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {
+		statetable[0] = immediate(0, 0) ^ fmix64(0); // TODO rifare meglio
 	}
 
 	uint64_t operator()(size_t to) {
-		if (statetable.size() == 0) return (*this)(0, to);
-		uint64_t hash = statetable[to / C];
-		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + (to / C) * C);
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + to);
+
+		size_t tpos = to / C;
+		if (statetable.size() <= tpos) {
+			const size_t last = statetable.size() - 1;
+			const uint8_t *b = reinterpret_cast<const uint8_t *>(string + last * C);
+			uint64_t hash = statetable[last];
+			statetable.resize(tpos + 1);
+			for (size_t i = last * C; b < e; b++, i++) {
+				if (i % C == 0) statetable[i / C] = hash;
+				hash = hash * m + b[0];
+			}
+			return hash ^ fmix64(to);
+		}
+
+		uint64_t hash = statetable[tpos];
+		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + tpos * C);
 		for (; b < e; b++) hash = hash * m + b[0];
 		return hash ^ fmix64(to);
 	}
