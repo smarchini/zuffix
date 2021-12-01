@@ -12,6 +12,16 @@ namespace zarr {
 using namespace sux;
 using namespace sux::util;
 
+/** Next poewr of two greater than or euqual to x
+ *
+ * @return the next power of two >= x or zero if x is zero
+ */
+static inline uint64_t ceil_pow2(uint64_t x) {
+	if (x == 0) return 0;
+	int clz = __builtin_clzll(x);
+	return (1ULL << 63) >> (clz - ((x & (-1ULL >> 1) >> clz) != 0));
+}
+
 /** 2-fattest number in the (a, b] interval
  *
  * The two fattest number within an interval is the number with most trailing

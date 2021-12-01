@@ -4,6 +4,7 @@
 #include <sux/util/Vector.hpp>
 
 #include "util/LInterval.hpp"
+#include "util/OpenAddressing.hpp"
 #include "util/String.hpp"
 #include "util/common.hpp"
 
@@ -16,13 +17,13 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	Vector<size_t> sa;
 	Vector<ssize_t> lcp;
 	Vector<size_t> ct;
-	Vector<size_t> z;
+	OpenAddressing<uint64_t> z;
 
   public:
 	EnhancedZuffixArray() {}
 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructionByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		z.resize(max(round_pow2(text.length()) << 2, 1UL << 25)); // TODO tweak me
+		z.resize(ceil_pow2(text.length()) << 3); // TODO tweak me
 		RH<T> hash(&text);
 		ZFillByDFS(0, text.length(), 0, hash);
 		// ZFillByBottomUp();
@@ -61,7 +62,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
-			LInterval<size_t> beta = unpack(z[h(f) % z.size()]);
+			LInterval<size_t> beta = unpack(z[h(f)].value_or(0));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			if (beta.isEmpty() || elen <= f) {
 				r = f - 1;
@@ -105,7 +106,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t hlen = twoFattestLR(nlen, elen);
 		assert(dept <= hlen);
 
-		z[h.immediate(sa[i], hlen) % z.size()] = pack({i, j});
+		z.store(h.immediate(sa[i], hlen), pack({i, j}));
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, dept + 1);
@@ -141,7 +142,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				size_t hlen = twoFattestLR(nlen, elen);
 
 				// if (hlen > 1024) {
-				z[h.immediate(sa[intervali], hlen) % z.size()] = pack({intervali, intervalj});
+				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
 				// }
 
 				lb = intervali;
@@ -154,12 +155,14 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		}
 	}
 
-	size_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
+	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
+	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	LInterval<size_t> unpack(size_t x) const { return {x >> 32, x & 0xffffffff}; }
+	// friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
+	// friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
 
-	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
-	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
+	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os; }
+	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is; }
 };
 
 } // namespace zarr

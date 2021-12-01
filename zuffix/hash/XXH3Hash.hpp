@@ -10,13 +10,14 @@ template <typename T> class XXH3Hash {
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;
-	static constexpr size_t C = 1 << 20;
+	static constexpr size_t C = 64;
 	XXH3_state_t *state = XXH3_createState();
 
   public:
 	XXH3Hash(T *string) : string(string), statetable(1) {
-		// statetable[0] = XXH3_createState();
-		// XXH3_64bits_update(statetable[0], string, 0);
+		XXH3_64bits_reset(state);
+		statetable[0] = XXH3_createState();
+		XXH3_copyState(statetable[0], state);
 	}
 
 	~XXH3Hash() {
@@ -25,28 +26,23 @@ template <typename T> class XXH3Hash {
 	}
 
 	uint64_t operator()(size_t to) {
-		return immediate(0, to);
-		// TODO work in progress
-		const uint8_t *string = reinterpret_cast<const uint8_t *>(string);
+		const uint8_t *str = reinterpret_cast<const uint8_t *>(string);
 		const size_t length = to * sizeof(T);
 
 		const size_t tpos = length / C;
-		// if (statetable.size() <= tpos) {
-		// 	const size_t last = statetable.size() - 1;
-		// 	XXH3_copyState(state, statetable[last]);
-		// 	statetable.resize(tpos + 1);
-		// 	for (size_t i = last; i <= tpos; i++) {
-		// 		XXH3_64bits_update(state, string + i * C, C);
-		// 		statetable[i] = XXH3_createState();
-		// 		XXH3_copyState(statetable[i], state);
-		// 	}
-		// }
+		if (statetable.size() <= tpos) {
+			const size_t last = statetable.size() - 1;
+			XXH3_copyState(state, statetable[last]);
+			statetable.resize(tpos + 1);
+			for (size_t i = last; i <= tpos; i++) {
+				XXH3_64bits_update(state, str + i * C, C);
+				statetable[i] = XXH3_createState();
+				XXH3_copyState(statetable[i], state);
+			}
+		}
 
-		std::cout << "tpos = " << tpos << std::endl;
 		XXH3_copyState(state, statetable[tpos]);
-		std::cout << "tpos = " << tpos << std::endl;
-		if (to % C != 0) XXH3_64bits_update(state, string + tpos * C, length % C);
-		std::cout << "tpos = " << tpos << std::endl;
+		if (to % C != 0) XXH3_64bits_update(state, str + tpos * C, length % C);
 		return XXH3_64bits_digest(state);
 	}
 

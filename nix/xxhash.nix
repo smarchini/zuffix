@@ -28,7 +28,9 @@ stdenv.mkDerivation rec {
     owner = "Cyan4973";
     repo = "xxHash";
     rev = "${version}";
-    sha256 = "ddj2urd4azUVNBeapmQNGmoUPW2+U1UUQ9S2dtUwVDY=";
+    #sha256 = "ddj2urd4azUVNBeapmQNGmoUPW2+U1UUQ9S2dtUwVDY=";
+    #sha256 = "2WoYCO6QRHWrbGP2mK04/sLNTyQLOuL3urVktilAwMA=";
+    sha256 = "afBE2Yr17Kn9EKWNusSbl+BRpOamx03gaTGSm8iKnd0=";
   };
 
   patches = [ ./xxhash.patch ];
