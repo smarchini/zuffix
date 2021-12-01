@@ -32,9 +32,8 @@ template <typename T, size_t sigma> class CyclicPolyHash {
 			const size_t last = statetable.size() - 1;
 			uint64_t hash = statetable[last];
 			statetable.resize(tpos + 1);
-			for (size_t i = last * C + 1; i <= length; i++) { // last + 1?
-				hash = rotate(hash ^ h[str[i-1]], 1);
-				//std::cout << "hash: " << hash << std::endl;
+			for (size_t i = last * C + 1; i <= length; i++) {
+				hash = rotate(hash ^ h[str[i - 1]], 1);
 				if (i % C == 0) statetable[i / C] = hash;
 			}
 			return hash ^ fmix64(length);
@@ -42,7 +41,7 @@ template <typename T, size_t sigma> class CyclicPolyHash {
 
 		uint64_t hash = statetable[tpos];
 		for (size_t i = tpos * C; i < length; i++) hash = rotate(hash ^ h[str[i]], 1);
-		return hash;// ^ fmix64(length);
+		return hash ^ fmix64(length);
 	}
 
 	uint64_t operator()(size_t from, size_t length) {
@@ -54,7 +53,7 @@ template <typename T, size_t sigma> class CyclicPolyHash {
 		for (; l > from; l--) state = state ^ rotate(h[str[l - 1]], r - l + 1);
 		for (; r < from + length; r++) state = rotate(state ^ h[str[r]], 1);
 		for (; r > from + length; r--) state = rotate(state, 64 - 1) ^ h[str[r - 1]];
-		return state;// ^ fmix64(length);
+		return state ^ fmix64(length);
 	}
 
 	uint64_t immediate(size_t from, size_t length) const {
@@ -64,11 +63,10 @@ template <typename T, size_t sigma> class CyclicPolyHash {
 
 		uint64_t result = 0;
 		for (size_t i = 0; i < length; i++) result = rotate(result ^ h[str[from + i]], 1);
-		return result; //^ fmix64(length);
+		return result ^ fmix64(length);
 	}
 
   private:
-	uint64_t fmix64(uint64_t x) const { return 0; }
 	static inline uint64_t rotate(uint64_t x, int k) { return (x << k) | (x >> (64 - k)); }
 };
 

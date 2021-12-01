@@ -30,6 +30,10 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class OpenAdd
 
 	size_t size() const { return table.size(); }
 	void resize(size_t size) { table.resize(size); }
+
+  private:
+	friend std::ostream &operator<<(std::ostream &os, const OpenAddressing<T, AT> &ds) { return os << ds.table; }
+	friend std::istream &operator>>(std::istream &is, OpenAddressing<T, AT> &ds) { return is >> ds.table; }
 };
 
 } // namespace zarr

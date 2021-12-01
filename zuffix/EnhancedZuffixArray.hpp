@@ -23,7 +23,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	EnhancedZuffixArray() {}
 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructionByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		z.resize(ceil_pow2(text.length()) << 3); // TODO tweak me
+		z.resize(ceil_pow2(text.length()) << 1); // TODO tweak me
 		RH<T> hash(&text);
 		ZFillByDFS(0, text.length(), 0, hash);
 		// ZFillByBottomUp();
@@ -158,11 +158,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	// friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
-	// friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
-
-	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os; }
-	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is; }
+	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
+	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
 };
 
 } // namespace zarr

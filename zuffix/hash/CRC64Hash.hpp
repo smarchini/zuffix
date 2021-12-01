@@ -24,8 +24,6 @@ template <typename T> class CRC64Hash {
   public:
 	CRC64Hash(T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
 
-	CRC64Hash(T *string, size_t length) : string(string), statetable(length / 64 + 1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
-
 	uint64_t operator()(size_t to) { return (*this)(0, to); }
 
 	uint64_t operator()(size_t from, size_t length) {

@@ -11,9 +11,7 @@ template <typename T> class O1Hash {
 	const T *string;
 
   public:
-	O1Hash(T *string) : O1Hash(string, 0) {}
-	O1Hash(T *string, size_t length) : string(string) { /* discard length */ }
-
+	O1Hash(T *string) : string(string) {}
 	uint64_t operator()(size_t to) { return (*this)(0, to); }
 	uint64_t operator()(size_t from, size_t length) { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }
 	uint64_t immediate(size_t from, size_t length) const { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }
