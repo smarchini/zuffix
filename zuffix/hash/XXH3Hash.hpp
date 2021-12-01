@@ -10,7 +10,7 @@ template <typename T> class XXH3Hash {
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;
-	static constexpr size_t C = 64;
+	static constexpr size_t C = 1 << 10;
 	XXH3_state_t *state = XXH3_createState();
 
   public:
@@ -34,8 +34,8 @@ template <typename T> class XXH3Hash {
 			const size_t last = statetable.size() - 1;
 			XXH3_copyState(state, statetable[last]);
 			statetable.resize(tpos + 1);
-			for (size_t i = last; i <= tpos; i++) {
-				XXH3_64bits_update(state, str + i * C, C);
+			for (size_t i = last + 1; i <= tpos; i++) {
+				XXH3_64bits_update(state, str + (i - 1) * C, C);
 				statetable[i] = XXH3_createState();
 				XXH3_copyState(statetable[i], state);
 			}

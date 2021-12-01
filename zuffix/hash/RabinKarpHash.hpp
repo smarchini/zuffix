@@ -21,28 +21,28 @@ template <typename T> class RabinKarpHash {
 
   public:
 	RabinKarpHash(T *string) : string(string), statetable(1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {
-		statetable[0] = immediate(0, 0) ^ fmix64(0); // TODO rifare meglio
+		statetable[0] = 0;
 	}
 
 	uint64_t operator()(size_t to) {
+		const uint8_t *b = reinterpret_cast<const uint8_t *>(string);
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + to);
 
 		size_t tpos = to / C;
 		if (statetable.size() <= tpos) {
 			const size_t last = statetable.size() - 1;
-			const uint8_t *b = reinterpret_cast<const uint8_t *>(string + last * C);
+			const uint8_t *p = b + last * C;
 			uint64_t hash = statetable[last];
 			statetable.resize(tpos + 1);
-			for (size_t i = last * C; b < e; b++, i++) {
+			for (size_t i = last * C + 1; p < e; p++, i++) {
+				hash = hash * m + p[0];
 				if (i % C == 0) statetable[i / C] = hash;
-				hash = hash * m + b[0];
 			}
 			return hash ^ fmix64(to);
 		}
 
 		uint64_t hash = statetable[tpos];
-		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + tpos * C);
-		for (; b < e; b++) hash = hash * m + b[0];
+		for (const uint8_t *p = b + tpos * C; p < e; p++) hash = hash * m + p[0];
 		return hash ^ fmix64(to);
 	}
 

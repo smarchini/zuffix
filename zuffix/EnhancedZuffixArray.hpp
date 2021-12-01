@@ -62,7 +62,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
-			LInterval<size_t> beta = unpack(z[h(f)].value_or(0));
+			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			if (beta.isEmpty() || elen <= f) {
 				r = f - 1;
