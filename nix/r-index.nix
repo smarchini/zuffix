@@ -5,10 +5,10 @@ stdenv.mkDerivation rec {
   version = "master";
 
   src = fetchFromGitHub {
-      owner = "nicolaprezza";
-      repo = "r-index";
-      rev = "${version}";
-      sha256 = "U5nEaxCXAqxYyiujRpLSsVUjIKUpxqY4agYLkgFcxKk=";
+    owner = "nicolaprezza";
+    repo = "r-index";
+    rev = "${version}";
+    sha256 = "U5nEaxCXAqxYyiujRpLSsVUjIKUpxqY4agYLkgFcxKk=";
   };
 
   nativeBuildInputs = [ cmake ];
@@ -19,16 +19,14 @@ stdenv.mkDerivation rec {
   ];
 
   buildPhase = ''
-      cmake ..
-      make
+    cmake ..
+    make
   '';
 
   installPhase = ''
-     mkdir -p $out/bin/
-     cp ri-build ri-locate ri-count $out/bin/
+    mkdir -p $out/bin/
+    cp ri-build ri-locate ri-count $out/bin/
   '';
 
-  meta = {
-    description = "r-index: the run-length BWT index";
-  };
+  meta = { description = "r-index: the run-length BWT index"; };
 }

@@ -1,23 +1,3 @@
-# { stdenv, fetchFromGitHub }:
-
-# stdenv.mkDerivation rec {
-#   name = "xxHash";
-#   version = "dev";
-
-#   src = fetchFromGitHub {
-#       owner = "Cyan4973";
-#       repo = "xxHash";
-#       rev = "${version}";
-#       sha256 = "h/OnVjToQQFS7iEwex4474D4cM+l6lRG8iOvcRoN4/A=";
-#   };
-
-#   meta = {
-#     description = "Extremely fast hash algorithm";
-#   };
-# }
-
-    #sha256 = "SlHVLubTt8vNIpqQckZ4/ziW+p27+zpEqBlJphvV+sU=";
-
 { lib, stdenv, fetchFromGitHub }:
 
 stdenv.mkDerivation rec {
@@ -28,12 +8,8 @@ stdenv.mkDerivation rec {
     owner = "Cyan4973";
     repo = "xxHash";
     rev = "${version}";
-    #sha256 = "ddj2urd4azUVNBeapmQNGmoUPW2+U1UUQ9S2dtUwVDY=";
-    #sha256 = "2WoYCO6QRHWrbGP2mK04/sLNTyQLOuL3urVktilAwMA=";
-    sha256 = "afBE2Yr17Kn9EKWNusSbl+BRpOamx03gaTGSm8iKnd0=";
+    sha256 = "KN6aGH5/KbKPA9wT6JYgbMdmVoCYsE4oBdpf1MKfnGg=";
   };
-
-  patches = [ ./xxhash.patch ];
 
   # Upstream Makefile does not anticipate that user may not want to
   # build .so library.

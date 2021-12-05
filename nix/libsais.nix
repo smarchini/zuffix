@@ -14,16 +14,17 @@ stdenv.mkDerivation rec {
   patches = [ ./libsais.patch ];
 
   buildPhase = ''
-     make PROJECT=sais all
-     make PROJECT=sais64 all
+    make PROJECT=sais all
+    make PROJECT=sais64 all
   '';
 
   installPhase = ''
-     make PROJECT=sais PREFIX=$out install
-     make PROJECT=sais64 PREFIX=$out install
+    make PROJECT=sais PREFIX=$out install
+    make PROJECT=sais64 PREFIX=$out install
   '';
 
   meta = {
-    description = "libsais: fast linear time suffix array and Burrows-Wheeler transform construction";
+    description =
+      "libsais: fast linear time suffix array and Burrows-Wheeler transform construction";
   };
 }
