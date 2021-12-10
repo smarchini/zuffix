@@ -46,8 +46,9 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) const {
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
-		for (size_t k = nlen; k < elen && k < pattern.length(); k++)
-			if (pattern[k] != text[sa[i] + k]) return {1, 0};
+		size_t end = min(elen, pattern.length()) - nlen;
+		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T)))
+		  return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -82,7 +83,6 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	}
 
 	LInterval<size_t> find(const String<T> &pattern) {
-		// return exit(pattern, 0, text.length()); // remove the z-acceleration
 		auto [i, j] = fatBinarySearch(pattern);
 		return exit(pattern, i, j);
 	}
@@ -141,9 +141,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				ssize_t elen = getlcp(intervali, intervalj);
 				size_t hlen = twoFattestLR(nlen, elen);
 
-				// if (hlen > 1024) {
 				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
-				// }
 
 				lb = intervali;
 			}

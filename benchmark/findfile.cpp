@@ -1,4 +1,5 @@
 #include "common.hpp"
+#include <unistd.h>
 
 #define _STRINGIFY(...) #__VA_ARGS__
 #define STRINGIFY(...) _STRINGIFY(__VA_ARGS__)
@@ -48,6 +49,9 @@ int main(int argc, char **argv) {
 		uint64_t sum = 0;
 		vector<chrono::nanoseconds::rep> record;
 		record.reserve(number);
+
+		cout << "Run `perf record -g -p " << ::getpid() << "` and press enter" << std::endl;
+		cin.ignore();
 
 		for (const auto &pattern : p) {
 			auto [count, time] = find(ds, pattern);

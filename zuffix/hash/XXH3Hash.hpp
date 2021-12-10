@@ -10,7 +10,7 @@ template <typename T> class XXH3Hash {
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;
-	static constexpr size_t C = 1 << 10;
+	static constexpr size_t C = 1 << 20;
 	XXH3_state_t *state = XXH3_createState();
 
   public:
