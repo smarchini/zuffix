@@ -43,14 +43,12 @@ template <typename T> class EnhancedSuffixArray {
 			std::tie(i, j) = getChild(i, j, pattern[c]);
 
 			if (j - i == 1) {
-				for (size_t k = c; k < pattern.length(); k++)
-					if (text[sa[i] + k] != pattern[k]) return {1, 0};
+				if (memcmp(&pattern + c, &text + sa[i] + c, (pattern.length() - c) * sizeof(T))) return {1, 0};
 				break;
 			}
 
 			size_t d = min(static_cast<size_t>(getlcp(i, j)), pattern.length());
-			for (size_t k = c; k < d; k++)
-				if (text[sa[i] + k] != pattern[k]) return {1, 0};
+			if (memcmp(&pattern + c, &text + sa[i] + c, (d - c) * sizeof(T))) return {1, 0};
 			c = d;
 		}
 		return {i, j};
