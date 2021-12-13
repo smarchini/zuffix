@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
     owner = "Cyan4973";
     repo = "xxHash";
     rev = "${version}";
-    sha256 = "KN6aGH5/KbKPA9wT6JYgbMdmVoCYsE4oBdpf1MKfnGg=";
+    sha256 = "zAdx9IZGH8FrGHu9jWNfaGJ1qv84wLfxp7UENoHuBc8=";
   };
 
   # Upstream Makefile does not anticipate that user may not want to

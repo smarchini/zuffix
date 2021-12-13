@@ -125,7 +125,7 @@ inline Vector<size_t> CTConstructByAbouelhoda(const Vector<ssize_t> &lcp) {
 	return result;
 }
 
-template <typename T> inline Vector<ssize_t> LCPConstructionByKarkkainenPsi(const String<T> &string, const Vector<size_t> &sa) {
+template <typename T> inline Vector<ssize_t> LCPConstructByKarkkainenPsi(const String<T> &string, const Vector<size_t> &sa) {
 	// using namespace std;
 	size_t n = sa.size();
 	Vector<size_t> plcp(n + 1);

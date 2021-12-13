@@ -8,19 +8,19 @@ stdenv.mkDerivation rec {
     owner = "IlyaGrebnov";
     repo = "libsais";
     rev = "${version}";
-    sha256 = "NHvdLWM4+TYZoy0lpeUSinjDsgKTFleLyo8IKm3fm7k=";
+    sha256 = "isXZzrvD1jpiH/7KRVhKC6BWWjQ5qZ9En8adPt7fHVA=";
   };
 
   patches = [ ./libsais.patch ];
 
   buildPhase = ''
-    make PROJECT=sais all
-    make PROJECT=sais64 all
+    make CC=g++ PROJECT=sais all
+    make CC=g++ PROJECT=sais64 all
   '';
 
   installPhase = ''
-    make PROJECT=sais PREFIX=$out install
-    make PROJECT=sais64 PREFIX=$out install
+    make PROJECT=sais PREFIX=${placeholder "out"} install
+    make PROJECT=sais64 PREFIX=${placeholder "out"} install
   '';
 
   meta = {

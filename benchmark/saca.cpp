@@ -33,7 +33,7 @@ BM_SA(GrebnovSAIS, SAConstructByGrebnovSAIS)
 	BENCHMARK(BM_LcpBy##NAME)->Range(1 << 10, 1 << 20);
 
 BM_LCP(Strcmp, LCPConstructByStrcmp)
-BM_LCP(KarkkainenPsi, LCPConstructionByKarkkainenPsi)
+BM_LCP(KarkkainenPsi, LCPConstructByKarkkainenPsi)
 
 #define BM_LCP_FIBONACCI(NAME, FOO)                                                                                                                                                                    \
 	static void BM_LcpBy##NAME##_fibonacci(benchmark::State &state) {                                                                                                                                  \
@@ -47,14 +47,14 @@ BM_LCP(KarkkainenPsi, LCPConstructionByKarkkainenPsi)
 	BENCHMARK(BM_LcpBy##NAME##_fibonacci)->Range(10, 20);
 
 BM_LCP_FIBONACCI(Strcmp, LCPConstructByStrcmp)
-BM_LCP_FIBONACCI(KarkkainenPsi, LCPConstructionByKarkkainenPsi)
+BM_LCP_FIBONACCI(KarkkainenPsi, LCPConstructByKarkkainenPsi)
 
 static void BM_CtByAbouelhoda(benchmark::State &state) {
 	auto n = state.range(0);
 	uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";
 	auto string = random(n, charset, 26);
 	auto sa = SAConstructByGrebnovSAIS(string);
-	auto lcp = LCPConstructionByKarkkainenPsi(string, sa);
+	auto lcp = LCPConstructByKarkkainenPsi(string, sa);
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(CTConstructByAbouelhoda(lcp));
 	}
