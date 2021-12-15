@@ -23,7 +23,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	EnhancedZuffixArray() {}
 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		z.resize(ceil_pow2(text.length()) << 1); // TODO tweak me
+		z.resize(ceil_pow2(text.length() * 3)); // TODO tweak me
 		RH<T> hash(&text);
 		ZFillByDFS(0, text.length(), 0, hash);
 		// ZFillByBottomUp();
@@ -53,7 +53,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.length()) - nlen;
-		// if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
+		//if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -75,8 +75,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			if (beta.isEmpty() || elen <= f) {
 #ifdef DEBUG_STATS
-				if (elen <= f) fatBinarySearch_beta_fake_by_bad_elen++;
 				if (beta.isEmpty()) fatBinarySearch_beta_empty++;
+				else if (elen <= f) fatBinarySearch_beta_fake_by_bad_elen++;
 #endif
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
@@ -92,14 +92,14 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				alpha = beta;
 			}
 		}
-		//		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
-		//		size_t end = min(nlen, pattern.length());
-		// 		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
-		// #ifdef DEBUG_STATS
-		// 			fatBinarySearch_mischivious_collision++;
-		// #endif
-		// 			return {0, text.length()}; // mischivious collision
-		// 		}
+		 // 		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		 // 		size_t end = min(nlen, pattern.length());
+		 // 		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
+		 // #ifdef DEBUG_STATS
+		 // 			fatBinarySearch_mischivious_collision++;
+		 // #endif
+		 // 			return {0, text.length()}; // mischivious collision
+		 // 		}
 		return alpha;
 	}
 
@@ -119,22 +119,26 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> &h, size_t dept = 0) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> &h, size_t depth = 0) {
+#ifdef DEBUG_STATS
+		if (suffixtree_depth < depth) suffixtree_depth = depth;
+#endif
+
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
-		assert(dept <= hlen);
+		assert(depth <= hlen);
 
 		z.store(h.immediate(sa[i], hlen), pack({i, j}));
 
 		do {
-			ZFillByDFS(l, r, elen + 1, h, dept + 1);
+			ZFillByDFS(l, r, elen + 1, h, depth + 1);
 			l = r;
 			r = ct[r];
 		} while (lcp[l] == lcp[ct[l]] && lcp[l] <= lcp[l + 1]);
-		ZFillByDFS(l, j, elen + 1, h, dept + 1);
+		ZFillByDFS(l, j, elen + 1, h, depth + 1);
 	}
 
 	// TODO clean me
@@ -190,9 +194,11 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	int fatBinarySearch_beta_empty = 0;
 	int fatBinarySearch_beta_good = 0;
 	int fatBinarySearch_mischivious_collision = 0;
+    int suffixtree_depth = 0;
 
 	void print_debug_stats() {
-		std::cerr << "DEBUG_STATS_EnhancedZuffixArray.hpp:";
+		std::cerr << "DEBUG_STATS_EnhancedZuffixArray.hpp:" << std::endl;
+		std::cerr << "- suffixtree_depth: " << suffixtree_depth << std::endl;
 		std::cerr << "- getChild_calls: " << getChild_calls << std::endl;
 		std::cerr << "- exit_calls: " << exit_calls << std::endl;
 		std::cerr << "- fatBinarySearch_while_reps: " << fatBinarySearch_while_reps << std::endl;
