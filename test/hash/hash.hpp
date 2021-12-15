@@ -6,13 +6,13 @@ template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;
 
 template <typename T> inline void battery(T h, int n, int skip = 1) {
 	EXPECT_EQ(h(0, n), h.immediate(0, n)) << "first";
-	//for (size_t i = 0; i <= n; i += skip) EXPECT_EQ(h(0, i), h.immediate(0, i)) << "at index " << i;
+	// for (size_t i = 0; i <= n; i += skip) EXPECT_EQ(h(0, i), h.immediate(0, i)) << "at index " << i;
 	for (size_t i = 0; i <= n; i += skip) EXPECT_EQ(h(i), h.immediate(0, i)) << "at index " << i;
-	//for (int i = 0; i <= n; i += skip) EXPECT_EQ(h(0, i), h.immediate(0, i)) << "at index " << i;
+	// for (int i = 0; i <= n; i += skip) EXPECT_EQ(h(0, i), h.immediate(0, i)) << "at index " << i;
 	for (int i = 0; i <= n; i += skip) EXPECT_EQ(h(i), h.immediate(0, i)) << "at index " << i;
-	//for (int i = n; i >= 0; i -= skip) EXPECT_EQ(h(0, i), h.immediate(0, i)) << "at index " << i;
+	// for (int i = n; i >= 0; i -= skip) EXPECT_EQ(h(0, i), h.immediate(0, i)) << "at index " << i;
 	for (int i = n; i >= 0; i -= skip) EXPECT_EQ(h(i), h.immediate(0, i)) << "at index " << i;
-	//for (size_t i = 0; i < n / 2; i += skip) EXPECT_EQ(h(i, n - i), h.immediate(i, n - i)) << "at index " << i;
+	// for (size_t i = 0; i < n / 2; i += skip) EXPECT_EQ(h(i, n - i), h.immediate(i, n - i)) << "at index " << i;
 }
 
 zarr::String<char> abracadabra("abracadabra~");

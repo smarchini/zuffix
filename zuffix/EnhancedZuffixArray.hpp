@@ -53,7 +53,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.length()) - nlen;
-		//if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
+		// if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -75,8 +75,10 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			if (beta.isEmpty() || elen <= f) {
 #ifdef DEBUG_STATS
-				if (beta.isEmpty()) fatBinarySearch_beta_empty++;
-				else if (elen <= f) fatBinarySearch_beta_fake_by_bad_elen++;
+				if (beta.isEmpty())
+					fatBinarySearch_beta_empty++;
+				else if (elen <= f)
+					fatBinarySearch_beta_fake_by_bad_elen++;
 #endif
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
@@ -92,14 +94,14 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				alpha = beta;
 			}
 		}
-		 // 		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
-		 // 		size_t end = min(nlen, pattern.length());
-		 // 		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
-		 // #ifdef DEBUG_STATS
-		 // 			fatBinarySearch_mischivious_collision++;
-		 // #endif
-		 // 			return {0, text.length()}; // mischivious collision
-		 // 		}
+		// 		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		// 		size_t end = min(nlen, pattern.length());
+		// 		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
+		// #ifdef DEBUG_STATS
+		// 			fatBinarySearch_mischivious_collision++;
+		// #endif
+		// 			return {0, text.length()}; // mischivious collision
+		// 		}
 		return alpha;
 	}
 
@@ -194,7 +196,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	int fatBinarySearch_beta_empty = 0;
 	int fatBinarySearch_beta_good = 0;
 	int fatBinarySearch_mischivious_collision = 0;
-    int suffixtree_depth = 0;
+	int suffixtree_depth = 0;
 
 	void print_debug_stats() {
 		std::cerr << "DEBUG_STATS_EnhancedZuffixArray.hpp:" << std::endl;
