@@ -29,7 +29,10 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		// ZFillByBottomUp();
 	}
 
-	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
+	LInterval<size_t> getChild(size_t i, size_t j, const T &c) {
+#ifdef DEBUG_STATS
+		getChild_calls++;
+#endif
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t d = lcp[r];
@@ -43,12 +46,14 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		return {l, r};
 	}
 
-	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) const {
+	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) {
+#ifdef DEBUG_STATS
+		exit_calls++;
+#endif
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.length()) - nlen;
-		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T)))
-		  return {1, 0};
+		// if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -62,23 +67,39 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		LInterval<size_t> alpha = {0, text.length()};
 		size_t l = 0, r = pattern.length();
 		while (l < r) {
+#ifdef DEBUG_STATS
+			fatBinarySearch_while_reps++;
+#endif
 			size_t f = twoFattestR(l, r);
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			if (beta.isEmpty() || elen <= f) {
+#ifdef DEBUG_STATS
+				if (elen <= f) fatBinarySearch_beta_fake_by_bad_elen++;
+				if (beta.isEmpty()) fatBinarySearch_beta_empty++;
+#endif
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
+#ifdef DEBUG_STATS
+				fatBinarySearch_beta_fake_by_contains++;
+#endif
 				l = elen + 1;
 			} else {
+#ifdef DEBUG_STATS
+				fatBinarySearch_beta_good++;
+#endif
 				l = elen + 1;
 				alpha = beta;
 			}
 		}
-		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
-		size_t end = min(nlen, pattern.length());
-		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
-			return {0, text.length()}; // mischivious collision
-		}
+		//		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		//		size_t end = min(nlen, pattern.length());
+		// 		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
+		// #ifdef DEBUG_STATS
+		// 			fatBinarySearch_mischivious_collision++;
+		// #endif
+		// 			return {0, text.length()}; // mischivious collision
+		// 		}
 		return alpha;
 	}
 
@@ -158,6 +179,43 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 
 	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
 	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
+
+#ifdef DEBUG_STATS
+  public:
+	int getChild_calls = 0;
+	int exit_calls = 0;
+	int fatBinarySearch_while_reps = 0;
+	int fatBinarySearch_beta_fake_by_contains = 0;
+	int fatBinarySearch_beta_fake_by_bad_elen = 0;
+	int fatBinarySearch_beta_empty = 0;
+	int fatBinarySearch_beta_good = 0;
+	int fatBinarySearch_mischivious_collision = 0;
+
+	void print_debug_stats() {
+		std::cerr << "DEBUG_STATS_EnhancedZuffixArray.hpp:";
+		std::cerr << "- getChild_calls: " << getChild_calls << std::endl;
+		std::cerr << "- exit_calls: " << exit_calls << std::endl;
+		std::cerr << "- fatBinarySearch_while_reps: " << fatBinarySearch_while_reps << std::endl;
+		std::cerr << "- fatBinarySearch_beta_fake_by_contains: " << fatBinarySearch_beta_fake_by_contains << std::endl;
+		std::cerr << "- fatBinarySearch_beta_fake_by_bad_elen: " << fatBinarySearch_beta_fake_by_bad_elen << std::endl;
+		std::cerr << "- fatBinarySearch_beta_empty: " << fatBinarySearch_beta_empty << std::endl;
+		std::cerr << "- fatBinarySearch_beta_good: " << fatBinarySearch_beta_good << std::endl;
+		std::cerr << "- fatBinarySearch_mischivious_collision: " << fatBinarySearch_mischivious_collision << std::endl;
+		z.print_debug_stats();
+	}
+
+	void reset_debug_stats() {
+		getChild_calls = 0;
+		exit_calls = 0;
+		fatBinarySearch_while_reps = 0;
+		fatBinarySearch_beta_fake_by_contains = 0;
+		fatBinarySearch_beta_fake_by_bad_elen = 0;
+		fatBinarySearch_beta_empty = 0;
+		fatBinarySearch_beta_good = 0;
+		fatBinarySearch_mischivious_collision = 0;
+		z.reset_debug_stats();
+	}
+#endif
 };
 
 } // namespace zarr

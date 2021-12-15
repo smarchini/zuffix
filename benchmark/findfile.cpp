@@ -12,6 +12,11 @@ tuple<size_t, chrono::nanoseconds::rep> find(DATASTRUCTURETYPE &ds, const String
 	uint64_t u = 0;
 	size_t result;
 
+#ifdef DEBUG_STATS
+	reps = 1;
+	ds.reset_debug_stats();
+#endif
+
 	vector<chrono::nanoseconds::rep> time;
 	time.reserve(reps);
 
@@ -24,6 +29,10 @@ tuple<size_t, chrono::nanoseconds::rep> find(DATASTRUCTURETYPE &ds, const String
 	}
 
 	const volatile uint64_t __attribute__((unused)) unused = u;
+
+#ifdef DEBUG_STATS
+	ds.print_debug_stats();
+#endif
 
 	sort(time.begin(), time.end());
 	return make_tuple(result, time[reps / 2]);
