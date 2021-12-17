@@ -18,6 +18,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	Vector<ssize_t> lcp;
 	Vector<size_t> ct;
 	OpenAddressing<uint64_t> z;
+    size_t maxhlen = 0;
+
 
   public:
 	EnhancedZuffixArray() {}
@@ -62,7 +64,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
 		RH<T> h(&pattern);
 		LInterval<size_t> alpha = {0, text.length()};
-		size_t l = 0, r = pattern.length();
+		size_t l = 0, r = min(pattern.length(), maxhlen);
 		while (l < r) {
 			fatBinarySearch_while_reps++;
 			size_t f = twoFattestR(l, r);
@@ -99,8 +101,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	}
 
 	LInterval<size_t> find(const String<T> &pattern) {
-		std::cerr << "text: " << text << std::endl;
-		std::cerr << "pattern: " << pattern << std::endl;
+		std::cerr << "text: " << text.length() << " characters" << std::endl;
+		std::cerr << "pattern: " << pattern.length() << " characters" << std::endl;
 		reset_debug_stats();
 		auto [i, j] = fatBinarySearch(pattern);
 		auto e = exit(pattern, i, j);
@@ -127,9 +129,10 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
-		assert(depth <= hlen);
+		if (maxhlen < hlen) maxhlen = hlen;
 
-		std::cerr << "Storing node: [" << i << " .. " << j << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << std::endl;
+		assert(depth <= hlen);
+		// std::cerr << "Storing node: [" << i << " .. " << j << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << std::endl;
 		assert(nlen <= hlen && hlen <= elen);
 		z.store(h.immediate(sa[i], hlen), pack({i, j}));
 
@@ -165,8 +168,9 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
 				ssize_t elen = getlcp(intervali, intervalj);
 				size_t hlen = twoFattestLR(nlen, elen);
+				if (maxhlen < hlen) maxhlen = hlen;
 
-				std::cerr << "Storing node: " << intervall << "-[" << intervali << " .. " << intervalj << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << ", signature = " << h.immediate(sa[intervali], hlen) << std::endl;
+				// std::cerr << "Storing node: " << intervall << "-[" << intervali << " .. " << intervalj << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << ", signature = " << h.immediate(sa[intervali], hlen) << std::endl;
 				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
 
 				lb = intervali;
@@ -182,8 +186,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
-	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
+	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
+	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
 
   public:
 	int getChild_calls = 0;
@@ -203,6 +207,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		std::cerr << "--------------------------------------------------------------------------------" << std::endl;
 		std::cerr << "DEBUG_STATS_EnhancedZuffixArray.hpp:" << std::endl;
 		std::cerr << "- suffixtree_depth: " << suffixtree_depth << std::endl;
+		std::cerr << "- suffixtree_maxhlen: " << maxhlen << std::endl;
 		std::cerr << "- getChild_calls: " << getChild_calls << std::endl;
 		std::cerr << "- exit_calls: " << exit_calls << std::endl;
 		std::cerr << "- fatBinarySearch_while_reps: " << fatBinarySearch_while_reps << std::endl;
