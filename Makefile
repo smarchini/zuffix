@@ -8,9 +8,9 @@ all: test benchmark
 
 # TEST
 test: bin/test/random bin/test/hash bin/test/saca bin/test/zuffix
-	./bin/test/random --gtest_color=yes
-	./bin/test/hash --gtest_color=yes
-	./bin/test/saca --gtest_color=yes
+	#./bin/test/random --gtest_color=yes
+	#./bin/test/hash --gtest_color=yes
+	#./bin/test/saca --gtest_color=yes
 	./bin/test/zuffix --gtest_color=yes
 
 bin/test/random: test/random/* zuffix/* zuffix/*/*
@@ -56,22 +56,22 @@ bin/benchmark/build: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark/build8
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\> benchmark/build.cpp -o bin/benchmark/build8/SimpleSuffixArray $(LDLIBS)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedSuffixArray $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,RabinKarpHash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_RabinKarp $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly4Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_CyclicPoly4 $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly128Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_CyclicPoly128 $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,O1Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_O1 $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,XXH3Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_XXH3 $(LDLIBS) -DDEBUG_STATS
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,RabinKarpHash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_RabinKarp $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly4Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_CyclicPoly4 $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly128Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_CyclicPoly128 $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,O1Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_O1 $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,XXH3Hash\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedZuffixArray_XXH3 $(LDLIBS)
 
 bin/benchmark/findfile: benchmark/*  zuffix/* zuffix/*/*
     # 8 bit
 	@mkdir -p bin/benchmark/find8
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\> benchmark/findfile.cpp -o bin/benchmark/find8/SimpleSuffixArray $(LDLIBS)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedSuffixArray $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,RabinKarpHash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_RabinKarp $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly4Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_CyclicPoly4 $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly128Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_CyclicPoly128 $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,O1Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_O1 $(LDLIBS) -DDEBUG_STATS
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,XXH3Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_XXH3 $(LDLIBS) -DDEBUG_STATS
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,RabinKarpHash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_RabinKarp $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly4Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_CyclicPoly4 $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly128Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_CyclicPoly128 $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,O1Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_O1 $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,XXH3Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_XXH3 $(LDLIBS)
 
 # DATASET
 dataset: dataset/text dataset/patterns

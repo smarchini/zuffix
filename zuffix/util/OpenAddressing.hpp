@@ -17,40 +17,28 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class OpenAdd
 	OpenAddressing(size_t size) : table(size) {}
 
 	void store(uint64_t signature, T value) {
-#ifdef DEBUG_STATS
 		store_calls++;
-#endif
 		size_t pos = signature % table.size();
 		while (std::get<0>(table[pos]) != signature && std::get<0>(table[pos]) != 0) {
-#ifdef DEBUG_STATS
 			store_duplicate++;
-#endif
 			pos = (pos + 1) % table.size();
 		}
 
-#ifdef DEBUG_STATS
 		if (std::get<0>(table[pos]) == signature) store_collision++;
-#endif
 		table[pos] = {signature, value};
 	}
 
 	std::optional<T> operator[](uint64_t signature) {
-#ifdef DEBUG_STATS
 		get_calls++;
-#endif
 		size_t pos = signature % table.size();
 		while (std::get<0>(table[pos]) != signature && std::get<0>(table[pos]) != 0) {
-#ifdef DEBUG_STATS
 			get_duplicate++;
-#endif
 			pos = (pos + 1) % table.size();
 		}
-#ifdef DEBUG_STATS
 		if (std::get<0>(table[pos]) == signature)
 			get_okay++;
 		else
 			get_null++;
-#endif
 		return std::get<0>(table[pos]) == signature ? std::optional(std::get<1>(table[pos])) : std::nullopt;
 	};
 
@@ -61,7 +49,6 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class OpenAdd
 	friend std::ostream &operator<<(std::ostream &os, const OpenAddressing<T, AT> &ds) { return os << ds.table; }
 	friend std::istream &operator>>(std::istream &is, OpenAddressing<T, AT> &ds) { return is >> ds.table; }
 
-#ifdef DEBUG_STATS
   public:
 	int store_calls = 0;
 	int store_duplicate = 0;
@@ -92,7 +79,6 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class OpenAdd
 		get_null = 0;
 		get_okay = 0;
 	}
-#endif
 };
 
 } // namespace zarr

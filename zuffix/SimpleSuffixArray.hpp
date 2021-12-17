@@ -44,6 +44,10 @@ template <typename T> class SimpleSuffixArray {
 
 	friend std::ostream &operator<<(std::ostream &os, const SimpleSuffixArray<T> &ds) { return os << ds.text << ds.sa; }
 	friend std::istream &operator>>(std::istream &is, SimpleSuffixArray<T> &ds) { return is >> ds.text >> ds.sa; }
+
+  public:
+	void print_debug_stats() {}
+	void reset_debug_stats() {}
 };
 
 } // namespace zarr

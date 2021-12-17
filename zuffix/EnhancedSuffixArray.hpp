@@ -67,6 +67,10 @@ template <typename T> class EnhancedSuffixArray {
 
 	friend std::ostream &operator<<(std::ostream &os, const EnhancedSuffixArray<T> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct; }
 	friend std::istream &operator>>(std::istream &is, EnhancedSuffixArray<T> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct; }
+
+  public:
+	void print_debug_stats() {}
+	void reset_debug_stats() {}
 };
 
 } // namespace zarr

@@ -11,10 +11,7 @@ int main(int argc, char **argv) {
 
 	DATASTRUCTURETYPE ds(file_to_string<SYMBOLTYPE>(argv[1]));
 	cout << ds;
-
-#if defined(DEBUG_STATS)
 	ds.print_debug_stats();
-#endif
 
 	return 0;
 }

@@ -10,7 +10,8 @@ namespace zarr {
 
 template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String {
   public:
-	static constexpr char DOLLAR = std::numeric_limits<T>::max();
+	// static constexpr char DOLLAR = std::numeric_limits<T>::max();
+	static constexpr char DOLLAR = '~';
 
   private:
 	sux::util::Vector<T, AT> data;
@@ -19,13 +20,13 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String 
 	String() {}
 
 	explicit String(size_t length, bool dollar = false) : data(length + dollar) {
-		if (dollar) data[length] = DOLLAR;
+		if (dollar) data[data.size() - 1] = DOLLAR;
 	}
 
 	// Prefix-free strings are $ terminated, otherwise there is no ending delimiter
 	explicit String(std::string string, bool dollar = false) : String(string.length(), dollar) {
 		for (size_t i = 0; i < string.length(); i++) data[i] = string[i];
-		if (dollar) data[string.length()] = DOLLAR;
+		if (dollar) data[data.size() - 1] = DOLLAR;
 	}
 
 	explicit String(const void *buffer, size_t bytes, bool dollar = false) : String(bytes, dollar) {
