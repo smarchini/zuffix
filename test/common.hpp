@@ -7,7 +7,7 @@
 #include <zuffix/EnhancedZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
 
-#include <zuffix/hash/CRC64Hash.hpp>
+// #include <zuffix/hash/CRC64Hash.hpp>
 #include <zuffix/hash/CyclicPolyHash.hpp>
 #include <zuffix/hash/O1Hash.hpp>
 #include <zuffix/hash/RabinKarpHash.hpp>
@@ -41,15 +41,17 @@ template <typename T> class BadHash {
 	T *string;
 	uint64_t state = 0;
 	size_t l = 0, r = 0;
+	static constexpr uint64_t NONZERO = 0x8000000000000000ULL;
 
   public:
 	BadHash(T *string) : string(string) {}
-	BadHash(T *string, size_t length) : string(string) { /* discard length */ }
+	BadHash(T *string, size_t length) : string(string) { /* discard length */
+	}
 
 	uint64_t operator()(size_t to) {
 		for (; r < to; r++) state ^= string[r] & 0b11;
 		for (; r > to; r--) state ^= string[r - 1] & 0b11;
-		return state;
+		return state | NONZERO;
 	}
 
 	uint64_t operator()(size_t from, size_t length) {
@@ -57,12 +59,12 @@ template <typename T> class BadHash {
 		for (; l > from; l--) state ^= string[l - 1] & 0b11;
 		for (; r < from + length; r++) state ^= string[r] & 0b11;
 		for (; r > from + length; r--) state ^= string[r - 1] & 0b11;
-		return state;
+		return state | NONZERO;
 	}
 
 	uint64_t immediate(size_t from, size_t length) const {
 		uint64_t result = 0;
 		for (size_t i = 0; i < length; i++) result ^= string[from + i] & 0b11;
-		return result;
+		return result | NONZERO;
 	}
 };

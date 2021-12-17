@@ -31,8 +31,8 @@ bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
 
 # BENCHMARK
 benchmark: bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile
-	./bin/benchmark/saca --benchmark_color=yes
-	./bin/benchmark/hash --benchmark_color=yes
+	#./bin/benchmark/saca --benchmark_color=yes
+	#./bin/benchmark/hash --benchmark_color=yes
 	./bin/benchmark/find_random --benchmark_color=yes
 	./bin/benchmark/fibonacci --benchmark_color=yes
 

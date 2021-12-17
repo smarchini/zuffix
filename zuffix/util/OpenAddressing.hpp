@@ -17,7 +17,9 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class OpenAdd
 	OpenAddressing(size_t size) : table(size) {}
 
 	void store(uint64_t signature, T value) {
+		assert(signature != 0);
 		store_calls++;
+		assert(store_calls <= table.size() / 2);
 		size_t pos = signature % table.size();
 		while (std::get<0>(table[pos]) != signature && std::get<0>(table[pos]) != 0) {
 			store_duplicate++;
@@ -29,6 +31,7 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class OpenAdd
 	}
 
 	std::optional<T> operator[](uint64_t signature) {
+		assert(signature != 0);
 		get_calls++;
 		size_t pos = signature % table.size();
 		while (std::get<0>(table[pos]) != signature && std::get<0>(table[pos]) != 0) {

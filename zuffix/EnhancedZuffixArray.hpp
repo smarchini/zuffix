@@ -25,8 +25,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		z.resize(ceil_pow2(text.length() * 3)); // TODO tweak me
 		RH<T> hash(&text);
-		ZFillByDFS(0, text.length(), 0, hash);
-		// ZFillByBottomUp();
+		//ZFillByDFS(0, text.length(), 0, hash);
+		ZFillByBottomUp();
 		print_debug_stats("CONSTRUCTION");
 	}
 
@@ -69,7 +69,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			size_t nlen = 1 + max(lcp[beta.from], lcp[beta.to]);
-			std::cerr << "2-fattest(" << l << " .. " << r << "] = " << f << ", beta = [" << beta.from << " .. " << beta.to << "), nlen = " << nlen << ", elen = " << elen << std::endl;
+			std::cerr << "h(" << (&pattern)[0] << " .. " << (&pattern)[f-1] << "), " << sizeof(T) << ", " << sizeof((&pattern)[0])  << std::endl;
+			std::cerr << "2-fattest(" << l << " .. " << r << "] = " << f << ", beta = [" << beta.from << " .. " << beta.to << "), nlen = " << nlen << ", elen = " << elen << ", signature = " << h(f) << std::endl;
 			if (beta.isEmpty() || nlen > pattern.length() || elen < f) { // forse un < ?
 				if (beta.isEmpty())
 					fatBinarySearch_beta_empty++;
@@ -80,10 +81,11 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
 				fatBinarySearch_beta_fake_by_contains++;
-				l = elen + 1;
+				l = elen; // remove +1 here too???? (see few lines below)
 			} else {
 				fatBinarySearch_beta_good++;
-				l = elen + 1;
+				l = elen; // remove +1 because we use twoFattest (l .. r] (we exclude the left boundary)
+				l = f; // BUG: this line shouldn't be here.... but without it, it doesn't quite work. maybe elen is wrong?!?!?!
 				alpha = beta;
 			}
 		}
@@ -164,6 +166,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				ssize_t elen = getlcp(intervali, intervalj);
 				size_t hlen = twoFattestLR(nlen, elen);
 
+				std::cerr << "Storing node: " << intervall << "-[" << intervali << " .. " << intervalj << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << ", signature = " << h.immediate(sa[intervali], hlen) << std::endl;
 				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
 
 				lb = intervali;
