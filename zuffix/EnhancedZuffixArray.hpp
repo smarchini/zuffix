@@ -68,9 +68,9 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 			if (beta.isEmpty() || elen <= f) {
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
-				l = elen + 1;
+				l = elen;
 			} else {
-				l = elen + 1;
+				l = elen - 1;
 				alpha = beta;
 			}
 		}
