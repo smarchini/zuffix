@@ -86,8 +86,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				l = elen; // remove +1 here too???? (see few lines below)
 			} else {
 				fatBinarySearch_beta_good++;
-				l = elen; // remove +1 because we use twoFattest (l .. r] (we exclude the left boundary)
-				l = f; // BUG: this line shouldn't be here.... but without it, it doesn't quite work. maybe elen is wrong?!?!?!
+				l = elen - 1; // remove +1 because we use twoFattest (l .. r] (we exclude the left boundary)
+				//l = f; // BUG: this line shouldn't be here.... but without it, it doesn't quite work. maybe elen is wrong?!?!?!
 				alpha = beta;
 			}
 		}
