@@ -18,6 +18,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	Vector<ssize_t> lcp;
 	Vector<size_t> ct;
 	OpenAddressing<uint64_t> z;
+	size_t maxhlen = 0;
 
   public:
 	EnhancedZuffixArray() {}
@@ -47,8 +48,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.length()) - nlen;
-		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T)))
-		  return {1, 0};
+		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -60,7 +60,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
 		RH<T> h(&pattern);
 		LInterval<size_t> alpha = {0, text.length()};
-		size_t l = 0, r = pattern.length();
+		size_t l = 0, r = min(pattern.length(), maxhlen);
 		while (l < r) {
 			size_t f = twoFattestR(l, r);
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
@@ -104,6 +104,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
+		if (maxhlen <= hlen) maxhlen = hlen;
 		assert(dept <= hlen);
 
 		z.store(h.immediate(sa[i], hlen), pack({i, j}));
@@ -140,6 +141,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
 				ssize_t elen = getlcp(intervali, intervalj);
 				size_t hlen = twoFattestLR(nlen, elen);
+				if (maxhlen <= hlen) maxhlen = hlen;
 
 				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
 
@@ -156,8 +158,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z; }
-	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z; }
+	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
+	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
 };
 
 } // namespace zarr
