@@ -65,7 +65,9 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 			size_t f = twoFattestR(l, r);
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
-			if (beta.isEmpty() || elen <= f) {
+			size_t nlen = 1 + max(lcp[beta.from], lcp[beta.to]);
+			size_t hlen = twoFattestLR(nlen, elen);
+			if (beta.isEmpty() || hlen != f) {
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
 				l = elen;
