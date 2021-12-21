@@ -18,8 +18,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	Vector<ssize_t> lcp;
 	Vector<size_t> ct;
 	OpenAddressing<uint64_t> z;
-    size_t maxhlen = 0;
-
+	size_t maxhlen = 0;
 
   public:
 	EnhancedZuffixArray() {}
@@ -27,8 +26,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		z.resize(ceil_pow2(text.length() * 3)); // TODO tweak me
 		RH<T> hash(&text);
-		//ZFillByDFS(0, text.length(), 0, hash);
-		ZFillByBottomUp();
+		ZFillByDFS(0, text.length(), 0, hash);
+		// ZFillByBottomUp();
 		print_debug_stats("CONSTRUCTION");
 	}
 
@@ -71,23 +70,21 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			size_t nlen = 1 + max(lcp[beta.from], lcp[beta.to]);
-			std::cerr << "h(" << (&pattern)[0] << " .. " << (&pattern)[f-1] << "), " << sizeof(T) << ", " << sizeof((&pattern)[0])  << std::endl;
-			std::cerr << "2-fattest(" << l << " .. " << r << "] = " << f << ", beta = [" << beta.from << " .. " << beta.to << "), nlen = " << nlen << ", elen = " << elen << ", signature = " << h(f) << std::endl;
-			if (beta.isEmpty() || nlen > pattern.length() || elen < f) { // forse un < ?
+			size_t hlen = twoFattestLR(nlen, elen);
+			std::cerr << "2-fattest(" << l << " .. " << r << "] = " << f << ", beta = [" << beta.from << " .. " << beta.to << "), nlen = " << nlen << ", hlen = " << hlen << "elen = " << elen
+					  << ", signature = " << h(f) << std::endl;
+			if (beta.isEmpty() || hlen != f) {
 				if (beta.isEmpty())
 					fatBinarySearch_beta_empty++;
-				else if (elen < f)
-					fatBinarySearch_beta_fake_by_bad_elen++;
-				else if (nlen > pattern.length())
-					fatBinarySearch_beta_fake_by_bad_nlen++;
+				else if (hlen != f)
+					fatBinarySearch_beta_fake_by_bad_hlen++;
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
 				fatBinarySearch_beta_fake_by_contains++;
-				l = elen; // remove +1 here too???? (see few lines below)
+				l = elen;
 			} else {
 				fatBinarySearch_beta_good++;
-				l = elen - 1; // remove +1 because we use twoFattest (l .. r] (we exclude the left boundary)
-				//l = f; // BUG: this line shouldn't be here.... but without it, it doesn't quite work. maybe elen is wrong?!?!?!
+				l = elen - 1;
 				alpha = beta;
 			}
 		}
@@ -107,7 +104,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		auto [i, j] = fatBinarySearch(pattern);
 		auto e = exit(pattern, i, j);
 		print_debug_stats("FIND");
-		assert(exit_calls <= 2 || fatBinarySearch_beta_fake_by_bad_elen > 0 || fatBinarySearch_beta_fake_by_contains > 0 || fatBinarySearch_mischivious_collision > 0);
+		assert(exit_calls <= 2 || fatBinarySearch_beta_fake_by_bad_hlen > 0 || fatBinarySearch_beta_fake_by_contains > 0 || fatBinarySearch_mischivious_collision > 0);
 		return e;
 	}
 
@@ -134,7 +131,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		assert(depth <= hlen);
 		// std::cerr << "Storing node: [" << i << " .. " << j << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << std::endl;
 		assert(nlen <= hlen && hlen <= elen);
-		z.store(h.immediate(sa[i], hlen), pack({i, j}));
+		if (depth != 0) z.store(h.immediate(sa[i], hlen), pack({i, j}));
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, depth + 1);
@@ -170,7 +167,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				size_t hlen = twoFattestLR(nlen, elen);
 				if (maxhlen < hlen) maxhlen = hlen;
 
-				// std::cerr << "Storing node: " << intervall << "-[" << intervali << " .. " << intervalj << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << ", signature = " << h.immediate(sa[intervali], hlen) << std::endl;
+				// std::cerr << "Storing node: " << intervall << "-[" << intervali << " .. " << intervalj << "): nlen = " << nlen << ", hlen = " << hlen << ", elen = " << elen << ", signature = " <<
+				// h.immediate(sa[intervali], hlen) << std::endl;
 				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
 
 				lb = intervali;
@@ -194,8 +192,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	int exit_calls = 0;
 	int fatBinarySearch_while_reps = 0;
 	int fatBinarySearch_beta_fake_by_contains = 0;
-	int fatBinarySearch_beta_fake_by_bad_elen = 0;
-	int fatBinarySearch_beta_fake_by_bad_nlen = 0;
+	int fatBinarySearch_beta_fake_by_bad_hlen = 0;
 	int fatBinarySearch_beta_empty = 0;
 	int fatBinarySearch_beta_good = 0;
 	int fatBinarySearch_mischivious_collision = 0;
@@ -212,7 +209,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		std::cerr << "- exit_calls: " << exit_calls << std::endl;
 		std::cerr << "- fatBinarySearch_while_reps: " << fatBinarySearch_while_reps << std::endl;
 		std::cerr << "- fatBinarySearch_beta_fake_by_contains: " << fatBinarySearch_beta_fake_by_contains << std::endl;
-		std::cerr << "- fatBinarySearch_beta_fake_by_bad_elen: " << fatBinarySearch_beta_fake_by_bad_elen << std::endl;
+		std::cerr << "- fatBinarySearch_beta_fake_by_bad_hlen: " << fatBinarySearch_beta_fake_by_bad_hlen << std::endl;
 		std::cerr << "- fatBinarySearch_beta_empty: " << fatBinarySearch_beta_empty << std::endl;
 		std::cerr << "- fatBinarySearch_beta_good: " << fatBinarySearch_beta_good << std::endl;
 		std::cerr << "- fatBinarySearch_mischivious_collision: " << fatBinarySearch_mischivious_collision << std::endl;
@@ -225,8 +222,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		exit_calls = 0;
 		fatBinarySearch_while_reps = 0;
 		fatBinarySearch_beta_fake_by_contains = 0;
-		fatBinarySearch_beta_fake_by_bad_elen = 0;
-		fatBinarySearch_beta_fake_by_bad_nlen = 0;
+		fatBinarySearch_beta_fake_by_bad_hlen = 0;
 		fatBinarySearch_beta_empty = 0;
 		fatBinarySearch_beta_good = 0;
 		fatBinarySearch_mischivious_collision = 0;
