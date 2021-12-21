@@ -148,4 +148,37 @@ template <typename T> inline Vector<ssize_t> LCPConstructByKarkkainenPsi(const S
 	return lcp;
 }
 
+#ifdef NO_AVX_MEMCMP
+__attribute__((optimize("no-tree-vectorize")))
+int memcmp(const void *a, const void *b, size_t length) {
+	size_t pos = 0;
+
+	const uint64_t *a8 = reinterpret_cast<const uint64_t *>(a);
+	const uint64_t *b8 = reinterpret_cast<const uint64_t *>(b);
+	for (; pos + 8 < length; pos += 8) {
+		if (a8[pos >> 3] != b8[pos >> 3]) return 1;
+	}
+
+	const uint32_t *a4 = reinterpret_cast<const uint32_t *>(a);
+	const uint32_t *b4 = reinterpret_cast<const uint32_t *>(b);
+	for (; pos + 4 < length; pos += 4) {
+		if (a4[pos >> 2] != b4[pos >> 2]) return 1;
+	}
+
+	const uint16_t *a2 = reinterpret_cast<const uint16_t *>(a);
+	const uint16_t *b2 = reinterpret_cast<const uint16_t *>(b);
+	for (; pos + 2 < length; pos += 2) {
+		if (a2[pos >> 1] != b2[pos >> 1]) return 1;
+	}
+
+	const uint8_t *a1 = reinterpret_cast<const uint8_t *>(a);
+	const uint8_t *b1 = reinterpret_cast<const uint8_t *>(b);
+	for (; pos < length; pos++) {
+		if (a1[pos] != b1[pos]) return 1;
+	}
+
+	return 0;
+}
+#endif
+
 } // namespace zarr
