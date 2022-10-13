@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
     owner = "Cyan4973";
     repo = "xxHash";
     rev = "${version}";
-    sha256 = "zAdx9IZGH8FrGHu9jWNfaGJ1qv84wLfxp7UENoHuBc8=";
+    sha256 = "7ws/Pe6Y8A1HGD+yqe4hS7rtGSaqyGDhz+TIV/M3Mnk=";
   };
 
   # Upstream Makefile does not anticipate that user may not want to
@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
 
   outputs = [ "out" "dev" ];
 
-  makeFlags = [ "PREFIX=$(dev)" "EXEC_PREFIX=$(out)" ];
+  makeFlags = [ "PREFIX=$(dev)" "EXEC_PREFIX=$(out)" "CFLAGS+=-mavx2" ];
 
   meta = with lib; {
     description = "Extremely fast hash algorithm";

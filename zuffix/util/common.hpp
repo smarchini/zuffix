@@ -74,7 +74,11 @@ template <typename T> inline Vector<size_t> SAConstructByDivSufSort(const String
 template <typename T> inline Vector<size_t> SAConstructByGrebnovSAIS(const String<T> &string) {
 	size_t n = string.length();
 	Vector<size_t> result(n);
+#if defined(_OPENMP)
+	libsais64_omp((const uint8_t *)&string, (int64_t *)&result, n, 0, nullptr, 0);
+#else
 	libsais64((const uint8_t *)&string, (int64_t *)&result, n, 0, nullptr);
+#endif
 	return result;
 }
 
@@ -148,9 +152,25 @@ template <typename T> inline Vector<ssize_t> LCPConstructByKarkkainenPsi(const S
 	return lcp;
 }
 
+template <typename T> inline Vector<ssize_t> LCPConstructByGrebnovSAIS(const String<T> &string, const Vector<size_t> &sa) {
+	size_t n = sa.size();
+	Vector<int64_t> plcp(n);
+	Vector<ssize_t> lcp(n + 1);
+
+#if defined(_OPENMP)
+	libsais64_plcp_omp((const uint8_t *)&string, (const int64_t *)&sa, (int64_t *)&plcp, n, 0);
+	libsais64_lcp_omp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n, 0);
+#else
+	libsais64_plcp((const uint8_t *)&string, (const int64_t *)&sa, (int64_t *)&plcp, n);
+	libsais64_lcp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n);
+#endif
+
+	lcp[0] = lcp[n] = -1;
+	return lcp;
+}
+
 #ifdef NO_AVX_MEMCMP
-__attribute__((optimize("no-tree-vectorize")))
-int memcmp(const void *a, const void *b, size_t length) {
+__attribute__((optimize("no-tree-vectorize"))) int memcmp(const void *a, const void *b, size_t length) {
 	size_t pos = 0;
 
 	const uint64_t *a8 = reinterpret_cast<const uint64_t *>(a);

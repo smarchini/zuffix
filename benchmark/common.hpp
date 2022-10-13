@@ -9,6 +9,7 @@
 
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 
+#include <zuffix/util/common.hpp>
 #include <zuffix/util/String.hpp>
 
 #include <zuffix/hash/CRC64Hash.hpp>

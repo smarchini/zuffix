@@ -4,6 +4,7 @@
 #include <sux/util/Vector.hpp>
 
 #include "util/LInterval.hpp"
+#include "util/LinearProber.hpp"
 #include "util/OpenAddressing.hpp"
 #include "util/String.hpp"
 #include "util/common.hpp"
@@ -17,14 +18,14 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	Vector<size_t> sa;
 	Vector<ssize_t> lcp;
 	Vector<size_t> ct;
-	OpenAddressing<uint64_t> z;
+	LinearProber<uint64_t> z;
 	size_t maxhlen = 0;
 
   public:
 	EnhancedZuffixArray() {}
 
 	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		z.resize(ceil_pow2(text.length()) << 1); // TODO tweak me
+		// z.resize(ceil_pow2(text.length()) << 1); // TODO tweak me
 		RH<T> hash(&text);
 		ZFillByDFS(0, text.length(), 0, hash);
 		// ZFillByBottomUp();
@@ -110,6 +111,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		assert(dept <= hlen);
 
 		z.store(h.immediate(sa[i], hlen), pack({i, j}));
+		if (z.elements() * 3 > z.size()) growZTable();
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, dept + 1);
@@ -146,6 +148,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				if (maxhlen <= hlen) maxhlen = hlen;
 
 				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
+				if (z.elements() * 3 > z.size()) growZTable();
 
 				lb = intervali;
 			}
@@ -155,6 +158,24 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 				stackj.pushBack(i);
 			}
 		}
+	}
+
+	void growZTable() {
+	  RH<T> h(&text);
+	  size_t n = z.size();
+	  auto table = z.getTable();
+	  LinearProber<uint64_t> zlarge(n * 2);
+	  for (size_t i = 0; i < n; i++) {
+		auto [signature, value] = table[i];
+		if (signature) {
+			auto [intervali, intervalj] = unpack(value);
+			ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
+			ssize_t elen = getlcp(intervali, intervalj);
+			size_t hlen = twoFattestLR(nlen, elen);
+			zlarge.store(h.immediate(sa[intervali], hlen), value);
+		}
+	  }
+	  std::swap(z, zlarge);
 	}
 
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }

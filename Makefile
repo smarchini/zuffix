@@ -30,7 +30,8 @@ bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
 	$(CXX) $(CXXFLAGS) $(DEBUG) test/zuffix/test.cpp -o bin/test/zuffix $(LDLIBS)
 
 # BENCHMARK
-benchmark: bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile
+benchmark: bin/benchmark/lambda bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile
+	./bin/benchmark/lambda --benchmark_color=yes
 	./bin/benchmark/saca --benchmark_color=yes
 	./bin/benchmark/hash --benchmark_color=yes
 	./bin/benchmark/find_random --benchmark_color=yes
@@ -39,6 +40,10 @@ benchmark: bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/b
 bin/benchmark/saca: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/saca.cpp -o bin/benchmark/saca $(LDLIBS)
+
+bin/benchmark/lambda: benchmark/*  zuffix/* zuffix/*/*
+	@mkdir -p bin/benchmark
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/lambda.cpp -o bin/benchmark/lambda $(LDLIBS)
 
 bin/benchmark/hash: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark

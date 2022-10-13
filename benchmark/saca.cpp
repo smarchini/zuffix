@@ -34,6 +34,7 @@ BM_SA(GrebnovSAIS, SAConstructByGrebnovSAIS)
 
 BM_LCP(Strcmp, LCPConstructByStrcmp)
 BM_LCP(KarkkainenPsi, LCPConstructByKarkkainenPsi)
+BM_LCP(GrebnovSAIS, LCPConstructByGrebnovSAIS)
 
 #define BM_LCP_FIBONACCI(NAME, FOO)                                                                                                                                                                    \
 	static void BM_LcpBy##NAME##_fibonacci(benchmark::State &state) {                                                                                                                                  \
@@ -48,6 +49,7 @@ BM_LCP(KarkkainenPsi, LCPConstructByKarkkainenPsi)
 
 BM_LCP_FIBONACCI(Strcmp, LCPConstructByStrcmp)
 BM_LCP_FIBONACCI(KarkkainenPsi, LCPConstructByKarkkainenPsi)
+BM_LCP_FIBONACCI(GrebnovSAIS, LCPConstructByGrebnovSAIS)
 
 static void BM_CtByAbouelhoda(benchmark::State &state) {
 	auto n = state.range(0);
