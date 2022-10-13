@@ -29,20 +29,18 @@ size_t lambdaless(size_t n) {
 	std::uniform_int_distribution<int64_t> offset(0, 10);
 	int64_t cnt = 0;
 	int64_t l = 0, r = n;
-	int64_t m = -1ULL << lambda(l ^ r);
+	int64_t m = -1ULL << 63;
 	while (l < r) {
-		if ((m & l) != (m & r)) {
-			cnt++;
-			size_t f = m & r;
-			// assert(twoFattestR(l, r) == f);
-			int64_t x = 1 + offset(rng);
-			if (rng() & 1) {
-				r = f - x;
-			} else {
-				l = f + x;
-			}
+		while ((m & l) == (m & r)) m >>= 1;
+		cnt++;
+		size_t f = m & r;
+		// assert(twoFattestR(l, r) == f);
+		int64_t x = 1 + offset(rng);
+		if (rng() & 1) {
+			r = f - x;
+		} else {
+			l = f + x;
 		}
-		m = m >> 1;
 	}
 	return cnt;
 }

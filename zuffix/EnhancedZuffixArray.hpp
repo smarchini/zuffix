@@ -161,21 +161,21 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	}
 
 	void growZTable() {
-	  RH<T> h(&text);
-	  size_t n = z.size();
-	  auto table = z.getTable();
-	  LinearProber<uint64_t> zlarge(n * 2);
-	  for (size_t i = 0; i < n; i++) {
-		auto [signature, value] = table[i];
-		if (signature) {
-			auto [intervali, intervalj] = unpack(value);
-			ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
-			ssize_t elen = getlcp(intervali, intervalj);
-			size_t hlen = twoFattestLR(nlen, elen);
-			zlarge.store(h.immediate(sa[intervali], hlen), value);
+		RH<T> h(&text);
+		size_t n = z.size();
+		auto table = z.getTable();
+		LinearProber<uint64_t> zlarge(n * 2);
+		for (size_t i = 0; i < n; i++) {
+			auto [signature, value] = table[i];
+			if (signature) {
+				auto [intervali, intervalj] = unpack(value);
+				ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
+				ssize_t elen = getlcp(intervali, intervalj);
+				size_t hlen = twoFattestLR(nlen, elen);
+				zlarge.store(h.immediate(sa[intervali], hlen), value);
+			}
 		}
-	  }
-	  std::swap(z, zlarge);
+		std::swap(z, zlarge);
 	}
 
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
