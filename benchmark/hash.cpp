@@ -7,7 +7,7 @@ using namespace sux::util;
 
 static void args(benchmark::internal::Benchmark *b) {
 	// { length }
-	b->Args({1 << 10})->Args({1 << 20})->Args({1 << 30});
+	b->Args({1 << 5})->Args({1 << 10})->Args({1 << 15})->Args({1 << 20})->Args({1 << 30});
 }
 
 #define BM_PREFIX(NAME, DS)                                                                                                                                                                            \
@@ -19,12 +19,13 @@ static void args(benchmark::internal::Benchmark *b) {
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
 		DS h(&string);                                                                                                                                                                                 \
+		h(n - 1); /* preloading */                                                                                                                                                                     \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng);                                                                                                                                                                      \
 			benchmark::DoNotOptimize(h(a));                                                                                                                                                            \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##_prefix)->Apply(args)->Iterations(100);
+	BENCHMARK(BM_##NAME##_prefix)->Apply(args);
 
 #define BM_MIDDLE(NAME, DS)                                                                                                                                                                            \
 	static void BM_##NAME##_middle(benchmark::State &state) {                                                                                                                                          \
@@ -35,13 +36,14 @@ static void args(benchmark::internal::Benchmark *b) {
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
 		DS h(&string);                                                                                                                                                                                 \
+		h(n - 1); /* preloading */                                                                                                                                                                     \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng), b = dist(rng);                                                                                                                                                       \
 			size_t from = std::min(a, b), len = n - std::max(a, b);                                                                                                                                    \
 			benchmark::DoNotOptimize(h(from, len));                                                                                                                                                    \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##_middle)->Apply(args)->Iterations(100);
+	BENCHMARK(BM_##NAME##_middle)->Apply(args);
 
 #define BM_IMMEDIATE(NAME, DS)                                                                                                                                                                         \
 	static void BM_##NAME##_immediate(benchmark::State &state) {                                                                                                                                       \
@@ -52,15 +54,26 @@ static void args(benchmark::internal::Benchmark *b) {
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
 		DS h(&string);                                                                                                                                                                                 \
+		h(n - 1); /* preloading: not needed */                                                                                                                                                         \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng), b = dist(rng);                                                                                                                                                       \
 			size_t from = std::min(a, b), len = n - std::max(a, b);                                                                                                                                    \
 			benchmark::DoNotOptimize(h.immediate(from, len));                                                                                                                                          \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
-	BENCHMARK(BM_##NAME##_immediate)->Apply(args)->Iterations(100);
+	BENCHMARK(BM_##NAME##_immediate)->Apply(args);
 
 #define COMMA ,
+
+BM_PREFIX(XXH3k1, XXH3Hash<uint8_t COMMA 1 << 10>)
+BM_PREFIX(XXH3k2, XXH3Hash<uint8_t COMMA 1 << 11>)
+BM_PREFIX(XXH3k4, XXH3Hash<uint8_t COMMA 1 << 12>)
+BM_PREFIX(XXH3k8, XXH3Hash<uint8_t COMMA 1 << 13>)
+BM_PREFIX(XXH3k16, XXH3Hash<uint8_t COMMA 1 << 14>)
+BM_PREFIX(XXH31k32, XXH3Hash<uint8_t COMMA 1 << 15>)
+BM_PREFIX(XXH31k64, XXH3Hash<uint8_t COMMA 1 << 16>)
+BM_PREFIX(XXH3k128, XXH3Hash<uint8_t COMMA 1 << 17>)
+BM_PREFIX(XXH3k256, XXH3Hash<uint8_t COMMA 1 << 18>)
 
 BM_PREFIX(RabinKarpHash, RabinKarpHash<uint8_t>)
 BM_MIDDLE(RabinKarpHash, RabinKarpHash<uint8_t>)
@@ -74,12 +87,12 @@ BM_PREFIX(O1, O1Hash<uint8_t>)
 BM_MIDDLE(O1, O1Hash<uint8_t>)
 BM_IMMEDIATE(O1, O1Hash<uint8_t>)
 
-BM_PREFIX(XXH3, XXH3Hash<uint8_t>)
-BM_MIDDLE(XXH3, XXH3Hash<uint8_t>)
-BM_IMMEDIATE(XXH3, XXH3Hash<uint8_t>)
-
 BM_PREFIX(CRC64, CRC64Hash<uint8_t>)
 BM_MIDDLE(CRC64, CRC64Hash<uint8_t>)
 BM_IMMEDIATE(CRC64, CRC64Hash<uint8_t>)
+
+BM_PREFIX(XXH3, XXH3Hash<uint8_t>)
+BM_MIDDLE(XXH3, XXH3Hash<uint8_t>)
+BM_IMMEDIATE(XXH3, XXH3Hash<uint8_t>)
 
 BENCHMARK_MAIN();

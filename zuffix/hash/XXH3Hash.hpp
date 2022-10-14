@@ -6,11 +6,10 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T> class XXH3Hash {
+template <typename T, size_t C= 1 << 12> class XXH3Hash {
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;
-	static constexpr size_t C = 1 << 20;
 	XXH3_state_t *state = XXH3_createState();
 
   public:
