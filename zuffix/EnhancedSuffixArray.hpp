@@ -68,7 +68,7 @@ template <typename T> class EnhancedSuffixArray {
 	friend std::ostream &operator<<(std::ostream &os, const EnhancedSuffixArray<T> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct; }
 	friend std::istream &operator>>(std::istream &is, EnhancedSuffixArray<T> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct; }
 
-#ifdef DEBUGDO
+#ifdef DEBUG
   public:
 	void print_stats() {}
 	void reset_stats() {}

@@ -7,8 +7,7 @@
 #include <stack>
 #include <sux/util/Vector.hpp>
 
-#define DEBUGME
-#ifdef DEBUGME
+#ifdef DEBUG
 #define DEBUGDO(statement)                                                                                                                                                                             \
 	do {                                                                                                                                                                                               \
 		statement;                                                                                                                                                                                     \
@@ -17,7 +16,6 @@
 #define DEBUGDO(statement)                                                                                                                                                                             \
 	do {                                                                                                                                                                                               \
 	} while (0)
-
 #endif
 
 namespace zarr {

@@ -1,3 +1,5 @@
+#define DEBUG // Enable statistics (must be defined before common.hpp)
+
 #include "common.hpp"
 #include <unistd.h>
 
@@ -7,7 +9,7 @@
 using namespace std;
 using namespace zarr;
 
-template <typename T> void run(const char * name, T &ds, const String<char> &p) {
+template <typename T> void run(const char *name, T &ds, const String<char> &p) {
 	auto begin = chrono::high_resolution_clock::now();
 	auto result = ds.find(p);
 	auto end = chrono::high_resolution_clock::now();
@@ -36,7 +38,7 @@ int main(int argc, char **argv) {
 		run("Simple", simple, pattern);
 		run("Enhanced", enhanced, pattern);
 		run("Zuffix", zuffix, pattern);
-        std::cout << std::endl;
+		std::cout << std::endl;
 	}
 
 	return 0;

@@ -196,7 +196,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
 	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
 
-#ifdef DEBUGDO
+#ifdef DEBUG
   public:
 	int _construction_depth = 0;
 

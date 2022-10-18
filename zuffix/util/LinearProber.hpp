@@ -50,7 +50,7 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class LinearP
 	friend std::ostream &operator<<(std::ostream &os, const LinearProber<T, AT> &ds) { return os << ds.table << ds.mask << ds.count; }
 	friend std::istream &operator>>(std::istream &is, LinearProber<T, AT> &ds) { return is >> ds.table >> ds.mask >> ds.count; }
 
-#ifdef DEBUGDO
+#ifdef DEBUG
   public:
 	int _store = 0;
 	int _get = 0;

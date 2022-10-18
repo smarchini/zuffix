@@ -45,7 +45,7 @@ template <typename T> class SimpleSuffixArray {
 	friend std::ostream &operator<<(std::ostream &os, const SimpleSuffixArray<T> &ds) { return os << ds.text << ds.sa; }
 	friend std::istream &operator>>(std::istream &is, SimpleSuffixArray<T> &ds) { return is >> ds.text >> ds.sa; }
 
-#ifdef DEBUGDO
+#ifdef DEBUG
   public:
 	void print_stats() {}
 	void reset_stats() {}
