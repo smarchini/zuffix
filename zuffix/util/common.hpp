@@ -7,6 +7,19 @@
 #include <stack>
 #include <sux/util/Vector.hpp>
 
+#define DEBUGME
+#ifdef DEBUGME
+#define DEBUGDO(statement)                                                                                                                                                                             \
+	do {                                                                                                                                                                                               \
+		statement;                                                                                                                                                                                     \
+	} while (0)
+#else
+#define DEBUGDO(statement)                                                                                                                                                                             \
+	do {                                                                                                                                                                                               \
+	} while (0)
+
+#endif
+
 namespace zarr {
 
 using namespace sux;

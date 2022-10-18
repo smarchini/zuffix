@@ -6,7 +6,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T> class RabinKarpHash {
+template <typename T, size_t C= 1 << 6> class RabinKarpHash {
   public:
 	const uint64_t m = 0x100000001b3;      // FNV prime
 	const uint64_t d = 0xce965057aff6957b; // md = 1 mod 2^64
@@ -14,7 +14,6 @@ template <typename T> class RabinKarpHash {
   private:
 	const T *string;
 	Vector<uint64_t> statetable;
-	static constexpr size_t C = 1 << 6;
 	uint64_t state = 0;
 	const uint8_t *l, *r;
 	uint64_t pow = 1;

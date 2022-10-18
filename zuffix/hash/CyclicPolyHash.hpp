@@ -6,11 +6,10 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, size_t sigma> class CyclicPolyHash {
+template <typename T, size_t sigma, size_t C= 1 << 6> class CyclicPolyHash {
   private:
 	const T *string;
 	Vector<uint64_t> statetable;
-	static constexpr size_t C = 1 << 6;
 	uint64_t state = 0;
 	size_t l = 0, r = 0;
 	uint64_t h[sigma];

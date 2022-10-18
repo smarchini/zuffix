@@ -65,16 +65,6 @@ static void args(benchmark::internal::Benchmark *b) {
 
 #define COMMA ,
 
-BM_PREFIX(XXH3k1, XXH3Hash<uint8_t COMMA 1 << 10>)
-BM_PREFIX(XXH3k2, XXH3Hash<uint8_t COMMA 1 << 11>)
-BM_PREFIX(XXH3k4, XXH3Hash<uint8_t COMMA 1 << 12>)
-BM_PREFIX(XXH3k8, XXH3Hash<uint8_t COMMA 1 << 13>)
-BM_PREFIX(XXH3k16, XXH3Hash<uint8_t COMMA 1 << 14>)
-BM_PREFIX(XXH31k32, XXH3Hash<uint8_t COMMA 1 << 15>)
-BM_PREFIX(XXH31k64, XXH3Hash<uint8_t COMMA 1 << 16>)
-BM_PREFIX(XXH3k128, XXH3Hash<uint8_t COMMA 1 << 17>)
-BM_PREFIX(XXH3k256, XXH3Hash<uint8_t COMMA 1 << 18>)
-
 BM_PREFIX(RabinKarpHash, RabinKarpHash<uint8_t>)
 BM_MIDDLE(RabinKarpHash, RabinKarpHash<uint8_t>)
 BM_IMMEDIATE(RabinKarpHash, RabinKarpHash<uint8_t>)

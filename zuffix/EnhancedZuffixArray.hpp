@@ -29,9 +29,11 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		RH<T> hash(&text);
 		ZFillByDFS(0, text.length(), 0, hash);
 		// ZFillByBottomUp();
+		DEBUGDO(print_stats("Construction"));
 	}
 
-	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
+	LInterval<size_t> getChild(size_t i, size_t j, const T &c) { // const {
+		DEBUGDO(_getChild++);
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t d = lcp[r];
@@ -45,7 +47,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		return {l, r};
 	}
 
-	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) const {
+	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) { // const {
+		DEBUGDO(_exit++);
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.length()) - nlen;
@@ -59,20 +62,25 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	}
 
 	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
+		DEBUGDO(_fatBinarySearch++);
 		RH<T> h(&pattern);
 		LInterval<size_t> alpha = {0, text.length()};
 		size_t l = 0, r = min(pattern.length(), maxhlen);
 		while (l < r) {
+			DEBUGDO(_fatBinarySearch_while_reps++);
 			size_t f = twoFattestR(l, r);
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			size_t nlen = 1 + max(lcp[beta.from], lcp[beta.to]);
 			size_t hlen = twoFattestLR(nlen, elen);
 			if (beta.isEmpty() || hlen != f) {
+				DEBUGDO(if (beta.isEmpty()) _fatBinarySearch_beta_empty++; else if (hlen != f) _fatBinarySearch_wrong_beta_by_hlen++);
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
+				DEBUGDO(_fatBinarySearch_wrong_beta_by_contains++);
 				l = elen;
 			} else {
+				DEBUGDO(_fatBinarySearch_beta_ok++);
 				l = elen - 1;
 				alpha = beta;
 			}
@@ -80,12 +88,14 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
 		size_t end = min(nlen, pattern.length());
 		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
+			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
 			return {0, text.length()}; // mischivious collision
 		}
 		return alpha;
 	}
 
 	LInterval<size_t> find(const String<T> &pattern) {
+		DEBUGDO(_find++);
 		auto [i, j] = fatBinarySearch(pattern);
 		return exit(pattern, i, j);
 	}
@@ -101,24 +111,25 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> &h, size_t dept = 0) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> &h, size_t depth = 0) {
+		DEBUGDO(if (_construction_depth < depth) _construction_depth = depth);
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
 		if (maxhlen <= hlen) maxhlen = hlen;
-		assert(dept <= hlen);
+		assert(depth <= hlen);
 
 		z.store(h.immediate(sa[i], hlen), pack({i, j}));
 		if (z.elements() * 3 > z.size()) growZTable();
 
 		do {
-			ZFillByDFS(l, r, elen + 1, h, dept + 1);
+			ZFillByDFS(l, r, elen + 1, h, depth + 1);
 			l = r;
 			r = ct[r];
 		} while (lcp[l] == lcp[ct[l]] && lcp[l] <= lcp[l + 1]);
-		ZFillByDFS(l, j, elen + 1, h, dept + 1);
+		ZFillByDFS(l, j, elen + 1, h, depth + 1);
 	}
 
 	// TODO clean me
@@ -161,6 +172,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	}
 
 	void growZTable() {
+		DEBUGDO(_growZTable++);
 		RH<T> h(&text);
 		size_t n = z.size();
 		auto table = z.getTable();
@@ -183,6 +195,61 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 
 	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
 	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
+
+#ifdef DEBUGDO
+  public:
+	int _construction_depth = 0;
+
+	int _getChild = 0;
+	int _exit = 0;
+	int _fatBinarySearch = 0;
+	int _find = 0;
+	int _growZTable = 0;
+
+	int _fatBinarySearch_while_reps = 0;
+	int _fatBinarySearch_beta_empty = 0;
+	int _fatBinarySearch_wrong_beta_by_contains = 0;
+	int _fatBinarySearch_wrong_beta_by_hlen = 0;
+	int _fatBinarySearch_beta_ok = 0;
+	int _fatBinarySearch_mischivious_collisions = 0;
+
+	void reset_stats() {
+		_construction_depth = 0;
+
+		_getChild = 0;
+		_exit = 0;
+		_fatBinarySearch = 0;
+		_find = 0;
+
+		_fatBinarySearch_while_reps = 0;
+		_fatBinarySearch_beta_empty = 0;
+		_fatBinarySearch_wrong_beta_by_contains = 0;
+		_fatBinarySearch_wrong_beta_by_hlen = 0;
+		_fatBinarySearch_beta_ok = 0;
+		_fatBinarySearch_mischivious_collisions = 0;
+
+		z.reset_stats();
+	}
+
+	void print_stats(const char *msg = "") {
+		std::cerr << "--------------------------------------------------------------------------------" << std::endl;
+		std::cerr << "EnhancedZuffixArray.hpp: " << msg << std::endl;
+		std::cerr << "- construction_depth: " << _construction_depth << std::endl;
+		std::cerr << "- construction_maxhlen: " << maxhlen << std::endl;
+		std::cerr << "- getChild: " << _getChild << std::endl;
+		std::cerr << "- exit: " << _exit << std::endl;
+		std::cerr << "- fatBinarySearch: " << _fatBinarySearch << std::endl;
+		std::cerr << "- find: " << _find << std::endl;
+		std::cerr << "- fatBinarySearch_while_reps: " << _fatBinarySearch_while_reps << std::endl;
+		std::cerr << "- fatBinarySearch_beta_beta_empty: " << _fatBinarySearch_beta_empty << std::endl;
+		std::cerr << "- fatBinarySearch_wrong_beta_by_contains: " << _fatBinarySearch_wrong_beta_by_contains << std::endl;
+		std::cerr << "- fatBinarySearch_wrong_beta_by_hlen: " << _fatBinarySearch_wrong_beta_by_hlen << std::endl;
+		std::cerr << "- fatBinarySearch_beta_ok: " << _fatBinarySearch_beta_ok << std::endl;
+		std::cerr << "- fatBinarySearch_mischivious_collisions: " << _fatBinarySearch_mischivious_collisions << std::endl;
+		z.print_stats();
+		std::cerr << "--------------------------------------------------------------------------------" << std::endl;
+	}
+#endif
 };
 
 } // namespace zarr

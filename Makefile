@@ -30,9 +30,10 @@ bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
 	$(CXX) $(CXXFLAGS) $(DEBUG) test/zuffix/test.cpp -o bin/test/zuffix $(LDLIBS)
 
 # BENCHMARK
-benchmark: bin/benchmark/lambda bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile
+benchmark: bin/benchmark/lambda bin/benchmark/saca bin/benchmark/hash_block_size bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile bin/benchmark/interactive
 	./bin/benchmark/lambda --benchmark_color=yes
 	./bin/benchmark/saca --benchmark_color=yes
+	./bin/benchmark/hash_block_size --benchmark_color=yes
 	./bin/benchmark/hash --benchmark_color=yes
 	./bin/benchmark/find_random --benchmark_color=yes
 	./bin/benchmark/fibonacci --benchmark_color=yes
@@ -44,6 +45,10 @@ bin/benchmark/saca: benchmark/*  zuffix/* zuffix/*/*
 bin/benchmark/lambda: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/lambda.cpp -o bin/benchmark/lambda $(LDLIBS)
+
+bin/benchmark/hash_block_size: benchmark/*  zuffix/* zuffix/*/*
+	@mkdir -p bin/benchmark
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/hash_block_size.cpp -o bin/benchmark/hash_block_size $(LDLIBS)
 
 bin/benchmark/hash: benchmark/*  zuffix/* zuffix/*/*
 	@mkdir -p bin/benchmark
@@ -77,6 +82,10 @@ bin/benchmark/findfile: benchmark/*  zuffix/* zuffix/*/*
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,CyclicPoly128Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_CyclicPoly128 $(LDLIBS)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,O1Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_O1 $(LDLIBS)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedZuffixArray\<SYMBOLTYPE\,XXH3Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedZuffixArray_XXH3 $(LDLIBS)
+
+bin/benchmark/interactive: benchmark/*  zuffix/* zuffix/*/*
+	@mkdir -p bin/benchmark
+	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/interactive.cpp -o bin/benchmark/interactive $(LDLIBS)
 
 # DATASET
 dataset: dataset/text dataset/patterns
