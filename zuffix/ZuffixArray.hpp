@@ -12,7 +12,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, template <typename U> class RH> class EnhancedZuffixArray {
+template <typename T, template <typename U> class RH> class ZuffixArray {
   private:
 	String<T> text;
 	Vector<size_t> sa;
@@ -22,9 +22,9 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	size_t maxhlen = 0;
 
   public:
-	EnhancedZuffixArray() {}
+	ZuffixArray() {}
 
-	EnhancedZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	ZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		// z.resize(ceil_pow2(text.length()) << 1); // TODO tweak me
 		RH<T> hash(&text);
 		ZFillByDFS(0, text.length(), 0, hash);
@@ -193,8 +193,8 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	friend std::ostream &operator<<(std::ostream &os, const EnhancedZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
-	friend std::istream &operator>>(std::istream &is, EnhancedZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
+	friend std::ostream &operator<<(std::ostream &os, const ZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
+	friend std::istream &operator>>(std::istream &is, ZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
 
 #ifdef DEBUG
   public:
@@ -233,7 +233,7 @@ template <typename T, template <typename U> class RH> class EnhancedZuffixArray 
 
 	void print_stats(const char *msg = "") {
 		std::cerr << "--------------------------------------------------------------------------------" << std::endl;
-		std::cerr << "EnhancedZuffixArray.hpp: " << msg << std::endl;
+		std::cerr << "ZuffixArray.hpp: " << msg << std::endl;
 		std::cerr << "- construction_depth: " << _construction_depth << std::endl;
 		std::cerr << "- construction_maxhlen: " << maxhlen << std::endl;
 		std::cerr << "- getChild: " << _getChild << std::endl;

@@ -5,7 +5,7 @@
 // clang-format off
 #include "SimpleSuffixArray.hpp"
 #include "EnhancedSuffixArray.hpp"
-#include "EnhancedZuffixArray.hpp"
+#include "ZuffixArray.hpp"
 #include "AllTheSame.hpp"
 // clang-format on
 

@@ -4,7 +4,7 @@
 #include <string>
 
 #include <zuffix/EnhancedSuffixArray.hpp>
-#include <zuffix/EnhancedZuffixArray.hpp>
+#include <zuffix/ZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
 
 #include <zuffix/hash/CRC64Hash.hpp>

@@ -25,10 +25,10 @@ static void args(benchmark::internal::Benchmark *b) {
 
 BM(Simple, SimpleSuffixArray<char>)
 BM(Enhanced, EnhancedSuffixArray<char>)
-BM(ZuffixRabinKarp, EnhancedZuffixArray<char COMMA RabinKarpHash>)
-BM(ZuffixCyclicPoly128, EnhancedZuffixArray<char COMMA CyclicPoly128Hash>)
-BM(ZuffixO1, EnhancedZuffixArray<char COMMA O1Hash>)
-BM(ZuffixXXH3, EnhancedZuffixArray<char COMMA XXH3Hash>)
-BM(ZuffixCRC64, EnhancedZuffixArray<char COMMA CRC64Hash>)
+BM(ZuffixRabinKarp, ZuffixArray<char COMMA RabinKarpHash>)
+BM(ZuffixCyclicPoly128, ZuffixArray<char COMMA CyclicPoly128Hash>)
+BM(ZuffixO1, ZuffixArray<char COMMA O1Hash>)
+BM(ZuffixXXH3, ZuffixArray<char COMMA XXH3Hash>)
+BM(ZuffixCRC64, ZuffixArray<char COMMA CRC64Hash>)
 
 BENCHMARK_MAIN();

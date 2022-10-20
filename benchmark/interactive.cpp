@@ -28,16 +28,18 @@ int main(int argc, char **argv) {
 
 	SimpleSuffixArray<char> simple(file_to_string<char>(argv[1]));
 	EnhancedSuffixArray<char> enhanced(file_to_string<char>(argv[1]));
-	EnhancedZuffixArray<char, XXH3Hash> zuffix(file_to_string<char>(argv[1]));
+	//ZuffixArray<char, XXH3Hash> xxh3(file_to_string<char>(argv[1]));
+	ZuffixArray<char, CyclicPoly128Hash> cyclicpoly128(file_to_string<char>(argv[1]));
 
 	while (true) {
 		std::string input;
 		std::cout << ">>> ";
 		std::getline(std::cin, input);
 		zarr::String<char> pattern(input);
-		run("Simple", simple, pattern);
-		run("Enhanced", enhanced, pattern);
-		run("Zuffix", zuffix, pattern);
+		run("Simple       ", simple, pattern);
+		run("CyclicPoly128", cyclicpoly128, pattern);
+		run("Enhanced     ", enhanced, pattern);
+		//run("XXH3", xxh3, pattern);
 		std::cout << std::endl;
 	}
 
