@@ -173,19 +173,12 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 
 	void growZTable() {
 		DEBUGDO(_growZTable++);
-		RH<T> h(&text);
 		size_t n = z.size();
 		auto table = z.getTable();
 		LinearProber<uint64_t> zlarge(n * 2);
 		for (size_t i = 0; i < n; i++) {
 			auto [signature, value] = table[i];
-			if (signature) {
-				auto [intervali, intervalj] = unpack(value);
-				ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
-				ssize_t elen = getlcp(intervali, intervalj);
-				size_t hlen = twoFattestLR(nlen, elen);
-				zlarge.store(h.immediate(sa[intervali], hlen), value);
-			}
+			if (signature) zlarge.store(signature, value);
 		}
 		std::swap(z, zlarge);
 	}
