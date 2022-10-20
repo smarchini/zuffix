@@ -33,7 +33,7 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String 
 		std::memcpy(&data, buffer, bytes);
 	}
 
-	String<T> substring(size_t from, size_t length) {
+	String<T> substring(size_t from, size_t length) const {
 		String<T> result(length);
 		std::memcpy(&result.data, &data + from, length * sizeof(T));
 		return result;
