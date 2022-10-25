@@ -14,7 +14,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T> class CRC64Hash {
+template <typename T> class CRC32Hash {
   private:
 	const T *string;
 	Vector<uint64_t> statetable;
@@ -22,7 +22,7 @@ template <typename T> class CRC64Hash {
 	const uint8_t *l, *r;
 
   public:
-	CRC64Hash(T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
+	CRC32Hash(T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
 
 	uint64_t operator()(size_t to) { return (*this)(0, to); }
 

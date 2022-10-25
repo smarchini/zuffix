@@ -29,6 +29,6 @@ BM(ZuffixRabinKarp, ZuffixArray<char COMMA RabinKarpHash>)
 BM(ZuffixCyclicPoly128, ZuffixArray<char COMMA CyclicPoly128Hash>)
 BM(ZuffixO1, ZuffixArray<char COMMA O1Hash>)
 BM(ZuffixXXH3, ZuffixArray<char COMMA XXH3Hash>)
-BM(ZuffixCRC64, ZuffixArray<char COMMA CRC64Hash>)
+BM(ZuffixCRC32, ZuffixArray<char COMMA CRC32Hash>)
 
 BENCHMARK_MAIN();

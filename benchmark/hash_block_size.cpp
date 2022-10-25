@@ -34,11 +34,19 @@ static void args(benchmark::internal::Benchmark *b) {
 // (1 << 12) / sizeof(T)
 // TODO: test it!
 
-BM_PREFIX(XXH3_1kB, XXH3Hash<uint8_t COMMA 1 << 10>)
-BM_PREFIX(XXH3_2kB, XXH3Hash<uint8_t COMMA 1 << 11>)
-BM_PREFIX(XXH3_4kB, XXH3Hash<uint8_t COMMA 1 << 12>) // default
-BM_PREFIX(XXH3_8kB, XXH3Hash<uint8_t COMMA 1 << 13>)
-BM_PREFIX(XXH3_16kB, XXH3Hash<uint8_t COMMA 1 << 14>)
+BM_PREFIX(CRC32_16B,  CRC32ZlibHash<uint8_t COMMA 1 << 4>)
+BM_PREFIX(CRC32_32B,  CRC32ZlibHash<uint8_t COMMA 1 << 5>)
+BM_PREFIX(CRC32_64B,  CRC32ZlibHash<uint8_t COMMA 1 << 6>) // default
+BM_PREFIX(CRC32_128B,  CRC32ZlibHash<uint8_t COMMA 1 << 7>)
+BM_PREFIX(CRC32_256B,  CRC32ZlibHash<uint8_t COMMA 1 << 8>)
+BM_PREFIX(CRC32_512b,  CRC32ZlibHash<uint8_t COMMA 1 << 9>)
+BM_PREFIX(CRC32_1kb,  CRC32ZlibHash<uint8_t COMMA 1 << 10>)
+
+BM_PREFIX(XXH3_1kb,  XXH3Hash<uint8_t COMMA 1 << 10>)
+BM_PREFIX(XXH3_2kb,  XXH3Hash<uint8_t COMMA 1 << 11>)
+BM_PREFIX(XXH3_4kb,  XXH3Hash<uint8_t COMMA 1 << 12>) // default
+BM_PREFIX(XXH3_8kb,  XXH3Hash<uint8_t COMMA 1 << 13>)
+BM_PREFIX(XXH3_16kb, XXH3Hash<uint8_t COMMA 1 << 14>)
 
 BM_PREFIX(RabinKarp_16B, RabinKarpHash<uint8_t COMMA 1 << 4>)
 BM_PREFIX(RabinKarp_32B, RabinKarpHash<uint8_t COMMA 1 << 5>)

@@ -17,6 +17,7 @@ pkgs.mkShell {
     gtest
     gbenchmark
     llvmPackages_13.openmp
+    zlib
     (callPackage ./nix/sux.nix { })
     (callPackage ./nix/xxhash.nix { })
     (callPackage ./nix/libsais.nix { })

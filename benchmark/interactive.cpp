@@ -1,4 +1,4 @@
-#define DEBUG // Enable statistics (must be defined before common.hpp)
+// #define DEBUG // Enable statistics (must be defined before common.hpp)
 
 #include "common.hpp"
 #include <unistd.h>
@@ -14,9 +14,19 @@ template <typename T> void run(const char *name, T &ds, const String<char> &p) {
 	auto result = ds.find(p);
 	auto end = chrono::high_resolution_clock::now();
 	auto time = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
-	std::cout << name << ": " << result << " found " << result.length() << " occurrences in " << time << " ns" << std::endl;
-	for (int i = 0; i < 5; i++) std::cout << ds.getText().substring(ds.getSA()[result.to - i - 1], 10);
-	for (int i = 0; i < 5; i++) std::cout << ds.getText().substring(ds.getSA()[result.to - i - 1], 10);
+	cout << name << ": " << result << " found " << result.length() << " occurrences in " << time << " ns" << endl;
+	if (!result.isEmpty()) {
+		auto m = min(result.length() / 2, 3UL);
+		for (int i = 0; i < m; i++) {
+			cout.write(&ds.getText() + ds.getSA()[result.from + i], 50);
+			cout << "\n";
+		}
+		cout << "\t...\n";
+		for (int i = 0; i < m; i++) {
+			cout.write(&ds.getText() + ds.getSA()[result.to - i - 1], 50);
+			cout << "\n";
+		}
+	}
 	DEBUGDO(ds.print_stats());
 	DEBUGDO(ds.reset_stats());
 }
@@ -29,20 +39,20 @@ int main(int argc, char **argv) {
 	}
 
 	SimpleSuffixArray<char> simple(file_to_string<char>(argv[1]));
+	ZuffixArray<char, CRC32ZlibHash> crc32zlib(file_to_string<char>(argv[1]));
 	EnhancedSuffixArray<char> enhanced(file_to_string<char>(argv[1]));
 	ZuffixArray<char, XXH3Hash> xxh3(file_to_string<char>(argv[1]));
-	//ZuffixArray<char, CyclicPoly128Hash> cyclicpoly128(file_to_string<char>(argv[1]));
 
 	while (true) {
-		std::string input;
-		std::cout << ">>> ";
-		std::getline(std::cin, input);
-		zarr::String<char> pattern(input);
-		run("Simple       ", simple, pattern);
-		// run("CyclicPoly128", cyclicpoly128, pattern);
-		run("Enhanced     ", enhanced, pattern);
-		run("XXH3         ", xxh3, pattern);
-		std::cout << std::endl;
+		string input;
+		cout << ">>> ";
+		getline(cin, input);
+		String<char> pattern(input);
+		run("Simple    ", simple, pattern);
+		run("CRC32Zlib ", crc32zlib, pattern);
+		run("Enhanced  ", enhanced, pattern);
+		run("XXH3      ", xxh3, pattern);
+		cout << endl;
 	}
 
 	return 0;

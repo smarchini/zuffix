@@ -77,9 +77,9 @@ BM_PREFIX(O1, O1Hash<uint8_t>)
 BM_MIDDLE(O1, O1Hash<uint8_t>)
 BM_IMMEDIATE(O1, O1Hash<uint8_t>)
 
-BM_PREFIX(CRC64, CRC64Hash<uint8_t>)
-BM_MIDDLE(CRC64, CRC64Hash<uint8_t>)
-BM_IMMEDIATE(CRC64, CRC64Hash<uint8_t>)
+BM_PREFIX(CRC32, CRC32Hash<uint8_t>)
+BM_MIDDLE(CRC32, CRC32Hash<uint8_t>)
+BM_IMMEDIATE(CRC32, CRC32Hash<uint8_t>)
 
 BM_PREFIX(XXH3, XXH3Hash<uint8_t>)
 BM_MIDDLE(XXH3, XXH3Hash<uint8_t>)

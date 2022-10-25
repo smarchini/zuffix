@@ -15,6 +15,7 @@ template <typename T, size_t sigma, size_t C= 1 << 6> class CyclicPolyHash {
 	uint64_t h[sigma];
 
   public:
+    // TODO kinda bad doing this thing at runtime
 	CyclicPolyHash(const T *string) : string(string), statetable(1) {
 		xoroshiro128plus_engine rng(0); // fixed seed
 		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());

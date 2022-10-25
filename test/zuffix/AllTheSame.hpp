@@ -12,7 +12,7 @@ TEST(AllTheSame, fibonacci) {
 	ZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
 	ZuffixArray<char, O1Hash> o1{String<char>(text, true)};
 	ZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ZuffixArray<char, CRC64Hash> crc64{String<char>(text, true)};
+	ZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
 
 	ZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
@@ -37,7 +37,7 @@ inline void fixlen(std::string charset, size_t n, size_t m) {
 	ZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
 	ZuffixArray<char, O1Hash> o1{String<char>(text, true)};
 	ZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ZuffixArray<char, CRC64Hash> crc64{String<char>(text, true)};
+	ZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
 
 	ZuffixArray<char, BadHash> bad{String<char>(text, true)};
 

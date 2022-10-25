@@ -2,7 +2,7 @@ CXX = g++
 DEBUG = -g -O0
 RELEASE = -g -O3
 CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -mavx -mavx2 -msse2 -msse4.2 -fopenmp -funroll-loops -fno-omit-frame-pointer -I./ 
-LDLIBS=-lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais -lsais64 -l:libsais.a -l:libsais64.a -l:libxxhash.a
+LDLIBS=-lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais -lsais64 -l:libsais.a -l:libsais64.a -l:libxxhash.a -lz
 
 all: test benchmark
 
