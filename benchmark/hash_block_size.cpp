@@ -34,6 +34,9 @@ static void args(benchmark::internal::Benchmark *b) {
 // (1 << 12) / sizeof(T)
 // TODO: test it!
 
+// TODO prefix is okay, but we also have to test full construction (the
+// preloading stuff) because in fact it's what the fat binary saerch does.
+
 BM_PREFIX(CRC32_16B,  CRC32ZlibHash<uint8_t COMMA 1 << 4>)
 BM_PREFIX(CRC32_32B,  CRC32ZlibHash<uint8_t COMMA 1 << 5>)
 BM_PREFIX(CRC32_64B,  CRC32ZlibHash<uint8_t COMMA 1 << 6>) // default

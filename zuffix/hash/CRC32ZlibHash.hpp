@@ -7,7 +7,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, size_t C = 1 << 2> class CRC32ZlibHash {
+template <typename T, size_t C = 1 << 6> class CRC32ZlibHash {
   private:
 	const T *string;
 	Vector<uint64_t> statetable;
@@ -48,8 +48,6 @@ template <typename T, size_t C = 1 << 2> class CRC32ZlibHash {
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
 		return crc32_z(0, b, e - b);
 	}
-
-  private:
 };
 
 } // namespace zarr

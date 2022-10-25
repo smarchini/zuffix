@@ -1,4 +1,5 @@
-CXX = g++
+# https://clang.llvm.org/cxx_status.html#p0522
+CXX = clang++ -frelaxed-template-template-args
 DEBUG = -g -O0
 RELEASE = -g -O3
 CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -mavx -mavx2 -msse2 -msse4.2 -fopenmp -funroll-loops -fno-omit-frame-pointer -I./ 

@@ -67,8 +67,6 @@ template <typename T> class CRC32Hash {
 
 		return result;
 	}
-
-  private:
 };
 
 } // namespace zarr

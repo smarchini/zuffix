@@ -1,4 +1,4 @@
-// #define DEBUG // Enable statistics (must be defined before common.hpp)
+#define DEBUG // Enable statistics (must be defined before common.hpp)
 
 #include "common.hpp"
 #include <unistd.h>
