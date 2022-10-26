@@ -39,9 +39,9 @@ int main(int argc, char **argv) {
 	}
 
 	SimpleSuffixArray<char> simple(file_to_string<char>(argv[1]));
-	ZuffixArray<char, CRC32ZlibHash> crc32zlib(file_to_string<char>(argv[1]));
 	EnhancedSuffixArray<char> enhanced(file_to_string<char>(argv[1]));
 	ZuffixArray<char, XXH3Hash> xxh3(file_to_string<char>(argv[1]));
+	ZuffixArray<char, CRC32ZlibHash> crc32zlib(file_to_string<char>(argv[1]));
 
 	while (true) {
 		string input;
@@ -49,9 +49,9 @@ int main(int argc, char **argv) {
 		getline(cin, input);
 		String<char> pattern(input);
 		run("Simple    ", simple, pattern);
-		run("CRC32Zlib ", crc32zlib, pattern);
 		run("Enhanced  ", enhanced, pattern);
 		run("XXH3      ", xxh3, pattern);
+		run("CRC32Zlib ", crc32zlib, pattern);
 		cout << endl;
 	}
 

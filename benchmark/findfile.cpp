@@ -57,16 +57,16 @@ int main(int argc, char **argv) {
 			auto [count, time] = find(ds, pattern);
 			sum += count;
 			record.push_back(time);
-			cout << "\tlength: " << pattern.length() << ", count: " << count << ", time: " << pretty(time) << " ns" << endl;
+			// cout << "\tlength: " << pattern.length() << ", count: " << count << ", time: " << pretty(time) << " ns" << endl;
 		}
 
 		sort(begin(record), end(record));
 		auto [med, devmed] = median(record);
-		auto [avg, devavg] = average(record);
+		auto [avg, devavg] = mean(record);
 
 		cout << "Total number of occurrences: " << sum << endl;
 		cout << "Median time: " << pretty(med) << " ns +/- " << pretty(devmed) << " ns\n";
-		cout << "Average time: " << pretty(avg) << " ns +/- " << pretty(devavg) << " ns\n";
+		cout << "Mean time: " << pretty(avg) << " ns +/- " << pretty(devavg) << " ns\n";
 		cout << "Total time: " << accumulate(begin(record), end(record), .0) / 1000000 << " ms" << endl;
 	}
 

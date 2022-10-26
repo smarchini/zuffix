@@ -94,13 +94,16 @@ template <typename T, sux::util::AllocType AT = sux::util::MALLOC> zarr::String<
 }
 
 std::tuple<std::chrono::nanoseconds::rep, std::chrono::nanoseconds::rep> median(std::vector<std::chrono::nanoseconds::rep> record) {
-	auto n = record.size();
+	size_t n = record.size();
 	auto mid = record[n / 2];
 	return std::make_tuple(mid, std::max(mid - record[0], record[n - 1] - mid));
 }
 
-std::tuple<std::chrono::nanoseconds::rep, std::chrono::nanoseconds::rep> average(std::vector<std::chrono::nanoseconds::rep> record) {
-	auto n = record.size();
+std::tuple<std::chrono::nanoseconds::rep, std::chrono::nanoseconds::rep> mean(std::vector<std::chrono::nanoseconds::rep> record) {
+	size_t n = record.size();
 	auto avg = accumulate(begin(record), end(record), .0) / n;
-	return std::make_tuple(avg, avg - record[0]);
+	std::chrono::nanoseconds::rep var = 0;
+	for(size_t i = 0; i < n; i++) var += (record[i] - avg) * (record[i] - avg);
+	var /= n;
+	return std::make_tuple(avg, sqrt(var));
 }
