@@ -65,6 +65,14 @@ static void args(benchmark::internal::Benchmark *b) {
 
 #define COMMA ,
 
+BM_PREFIX(CRC32Zlib, CRC32ZlibHash<uint8_t>)
+BM_MIDDLE(CRC32Zlib, CRC32ZlibHash<uint8_t>)
+BM_IMMEDIATE(CRC32Zlib, CRC32ZlibHash<uint8_t>)
+
+BM_PREFIX(XXH3, XXH3Hash<uint8_t>)
+BM_MIDDLE(XXH3, XXH3Hash<uint8_t>)
+BM_IMMEDIATE(XXH3, XXH3Hash<uint8_t>)
+
 BM_PREFIX(RabinKarpHash, RabinKarpHash<uint8_t>)
 BM_MIDDLE(RabinKarpHash, RabinKarpHash<uint8_t>)
 BM_IMMEDIATE(RabinKarpHash, RabinKarpHash<uint8_t>)
@@ -81,8 +89,5 @@ BM_PREFIX(CRC32, CRC32Hash<uint8_t>)
 BM_MIDDLE(CRC32, CRC32Hash<uint8_t>)
 BM_IMMEDIATE(CRC32, CRC32Hash<uint8_t>)
 
-BM_PREFIX(XXH3, XXH3Hash<uint8_t>)
-BM_MIDDLE(XXH3, XXH3Hash<uint8_t>)
-BM_IMMEDIATE(XXH3, XXH3Hash<uint8_t>)
 
 BENCHMARK_MAIN();

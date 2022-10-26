@@ -27,6 +27,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 	ZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		// z.resize(ceil_pow2(text.length()) << 1); // TODO tweak me
 		RH<T> hash(&text);
+		// hash(text.length() - 1); // preload
 		ZFillByDFS(0, text.length(), 0, hash);
 		// ZFillByBottomUp();
 		DEBUGDO(print_stats("Construction"));
@@ -121,7 +122,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 		if (maxhlen <= hlen) maxhlen = hlen;
 		assert(depth <= hlen);
 
-		z.store(h.immediate(sa[i], hlen), pack({i, j}));
+		z.store(h(sa[i], hlen), pack({i, j}));
 		if (z.elements() * 3 > z.size()) growZTable();
 
 		do {
@@ -158,7 +159,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 				size_t hlen = twoFattestLR(nlen, elen);
 				if (maxhlen <= hlen) maxhlen = hlen;
 
-				z.store(h.immediate(sa[intervali], hlen), pack({intervali, intervalj}));
+				z.store(h(sa[intervali], hlen), pack({intervali, intervalj}));
 				if (z.elements() * 3 > z.size()) growZTable();
 
 				lb = intervali;
