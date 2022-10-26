@@ -6,7 +6,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, size_t sigma, size_t C= 1 << 6> class CyclicPolyHash {
+template <typename T, size_t sigma, size_t C = 1 << 12> class CyclicPolyHash {
   private:
 	const T *string;
 	Vector<uint64_t> statetable;
@@ -15,7 +15,8 @@ template <typename T, size_t sigma, size_t C= 1 << 6> class CyclicPolyHash {
 	uint64_t h[sigma];
 
   public:
-    // TODO kinda bad doing this thing at runtime
+	// TODO kinda bad doing this thing at runtime
+	// when it will be fixed, recompute the best value of C
 	CyclicPolyHash(const T *string) : string(string), statetable(1) {
 		xoroshiro128plus_engine rng(0); // fixed seed
 		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
