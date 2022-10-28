@@ -1,37 +1,52 @@
 # https://clang.llvm.org/cxx_status.html#p0522
-CXX = clang++ -frelaxed-template-template-args
-DEBUG = -g -O0
-RELEASE = -g -O3
-CXXFLAGS = -std=c++17 -Wall -Wextra -march=native -mavx -mavx2 -msse2 -msse4.2 -fopenmp -funroll-loops -fno-omit-frame-pointer -I./ 
-LDLIBS=-lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais -lsais64 -l:libsais.a -l:libsais64.a -l:libxxhash.a -lz
+CXX := clang++ -frelaxed-template-template-args -fno-omit-frame-pointer
+CXXFLAGS += -std=c++17 -march=native -mtune=native -fopenmp -Wall -Wextra -I ./
+LDLIBS += -lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais64 -lxxhash -lz -l:libsais.a
+DEPENDENCIES = $(shell find . -name "*.cpp" -name "*.hpp")
+DEBUG := -g -O0
+RELEASE := -g -O3
 
 all: test benchmark
 
+TESTS = bin/test/random \
+		bin/test/hash   \
+		bin/test/saca   \
+		bin/test/zuffix \
+
+BENCHMARKS = bin/benchmark/lambda          \
+			 bin/benchmark/saca            \
+			 bin/benchmark/hash_block_size \
+			 bin/benchmark/hash            \
+			 bin/benchmark/find_random     \
+			 bin/benchmark/fibonacci       \
+			 bin/benchmark/interactive     \
+			 bin/benchmark/findfile        \
+
 # TEST
-test: bin/test/random bin/test/hash bin/test/saca bin/test/zuffix
+test: $(TESTS)
 	./bin/test/random --gtest_color=yes
 	./bin/test/hash --gtest_color=yes
 	./bin/test/saca --gtest_color=yes
 	./bin/test/zuffix --gtest_color=yes
 
-bin/test/random: test/random/* zuffix/* zuffix/*/*
+bin/test/random: test/random/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) test/random/test.cpp -o bin/test/random $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(DEBUG) -o $@ $< $(LDLIBS)
 
-bin/test/hash: test/hash/* zuffix/* zuffix/*/*
+bin/test/hash: test/hash/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) test/hash/test.cpp -o bin/test/hash $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(DEBUG) -o $@ $< $(LDLIBS)
 
-bin/test/saca: test/saca/* zuffix/* zuffix/*/*
+bin/test/saca: test/saca/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) test/saca/test.cpp -o bin/test/saca $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(DEBUG) -o $@ $< $(LDLIBS)
 
-bin/test/zuffix: test/zuffix/* zuffix/* zuffix/*/*
+bin/test/zuffix: test/zuffix/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) test/zuffix/test.cpp -o bin/test/zuffix $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(DEBUG) -o $@ $< $(LDLIBS)
 
 # BENCHMARK
-benchmark: bin/benchmark/lambda bin/benchmark/saca bin/benchmark/hash_block_size bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/build bin/benchmark/findfile bin/benchmark/interactive
+benchmark: $(BENCHMARKS)
 	./bin/benchmark/lambda --benchmark_color=yes
 	./bin/benchmark/saca --benchmark_color=yes
 	./bin/benchmark/hash_block_size --benchmark_color=yes
@@ -39,117 +54,42 @@ benchmark: bin/benchmark/lambda bin/benchmark/saca bin/benchmark/hash_block_size
 	./bin/benchmark/find_random --benchmark_color=yes
 	./bin/benchmark/fibonacci --benchmark_color=yes
 
-bin/benchmark/saca: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/saca: benchmark/saca.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/saca.cpp -o bin/benchmark/saca $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-bin/benchmark/lambda: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/lambda: benchmark/lambda.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/lambda.cpp -o bin/benchmark/lambda $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-bin/benchmark/hash_block_size: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/hash_block_size: benchmark/hash_block_size.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/hash_block_size.cpp -o bin/benchmark/hash_block_size $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-bin/benchmark/hash: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/hash: benchmark/hash.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/hash.cpp -o bin/benchmark/hash $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-bin/benchmark/find_random: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/find_random: benchmark/find_random.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/find_random.cpp -o bin/benchmark/find_random $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-bin/benchmark/fibonacci: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/fibonacci: benchmark/fibonacci.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE)  benchmark/fibonacci.cpp -o bin/benchmark/fibonacci $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-bin/benchmark/build: benchmark/*  zuffix/* zuffix/*/*
-	@mkdir -p bin/benchmark/build8
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\> benchmark/build.cpp -o bin/benchmark/build8/SimpleSuffixArray $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\> benchmark/build.cpp -o bin/benchmark/build8/EnhancedSuffixArray $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,RabinKarpHash\> benchmark/build.cpp -o bin/benchmark/build8/ZuffixArray_RabinKarp $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CyclicPoly4Hash\> benchmark/build.cpp -o bin/benchmark/build8/ZuffixArray_CyclicPoly4 $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CyclicPoly128Hash\> benchmark/build.cpp -o bin/benchmark/build8/ZuffixArray_CyclicPoly128 $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,O1Hash\> benchmark/build.cpp -o bin/benchmark/build8/ZuffixArray_O1 $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,XXH3Hash\> benchmark/build.cpp -o bin/benchmark/build8/ZuffixArray_XXH3 $(LDLIBS)
-
-bin/benchmark/findfile: benchmark/*  zuffix/* zuffix/*/*
-    # 8 bit
-	@mkdir -p bin/benchmark/find8
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\> benchmark/findfile.cpp -o bin/benchmark/find8/SimpleSuffixArray $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\> benchmark/findfile.cpp -o bin/benchmark/find8/EnhancedSuffixArray $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,RabinKarpHash\> benchmark/findfile.cpp -o bin/benchmark/find8/ZuffixArray_RabinKarp $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CyclicPoly4Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/ZuffixArray_CyclicPoly4 $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CyclicPoly128Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/ZuffixArray_CyclicPoly128 $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,O1Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/ZuffixArray_O1 $(LDLIBS)
-	$(CXX) $(CXXFLAGS) $(RELEASE) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,XXH3Hash\> benchmark/findfile.cpp -o bin/benchmark/find8/ZuffixArray_XXH3 $(LDLIBS)
-
-bin/benchmark/interactive: benchmark/*  zuffix/* zuffix/*/*
+bin/benchmark/interactive: benchmark/interactive.cpp  $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) benchmark/interactive.cpp -o bin/benchmark/interactive $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-# DATASET
-dataset: dataset/text dataset/patterns
+bin/benchmark/findfile: benchmark/findfile.cpp $(objects)
+	@mkdir -p $@
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
 
-dataset/text:
-	@mkdir -p dataset/gzip
-	wget -P ./dataset/gzip "http://pizzachili.dcc.uchile.cl/texts/dna/dna.gz"
-	wget -P ./dataset/gzip "http://pizzachili.dcc.uchile.cl/texts/dna/dna.50MB.gz"
-	wget -P ./dataset/gzip "http://pizzachili.dcc.uchile.cl/texts/dna/dna.100MB.gz"
-	wget -P ./dataset/gzip "http://pizzachili.dcc.uchile.cl/texts/dna/dna.200MB.gz"
-    wget -P ./dataset/gzip "http://pizzachili.dcc.uchile.cl/texts/code/sources.200MB.gz"
-	@mkdir -p dataset/text
-	aunpack -X ./dataset/text/ -e ./dataset/gzip/*
-
-dataset/patterns: dataset/text
-	@mkdir -p ./dataset/pattern
-# dna
-	genpatterns ./dataset/text/dna 1 100 ./dataset/pattern/dna.1 || true
-	genpatterns ./dataset/text/dna 1000 100 ./dataset/pattern/dna.1000 || true
-# dna.50MB
-	genpatterns ./dataset/text/dna.50MB 1 100 ./dataset/pattern/dna.50MB.1 || true
-	genpatterns ./dataset/text/dna.50MB 10 100 ./dataset/pattern/dna.50MB.10 || true
-	genpatterns ./dataset/text/dna.50MB 1000000 100 ./dataset/pattern/dna.50MB.1000000 || true
-	genpatterns ./dataset/text/dna.50MB 10000000 100 ./dataset/pattern/dna.50MB.10000000 || true
-	genpatterns ./dataset/text/dna.50MB 50000000 100 ./dataset/pattern/dna.50MB.50000000 || true
-# dna.100MB
-	genpatterns ./dataset/text/dna.100MB 1 100 ./dataset/pattern/dna.100MB.1 || true
-	genpatterns ./dataset/text/dna.100MB 10 100 ./dataset/pattern/dna.100MB.10 || true
-	genpatterns ./dataset/text/dna.100MB 1000000 100 ./dataset/pattern/dna.100MB.1000000 || true
-	genpatterns ./dataset/text/dna.100MB 10000000 100 ./dataset/pattern/dna.100MB.10000000 || true
-	genpatterns ./dataset/text/dna.100MB 100000000 100 ./dataset/pattern/dna.100MB.100000000 || true
-# dna.200MB
-	genpatterns ./dataset/text/dna.200MB 1 100 ./dataset/pattern/dna.200MB.1 || true
-	genpatterns ./dataset/text/dna.200MB 10 100 ./dataset/pattern/dna.200MB.10 || true
-	genpatterns ./dataset/text/dna.200MB 1000000 100 ./dataset/pattern/dna.200MB.1000000 || true
-	genpatterns ./dataset/text/dna.200MB 10000000 100 ./dataset/pattern/dna.200MB.10000000 || true
-	genpatterns ./dataset/text/dna.200MB 200000000 100 ./dataset/pattern/dna.200MB.200000000 || true
-
-dataset/zuffix: bin/benchmark/build dataset/text
-	@mkdir -p dataset/zuffix8
-	# simple
-	./bin/benchmark/build8/SimpleSuffixArray ./dataset/text/dna > ./dataset/zuffix8/dna.simple
-	./bin/benchmark/build8/SimpleSuffixArray ./dataset/text/dna.50MB > ./dataset/zuffix8/dna.50MB.simple
-	./bin/benchmark/build8/SimpleSuffixArray ./dataset/text/dna.100MB > ./dataset/zuffix8/dna.100MB.simple
-	./bin/benchmark/build8/SimpleSuffixArray ./dataset/text/dna.200MB > ./dataset/zuffix8/dna.200MB.simple
-	./bin/benchmark/build8/SimpleSuffixArray ./dataset/text/sources.200MB > ./dataset/zuffix8/sources.200MB.simple
-	# enhanced
-	./bin/benchmark/build8/EnhancedSuffixArray ./dataset/text/dna > ./dataset/zuffix8/dna.enhanced
-	./bin/benchmark/build8/EnhancedSuffixArray ./dataset/text/dna.50MB > ./dataset/zuffix8/dna.50MB.enhanced
-	./bin/benchmark/build8/EnhancedSuffixArray ./dataset/text/dna.100MB > ./dataset/zuffix8/dna.100MB.enhanced
-	./bin/benchmark/build8/EnhancedSuffixArray ./dataset/text/dna.200MB > ./dataset/zuffix8/dna.200MB.enhanced
-	./bin/benchmark/build8/EnhancedSuffixArray ./dataset/text/sources.200MB > ./dataset/zuffix8/sources.200MB.enhanced
-	# zuffix.xxh3
-	./bin/benchmark/build8/ZuffixArray_XXH3 ./dataset/text/dna > ./dataset/zuffix8/dna.zuffix.xxh3
-	./bin/benchmark/build8/ZuffixArray_XXH3 ./dataset/text/dna.50MB > ./dataset/zuffix8/dna.50MB.zuffix.xxh3
-	./bin/benchmark/build8/ZuffixArray_XXH3 ./dataset/text/dna.100MB > ./dataset/zuffix8/dna.100MB.zuffix.xxh3
-	./bin/benchmark/build8/ZuffixArray_XXH3 ./dataset/text/dna.200MB > ./dataset/zuffix8/dna.200MB.zuffix.xxh3
-	./bin/benchmark/build8/ZuffixArray_XXH3 ./dataset/text/sources.200MB > ./dataset/zuffix8/sources.200MB.zuffix.xxh3
-
-bear: bin/test/random bin/test/hash bin/test/saca bin/test/zuffix bin/benchmark/saca bin/benchmark/hash bin/benchmark/find_random bin/benchmark/fibonacci bin/benchmark/findfile
-
-.PHONY: clean dataset
+.PHONY: clean
 
 clean:
 	@rm -rf ./bin
-	#@rm -rf ./dataset

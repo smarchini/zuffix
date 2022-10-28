@@ -3,5 +3,7 @@ dataset/
 pattern/
 results/
 compile_commands.json
+.envrc
+.direnv/
 .cache/
 __pycache__/
