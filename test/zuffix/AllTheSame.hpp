@@ -8,13 +8,13 @@ TEST(AllTheSame, fibonacci) {
 
 	SimpleSuffixArray<char> simple{String<char>(text, true)};
 	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
-	ZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
-	ZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
-	ZuffixArray<char, O1Hash> o1{String<char>(text, true)};
-	ZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
+	ExactZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
+	ExactZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
+	ExactZuffixArray<char, O1Hash> o1{String<char>(text, true)};
+	ExactZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
+	ExactZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
 
-	ZuffixArray<char, BadHash> bad{String<char>(text, true)};
+	ExactZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
 	for (int i = 2; i < 10; i++) {
 		String<char> p = String<char>(fibonacci(i));
@@ -33,13 +33,13 @@ inline void fixlen(std::string charset, size_t n, size_t m) {
 
 	SimpleSuffixArray<char> simple{String<char>(text, true)};
 	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
-	ZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
-	ZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
-	ZuffixArray<char, O1Hash> o1{String<char>(text, true)};
-	ZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
+	ExactZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
+	ExactZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
+	ExactZuffixArray<char, O1Hash> o1{String<char>(text, true)};
+	ExactZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
+	ExactZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
 
-	ZuffixArray<char, BadHash> bad{String<char>(text, true)};
+	ExactZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
 	for (int i = 0; i < 100; i++) {
 		auto p = String<char>(random(charset, m));

@@ -22,7 +22,7 @@
 #include <zuffix/hash/functions.hpp>
 
 #include <zuffix/EnhancedSuffixArray.hpp>
-#include <zuffix/ZuffixArray.hpp>
+#include <zuffix/ExactZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
 
 template <typename T> using CyclicPoly4Hash = zarr::CyclicPolyHash<T, 4>;

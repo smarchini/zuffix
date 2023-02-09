@@ -90,9 +90,9 @@ bin/benchmark/findfile: benchmark/findfile.cpp $(objects)
 	@mkdir -p $@
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
 
 # TODO Test operator<< and operator>> they are likely wrong.
 # For now this is only useful to benchmark construction time.
@@ -100,9 +100,9 @@ bin/benchmark/build: benchmark/build.cpp $(objects)
 	@mkdir -p $@
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
 
 .PHONY: clean
 

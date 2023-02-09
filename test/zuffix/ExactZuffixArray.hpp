@@ -2,10 +2,10 @@
 
 #include "../common.hpp"
 
-TEST(ZuffixArray, abracadabra) {
+TEST(ExactZuffixArray, abracadabra) {
 	using namespace zarr;
 	std::string t("ABRACADABRA");
-	ZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};
+	ExactZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};
 
 	EXPECT_EQ(zuffix.getSA().size(), 12);
 	const size_t sa[12] = {0, 7, 3, 5, 10, 1, 8, 4, 6, 2, 9, 11};
@@ -46,10 +46,10 @@ TEST(ZuffixArray, abracadabra) {
 }
 
 #define TS(NAME, DS)                                                                                                                                                                                   \
-	TEST(ZuffixArray, NAME) {                                                                                                                                                                  \
+	TEST(ExactZuffixArray, NAME) {                                                                                                                                                                  \
 		using namespace zarr;                                                                                                                                                                          \
 		std::string t = fibonacci(10);                                                                                                                                                                 \
-		ZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};                                                                                                                        \
+		ExactZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};                                                                                                                        \
 		for (size_t i = 1; i <= 10; i++) {                                                                                                                                                             \
 			auto match = zuffix.find(String<char>(fibonacci(i)));                                                                                                                                      \
 			EXPECT_LE(match.from, match.to) << " on fibonacci: " << i;                                                                                                                                 \
@@ -58,8 +58,8 @@ TEST(ZuffixArray, abracadabra) {
 
 #define COMMA ,
 
-TS(RabinKarp, ZuffixArray<char COMMA RabinKarpHash>)
-TS(CyclicPoly128, ZuffixArray<char COMMA CyclicPoly128Hash>)
-TS(O1, ZuffixArray<char COMMA O1Hash>)
-TS(XXH3, ZuffixArray<char COMMA XXH3Hash>)
-TS(CRC32, ZuffixArray<char COMMA CRC32Hash>)
+TS(RabinKarp, ExactZuffixArray<char COMMA RabinKarpHash>)
+TS(CyclicPoly128, ExactZuffixArray<char COMMA CyclicPoly128Hash>)
+TS(O1, ExactZuffixArray<char COMMA O1Hash>)
+TS(XXH3, ExactZuffixArray<char COMMA XXH3Hash>)
+TS(CRC32, ExactZuffixArray<char COMMA CRC32Hash>)

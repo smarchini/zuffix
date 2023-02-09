@@ -12,7 +12,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, template <typename U> class RH> class ZuffixArray {
+template <typename T, template <typename U> class RH> class ProbabilisticZuffixArray {
   private:
 	String<T> text;
 	Vector<size_t> sa;
@@ -22,9 +22,9 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 	size_t maxhlen = 0;
 
   public:
-	ZuffixArray() {}
+	ProbabilisticZuffixArray() {}
 
-	ZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	ProbabilisticZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		// z.resize(ceil_pow2(text.length()) << 1); // TODO: tweak me to improve construction performance
 		RH<T> hash(&text);
 		// hash(text.length() - 1); // TODO: try me to improve construction performance preload
@@ -50,10 +50,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 
 	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) { // const {
 		DEBUGDO(_exit++);
-		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
-		size_t end = min(elen, pattern.length()) - nlen;
-		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -86,12 +83,6 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 				alpha = beta;
 			}
 		}
-		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
-		size_t end = min(nlen, pattern.length());
-		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
-			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
-			return {0, text.length()};
-		}
 		return alpha;
 	}
 
@@ -108,7 +99,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 			assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
-			if (beta.isEmpty()) {  // NOTE: `|| hlen != f` requries lambda
+			if (beta.isEmpty()) { // NOTE: `|| hlen != f` requries lambda
 				DEBUGDO(_fatBinarySearch_beta_empty++);
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
@@ -119,12 +110,6 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 				l = elen - 1;
 				alpha = beta;
 			}
-		}
-		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
-		size_t end = min(nlen, pattern.length());
-		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
-			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
-			return {0, text.length()};
 		}
 		return alpha;
 	}
@@ -221,8 +206,8 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	friend std::ostream &operator<<(std::ostream &os, const ZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
-	friend std::istream &operator>>(std::istream &is, ZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
+	friend std::ostream &operator<<(std::ostream &os, const ProbabilisticZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
+	friend std::istream &operator>>(std::istream &is, ProbabilisticZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
 
 #ifdef DEBUG
   public:
@@ -261,7 +246,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 
 	void print_stats(const char *msg = "") {
 		std::cerr << "--------------------------------------------------------------------------------" << std::endl;
-		std::cerr << "ZuffixArray.hpp: " << msg << std::endl;
+		std::cerr << "ProbabilisticZuffixArray.hpp: " << msg << std::endl;
 		std::cerr << "- construction_depth: " << _construction_depth << std::endl;
 		std::cerr << "- construction_maxhlen: " << maxhlen << std::endl;
 		std::cerr << "- getChild: " << _getChild << std::endl;
