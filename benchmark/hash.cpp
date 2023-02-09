@@ -65,6 +65,10 @@ static void args(benchmark::internal::Benchmark *b) {
 
 #define COMMA ,
 
+BM_PREFIX(CRC32Folly, CRC32FollyHash<uint8_t>)
+BM_MIDDLE(CRC32Folly, CRC32FollyHash<uint8_t>)
+BM_IMMEDIATE(CRC32Folly, CRC32FollyHash<uint8_t>)
+
 BM_PREFIX(CRC32Zlib, CRC32ZlibHash<uint8_t>)
 BM_MIDDLE(CRC32Zlib, CRC32ZlibHash<uint8_t>)
 BM_IMMEDIATE(CRC32Zlib, CRC32ZlibHash<uint8_t>)

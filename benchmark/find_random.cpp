@@ -39,7 +39,8 @@ static void args(benchmark::internal::Benchmark *b) {
 
 #define COMMA ,
 
-BM(ZuffixCRC32, ZuffixArray<uint8_t COMMA CRC32ZlibHash>, 4)
+BM(ZuffixCRC32Folly, ZuffixArray<uint8_t COMMA CRC32FollyHash>, 4)
+BM(ZuffixCRC32Zlib, ZuffixArray<uint8_t COMMA CRC32ZlibHash>, 4)
 BM(Simple, SimpleSuffixArray<uint8_t>, 4)
 BM(Enhanced, EnhancedSuffixArray<uint8_t>, 4)
 BM(ZuffixXXH3, ZuffixArray<uint8_t COMMA XXH3Hash>, 4)

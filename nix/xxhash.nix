@@ -20,7 +20,7 @@ stdenv.mkDerivation rec {
 
   outputs = [ "out" "dev" ];
 
-  makeFlags = [ "PREFIX=$(dev)" "EXEC_PREFIX=$(out)" "CFLAGS+=-mavx2" ];
+  makeFlags = [ "PREFIX=$(dev)" "EXEC_PREFIX=$(out)" ];
 
   meta = with lib; {
     description = "Extremely fast hash algorithm";

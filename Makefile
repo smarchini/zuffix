@@ -1,10 +1,13 @@
-# https://clang.llvm.org/cxx_status.html#p0522
-CXX := clang++ -frelaxed-template-template-args -fno-omit-frame-pointer
-CXXFLAGS += -std=c++17 -march=native -mtune=native -fopenmp -Wall -Wextra -I ./
-LDLIBS += -lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais64 -lxxhash -lz -l:libsais.a
-DEPENDENCIES = $(shell find . -name "*.cpp" -name "*.hpp")
-DEBUG := -g -O0
-RELEASE := -g -O3
+CXXFLAGS += -std=c++17 -fno-omit-frame-pointer -march=native -mtune=native -fopenmp -Wall -Wextra -I ./
+ifeq ($(CXX), clang++)
+	# NOTE: https://clang.llvm.org/cxx_status.html#p0522
+	CXXFLAGS += -frelaxed-template-template-args
+endif
+LIBFOLLY := -lfolly -lfmt -lboost_context -lboost_filesystem -lboost_program_options -ldouble-conversion -lgflags -lglog -levent -lz -lssl -lcrypto -llzma -llz4 -lzstd -lunwind -lrt -lpthread -lboost_atomic -ldl
+LDLIBS += -lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais64 -lxxhash -lz -l:libsais.a $(LIBFOLLY)
+DEPENDENCIES = $(shell find . -name "*.[ch]pp")
+DEBUG := -g3 -O0
+RELEASE := -g3 -O3
 
 all: test benchmark
 
@@ -21,13 +24,14 @@ BENCHMARKS = bin/benchmark/lambda          \
 			 bin/benchmark/fibonacci       \
 			 bin/benchmark/interactive     \
 			 bin/benchmark/findfile        \
+			 bin/benchmark/build        \
 
 # TEST
 test: $(TESTS)
-	./bin/test/random --gtest_color=yes
-	./bin/test/hash --gtest_color=yes
-	./bin/test/saca --gtest_color=yes
-	./bin/test/zuffix --gtest_color=yes
+	# ./bin/test/random --gtest_color=yes
+	# ./bin/test/hash --gtest_color=yes
+	# ./bin/test/saca --gtest_color=yes
+	# ./bin/test/zuffix --gtest_color=yes
 
 bin/test/random: test/random/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
@@ -47,12 +51,12 @@ bin/test/zuffix: test/zuffix/test.cpp $(DEPENDENCIES)
 
 # BENCHMARK
 benchmark: $(BENCHMARKS)
-	./bin/benchmark/lambda --benchmark_color=yes
-	./bin/benchmark/saca --benchmark_color=yes
-	./bin/benchmark/hash_block_size --benchmark_color=yes
-	./bin/benchmark/hash --benchmark_color=yes
-	./bin/benchmark/find_random --benchmark_color=yes
-	./bin/benchmark/fibonacci --benchmark_color=yes
+	# ./bin/benchmark/lambda --benchmark_color=yes
+	# ./bin/benchmark/saca --benchmark_color=yes
+	# ./bin/benchmark/hash_block_size --benchmark_color=yes
+	# ./bin/benchmark/hash --benchmark_color=yes
+	# ./bin/benchmark/find_random --benchmark_color=yes
+	# ./bin/benchmark/fibonacci --benchmark_color=yes
 
 bin/benchmark/saca: benchmark/saca.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
@@ -87,7 +91,18 @@ bin/benchmark/findfile: benchmark/findfile.cpp $(objects)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
+
+# TODO Test operator<< and operator>> they are likely wrong.
+# For now this is only useful to benchmark construction time.
+bin/benchmark/build: benchmark/build.cpp $(objects)
+	@mkdir -p $@
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
 
 .PHONY: clean
 

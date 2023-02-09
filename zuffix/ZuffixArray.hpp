@@ -25,11 +25,11 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 	ZuffixArray() {}
 
 	ZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
-		// z.resize(ceil_pow2(text.length()) << 1); // TODO tweak me
+		// z.resize(ceil_pow2(text.length()) << 1); // TODO: tweak me to improve construction performance
 		RH<T> hash(&text);
-		// hash(text.length() - 1); // preload
+		// hash(text.length() - 1); // TODO: try me to improve construction performance preload
 		ZFillByDFS(0, text.length(), 0, hash);
-		// ZFillByBottomUp();
+		// ZFillByBottomUp();       // TODO: test if it is faster or slower than ZFillByDFS
 		DEBUGDO(print_stats("Construction"));
 	}
 
@@ -90,7 +90,41 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 		size_t end = min(nlen, pattern.length());
 		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
 			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
-			return {0, text.length()}; // mischivious collision
+			return {0, text.length()};
+		}
+		return alpha;
+	}
+
+	LInterval<size_t> fatBinarySearch_lambdaless(const String<T> &pattern) {
+		DEBUGDO(_fatBinarySearch++);
+		RH<T> h(&pattern);
+		LInterval<size_t> alpha = {0, text.length()};
+		size_t l = 0, r = min(pattern.length(), maxhlen);
+		int64_t m = -1ULL << 63;
+		while (l < r) {
+			DEBUGDO(_fatBinarySearch_while_reps++);
+			while ((m & l) == (m & r)) m >>= 1;
+			size_t f = m & r;
+			assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
+			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
+			size_t elen = getlcp(beta.from, beta.to) + 1;
+			if (beta.isEmpty()) {  // NOTE: `|| hlen != f` requries lambda
+				DEBUGDO(_fatBinarySearch_beta_empty++);
+				r = f - 1;
+			} else if (!alpha.contains(beta)) {
+				DEBUGDO(_fatBinarySearch_wrong_beta_by_contains++);
+				l = elen;
+			} else {
+				DEBUGDO(_fatBinarySearch_beta_ok++);
+				l = elen - 1;
+				alpha = beta;
+			}
+		}
+		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		size_t end = min(nlen, pattern.length());
+		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
+			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
+			return {0, text.length()};
 		}
 		return alpha;
 	}
@@ -123,7 +157,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 		assert(depth <= hlen);
 
 		z.store(h(sa[i], hlen), pack({i, j}));
-		if (z.elements() * 3 > z.size()) growZTable();
+		if (z.elements() * 1.5 > z.size()) growZTable(); // TODO tweak this constant?
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, depth + 1);
@@ -160,7 +194,7 @@ template <typename T, template <typename U> class RH> class ZuffixArray {
 				if (maxhlen <= hlen) maxhlen = hlen;
 
 				z.store(h(sa[intervali], hlen), pack({intervali, intervalj}));
-				if (z.elements() * 3 > z.size()) growZTable();
+				if (z.elements() * 1.5 > z.size()) growZTable(); // TODO tweak this constnat?
 
 				lb = intervali;
 			}

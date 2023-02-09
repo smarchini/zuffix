@@ -1,23 +1,40 @@
 {
   "nodes": {
-    "nixpkgs": {
+    "mini-compile-commands": {
+      "flake": false,
       "locked": {
-        "lastModified": 1666997295,
-        "narHash": "sha256-KS84DY17Y59205yHq6H2ijUcBgvK+19bck8f8QZtA9Y=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "35ca1946064b3a0aba96aca316ed5cdba82b7513",
+        "lastModified": 1671935394,
+        "narHash": "sha256-qYRe+WEAvHWXcORbq2a979F/uDqIFouBFsk+FDD9ev0=",
+        "owner": "danielbarter",
+        "repo": "mini_compile_commands",
+        "rev": "76a31623f24cba8c83f04b9a29010210d0d6b5a6",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "master",
+        "owner": "danielbarter",
+        "repo": "mini_compile_commands",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1675472040,
+        "narHash": "sha256-gKOdKjclA9otvxupfQ7F0wS3didlnVVuCLA/00JoT7w=",
+        "owner": "smarchini",
+        "repo": "nixpkgs",
+        "rev": "77e7251e72482e5df36b26297f82901a0b276452",
+        "type": "github"
+      },
+      "original": {
+        "owner": "smarchini",
+        "ref": "personal",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "root": {
       "inputs": {
+        "mini-compile-commands": "mini-compile-commands",
         "nixpkgs": "nixpkgs"
       }
     }

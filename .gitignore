@@ -2,7 +2,7 @@ bin/
 dataset/
 pattern/
 results/
-compile_commands.json
+compile_commands.*
 .envrc
 .direnv/
 .cache/
