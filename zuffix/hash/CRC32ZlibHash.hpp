@@ -1,8 +1,6 @@
 #pragma once
 
 #include <sux/util/Vector.hpp>
-#define local // import static symbols in zlib
-//#include "/tmp/zlib/zutil.h"
 #include <zlib.h>
 
 namespace zarr {

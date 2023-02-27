@@ -5,7 +5,6 @@
 
 #include "util/LInterval.hpp"
 #include "util/LinearProber.hpp"
-#include "util/OpenAddressing.hpp"
 #include "util/String.hpp"
 #include "util/common.hpp"
 
@@ -52,8 +51,11 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 		DEBUGDO(_exit++);
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
-		size_t end = min(elen, pattern.length()) - nlen;
-		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
+		size_t clen = min(elen, pattern.length()) - nlen;
+		// NOTE: The following comparison is expensive on the leaves because
+		// most of the text falls into there: eg., in a book, you rarely read
+		// the same sentence twice.
+		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, clen * sizeof(T))) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -157,7 +159,7 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 		assert(depth <= hlen);
 
 		z.store(h(sa[i], hlen), pack({i, j}));
-		if (z.elements() * 1.5 > z.size()) growZTable(); // TODO tweak this constant?
+		if (z.elements() * 3 / 2 > z.size()) growZTable(); // TODO tweak this constant?
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, depth + 1);
@@ -194,7 +196,7 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 				if (maxhlen <= hlen) maxhlen = hlen;
 
 				z.store(h(sa[intervali], hlen), pack({intervali, intervalj}));
-				if (z.elements() * 1.5 > z.size()) growZTable(); // TODO tweak this constnat?
+				if (z.elements() * 3 / 2 > z.size()) growZTable(); // TODO tweak this constnat?
 
 				lb = intervali;
 			}

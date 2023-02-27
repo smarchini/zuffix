@@ -7,7 +7,8 @@
 #include <zuffix/ExactZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
 
-#include <zuffix/hash/CRC32FollyHash.hpp>
+#include <zuffix/hash/CRC32Plus32CFollyHash.hpp>
+#include <zuffix/hash/CRC32CFollyHash.hpp>
 #include <zuffix/hash/CRC32ZlibHash.hpp>
 #include <zuffix/hash/CRC32Hash.hpp>
 #include <zuffix/hash/CyclicPolyHash.hpp>

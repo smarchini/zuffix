@@ -6,6 +6,7 @@
 #include "util/LInterval.hpp"
 #include "util/String.hpp"
 #include "util/common.hpp"
+#include <stdio.h>
 
 namespace zarr {
 using ::sux::util::Vector;
@@ -20,7 +21,7 @@ template <typename T> class EnhancedSuffixArray {
   public:
 	EnhancedSuffixArray() {}
 
-	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
+	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByGrebnovSAIS(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
 		size_t l = i;
@@ -47,7 +48,7 @@ template <typename T> class EnhancedSuffixArray {
 				break;
 			}
 
-			size_t d = min(static_cast<size_t>(getlcp(i, j)), pattern.length());
+			ssize_t d = min(getlcp(i, j), static_cast<ssize_t>(pattern.length()));
 			if (memcmp(&pattern + c, &text + sa[i] + c, (d - c) * sizeof(T))) return {1, 0};
 			c = d;
 		}

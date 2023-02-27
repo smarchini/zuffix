@@ -1,0 +1,62 @@
+#pragma once
+
+#include <folly/hash/Checksum.h>
+#include <folly/hash/detail/ChecksumDetail.h>
+#include <sux/util/Vector.hpp>
+
+namespace zarr {
+using ::sux::util::Vector;
+
+template <typename T, size_t C = 1 << 12> class CRC32Plus32CFollyHash { // TODO benchmark best C
+  private:
+    const T *string;
+    Vector<uint64_t> statetable;
+    uint64_t state = 0;
+
+  public:
+    CRC32Plus32CFollyHash(T *string) : string(string), statetable(1) { statetable[0] = 0; }
+
+    uint64_t operator()(size_t to) {
+        const uint8_t *s = reinterpret_cast<const uint8_t *>(string);
+        const size_t length = to * sizeof(T);
+
+        size_t tpos = length / C;
+        if (statetable.size() <= tpos) {
+            const size_t last = statetable.size() - 1;
+            uint64_t hash = statetable[last];
+            statetable.resize(tpos + 1);
+            for (size_t i = last + 1; i <= tpos; i++) {
+                uint32_t low = folly::crc32c(s + (i - 1) * C, C, hash & 0xFFFFFFFF);
+                uint64_t hi = folly::crc32(s + (i - 1) * C, C, (hash & 0xFFFFFFFF00000000ULL) >> 32);
+                hash = statetable[i] = (hi << 32) | low;
+            }
+        }
+
+        uint64_t hash = statetable[tpos];
+        uint32_t low = folly::crc32c(s + tpos * C, length - tpos * C, hash & 0xFFFFFFFF);
+        uint64_t hi = folly::crc32(s + tpos * C, length - tpos * C, (hash & 0xFFFFFFFF00000000ULL) >> 32);
+        return (hi << 32) | low;
+    }
+
+    uint64_t operator()(size_t from, size_t length) {
+        const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
+        const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
+        uint64_t left = (*this)(from);
+        uint64_t right = (*this)(from + length);
+        uint32_t low = folly::crc32c_combine(left& 0xFFFFFFFF, right& 0xFFFFFFFF, e - b);
+        uint64_t hi = folly::crc32_combine((left & 0xFFFFFFFF00000000ULL) >> 32, (right & 0xFFFFFFFF00000000ULL) >> 32, e - b);
+        return (hi << 32) | low;
+    }
+
+    uint64_t immediate(size_t from, size_t length) const {
+        const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
+        const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
+        uint32_t low = folly::crc32c(b, e - b, 0);
+        uint64_t hi = folly::crc32(b, e - b, 0);
+        return (hi << 32) | low;
+    }
+
+    bool is_hw_supported() { return folly::detail::crc32_hw_supported() && folly::detail::crc32c_hw_supported(); }
+};
+
+} // namespace zarr

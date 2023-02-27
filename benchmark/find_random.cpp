@@ -16,7 +16,7 @@ constexpr uint8_t charset[] = {0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  
 
 static void args(benchmark::internal::Benchmark *b) {
 	// { text_length, pattern_length }
-	for (int i = 20; i < 25; i++) b->Args({1L << 25, 1L << i});
+	for (int i = 1; i < 10; i++) b->Args({1L << 25, 1L << i});
 }
 
 #define BM(NAME, DS, SIGMA)                                                                                                                                                                            \
@@ -26,26 +26,43 @@ static void args(benchmark::internal::Benchmark *b) {
 		DS ds(t.substring(0, n));                                                                                                                                                                      \
 		static std::random_device rd;                                                                                                                                                                  \
 		static zarr::xoroshiro128plus_engine rng(rd());                                                                                                                                                \
-		std::uniform_int_distribution<uint8_t> dist(0, n - m);                                                                                                                                         \
+		std::uniform_int_distribution<uint64_t> dist(0, n - m);                                                                                                                                        \
 		int64_t nonempty = 0;                                                                                                                                                                          \
 		for (auto _ : state) {                                                                                                                                                                         \
+			state.PauseTiming();                                                                                                                                                                       \
 			size_t from = dist(rng);                                                                                                                                                                   \
-			auto p = t.substring(from, m);                                                                                                                                                             \
-			benchmark::DoNotOptimize(nonempty += !ds.find(p).isEmpty());                                                                                                                               \
-		}                                                                                                                                                                                              \
+            auto p = t.substring(from, m);                                                                                                                                                             \
+            state.ResumeTiming();                                                                                                                                                                      \
+            benchmark::DoNotOptimize(nonempty += !ds.find(p).isEmpty());                                                                                                                               \
+        }                                                                                                                                                                                              \
 		state.counters["nonempty"] = nonempty;                                                                                                                                                         \
 	}                                                                                                                                                                                                  \
 	BENCHMARK(BM_##NAME)->Apply(args);
 
 #define COMMA ,
+#define ALPHABET 2
 
-BM(ZuffixCRC32Folly, ExactZuffixArray<uint8_t COMMA CRC32FollyHash>, 4)
-BM(ZuffixCRC32Zlib, ExactZuffixArray<uint8_t COMMA CRC32ZlibHash>, 4)
-BM(Simple, SimpleSuffixArray<uint8_t>, 4)
-BM(Enhanced, EnhancedSuffixArray<uint8_t>, 4)
-BM(ZuffixXXH3, ExactZuffixArray<uint8_t COMMA XXH3Hash>, 4)
-// BM(ZuffixRabinKarp, ExactZuffixArray<uint8_t COMMA RabinKarpHash>, 4)
-// BM(ZuffixCyclicPoly128, ExactZuffixArray<uint8_t COMMA CyclicPoly128Hash>, 4)
+BM(Simple, SimpleSuffixArray<uint8_t>, ALPHABET)
+BM(Enhanced, EnhancedSuffixArray<uint8_t>, ALPHABET)
+
+BM(ExactZuffixXXH3, ExactZuffixArray<uint8_t COMMA XXH3Hash>, ALPHABET)
+BM(ProbabilisticZuffixXXH3, ProbabilisticZuffixArray<uint8_t COMMA XXH3Hash>, ALPHABET)
+
+BM(ExactZuffixCRC32CFolly, ExactZuffixArray<uint8_t COMMA CRC32CFollyHash>, ALPHABET)
+BM(ProbabilisticZuffixCRC32CFolly, ProbabilisticZuffixArray<uint8_t COMMA CRC32CFollyHash>, ALPHABET)
+
+BM(ExactZuffixCRC32Zlib, ExactZuffixArray<uint8_t COMMA CRC32ZlibHash>, ALPHABET)
+BM(ProbabilisticZuffixCRC32Zlib, ProbabilisticZuffixArray<uint8_t COMMA CRC32ZlibHash>, ALPHABET)
+
+BM(ExactZuffixCRC32Plus32CFolly, ExactZuffixArray<uint8_t COMMA CRC32Plus32CFollyHash>, ALPHABET)
+BM(ProbabilisticZuffixCRC32Plus32CFolly, ProbabilisticZuffixArray<uint8_t COMMA CRC32Plus32CFollyHash>, ALPHABET)
+
+// BM(ExactZuffixRabinKarp, ExactZuffixArray<uint8_t COMMA RabinKarpHash>, ALPHABET)
+// BM(ProbabilisticZuffixRabinKarp, ProbabilisticZuffixArray<uint8_t COMMA RabinKarpHash>, ALPHABET)
+//
+// BM(ExactZuffixCyclicPoly128, ExactZuffixArray<uint8_t COMMA CyclicPoly128Hash>, ALPHABET)
+// BM(ProbabilisticZuffixCyclicPoly128, ProbabilisticZuffixArray<uint8_t COMMA CyclicPoly128Hash>, ALPHABET)
+
 // BM(ZuffixO1, ExactZuffixArray<uint8_t COMMA O1Hash>, 4)
 
 BENCHMARK_MAIN();

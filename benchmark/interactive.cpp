@@ -1,7 +1,7 @@
 #define DEBUG // Enable statistics (must be defined before common.hpp)
 
 #include "common.hpp"
-#include <unistd.h>
+#include <benchmark/benchmark.h>
 
 #define _STRINGIFY(...) #__VA_ARGS__
 #define STRINGIFY(...) _STRINGIFY(__VA_ARGS__)
@@ -37,6 +37,7 @@ void print_results(LInterval<size_t> match, const char *text, const size_t *sa, 
 
 template <typename T> void run(const char *name, T &ds, const String<char> &p) {
 	auto begin = chrono::high_resolution_clock::now();
+	benchmark::DoNotOptimize(p);
 	auto result = ds.find(p);
 	auto end = chrono::high_resolution_clock::now();
 	auto time = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
@@ -55,20 +56,34 @@ int main(int argc, char **argv) {
 
 	SimpleSuffixArray<char> simple(file_to_string<char>(argv[1]));
 	EnhancedSuffixArray<char> enhanced(file_to_string<char>(argv[1]));
-	ExactZuffixArray<char, XXH3Hash> xxh3(file_to_string<char>(argv[1]));
-	ExactZuffixArray<char, CRC32FollyHash> crc32folly(file_to_string<char>(argv[1]));
-	ExactZuffixArray<char, CRC32ZlibHash> crc32zlib(file_to_string<char>(argv[1]));
+
+	ExactZuffixArray<char, XXH3Hash> e_xxh3(file_to_string<char>(argv[1]));
+	ProbabilisticZuffixArray<char, XXH3Hash> p_xxh3(file_to_string<char>(argv[1]));
+
+	ExactZuffixArray<char, CRC32CFollyHash> e_crc32cfolly(file_to_string<char>(argv[1]));
+	ProbabilisticZuffixArray<char, CRC32CFollyHash> p_crc32cfolly(file_to_string<char>(argv[1]));
+
+	ExactZuffixArray<char, CRC32ZlibHash> e_crc32zlib(file_to_string<char>(argv[1]));
+	ProbabilisticZuffixArray<char, CRC32ZlibHash> p_crc32zlib(file_to_string<char>(argv[1]));
+
+	ExactZuffixArray<char, CRC32Plus32CFollyHash> e_crc32crc32c(file_to_string<char>(argv[1]));
+	ProbabilisticZuffixArray<char, CRC32Plus32CFollyHash> p_crc32crc32c(file_to_string<char>(argv[1]));
 
 	while (true) {
 		string input;
 		cout << ">>> ";
 		getline(cin, input);
 		String<char> pattern(input);
-		run("Simple     ", simple, pattern);
-		run("Enhanced   ", enhanced, pattern);
-		run("XXH3       ", xxh3, pattern);
-		run("CRC32Folly ", crc32folly, pattern);
-		run("CRC32Zlib  ", crc32zlib, pattern);
+		run("Simple                    ", simple, pattern);
+		run("Enhanced                  ", enhanced, pattern);
+		run("ExactXXH3                 ", e_xxh3, pattern);
+		run("ProbabilisticXXH3         ", p_xxh3, pattern);
+		run("ExactCRC32CFolly          ", e_crc32cfolly, pattern);
+		run("ProbabilisticCRC32CFolly  ", p_crc32cfolly, pattern);
+		run("ExactCRC32Zlib            ", e_crc32zlib, pattern);
+		run("ProbabilisticCRC32Zlib    ", p_crc32zlib, pattern);
+		run("ExactCRC32+CRC32C         ", e_crc32zlib, pattern);
+		run("ProbabilisticCRC32+CRC32C ", e_crc32zlib, pattern);
 		cout << endl;
 	}
 

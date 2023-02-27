@@ -3,11 +3,10 @@ ifeq ($(CXX), clang++)
 	# NOTE: https://clang.llvm.org/cxx_status.html#p0522
 	CXXFLAGS += -frelaxed-template-template-args
 endif
-LIBFOLLY := -lfolly -lfmt -lboost_context -lboost_filesystem -lboost_program_options -ldouble-conversion -lgflags -lglog -levent -lz -lssl -lcrypto -llzma -llz4 -lzstd -lunwind -lrt -lpthread -lboost_atomic -ldl
-LDLIBS += -lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais64 -lxxhash -lz -l:libsais.a $(LIBFOLLY)
+LDLIBS += -lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais64 -lxxhash -lz -lfolly -l:libsais.a
 DEPENDENCIES = $(shell find . -name "*.[ch]pp")
 DEBUG := -g3 -O0
-RELEASE := -g3 -O3
+RELEASE := -O3
 
 all: test benchmark
 
@@ -21,17 +20,18 @@ BENCHMARKS = bin/benchmark/lambda          \
 			 bin/benchmark/hash_block_size \
 			 bin/benchmark/hash            \
 			 bin/benchmark/find_random     \
+			 bin/benchmark/findrandom      \
 			 bin/benchmark/fibonacci       \
 			 bin/benchmark/interactive     \
 			 bin/benchmark/findfile        \
-			 bin/benchmark/build        \
+			 bin/benchmark/build           \
 
 # TEST
 test: $(TESTS)
 	# ./bin/test/random --gtest_color=yes
 	# ./bin/test/hash --gtest_color=yes
 	# ./bin/test/saca --gtest_color=yes
-	# ./bin/test/zuffix --gtest_color=yes
+	./bin/test/zuffix --gtest_color=yes
 
 bin/test/random: test/random/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
@@ -86,23 +86,42 @@ bin/benchmark/interactive: benchmark/interactive.cpp  $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
-bin/benchmark/findfile: benchmark/findfile.cpp $(objects)
+bin/benchmark/findfile: benchmark/findfile.cpp benchmark/findfile_errors.cpp $(DEPENDENCIES)
 	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/errors benchmark/findfile_errors.cpp $(LDLIBS) -DSYMBOLTYPE=uint8_t
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS)                            -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS)                          -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-xxh3 $< $(LDLIBS)                 -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32zlib $< $(LDLIBS)            -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32folly $< $(LDLIBS)           -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32+crc32c $< $(LDLIBS)         -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-xxh3 $< $(LDLIBS)         -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32zlib $< $(LDLIBS)    -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32folly $< $(LDLIBS)   -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32+crc32c $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,CRC32Plus32CFollyHash\>
+
+bin/benchmark/findrandom: benchmark/findrandom.cpp $(DEPENDENCIES)
+	@mkdir -p $@
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS)                             -DMYNAME=simple                            -DMYTYPE=SimpleSuffixArray\<uint8_t\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS)                           -DMYNAME=enhanced                          -DMYTYPE=EnhancedSuffixArray\<uint8_t\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-xxh3                  $< $(LDLIBS) -DMYNAME=exact-zuffix-xxh3                 -DMYTYPE=ExactZuffixArray\<uint8_t\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32zlib             $< $(LDLIBS) -DMYNAME=exact-zuffix-crc32zlib            -DMYTYPE=ExactZuffixArray\<uint8_t\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32folly            $< $(LDLIBS) -DMYNAME=exact-zuffix-crc32folly           -DMYTYPE=ExactZuffixArray\<uint8_t\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32+crc32c          $< $(LDLIBS) -DMYNAME=exact-zuffix-crc32+crc32c         -DMYTYPE=ExactZuffixArray\<uint8_t\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-xxh3          $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-xxh3         -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32zlib     $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-crc32zlib    -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32folly    $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-crc32folly   -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32+crc32c  $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-crc32+crc32c -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,CRC32Plus32CFollyHash\>
 
 # TODO Test operator<< and operator>> they are likely wrong.
 # For now this is only useful to benchmark construction time.
-bin/benchmark/build: benchmark/build.cpp $(objects)
+bin/benchmark/build: benchmark/build.cpp $(DEPENDENCIES)
 	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32folly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32FollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS)             -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS)           -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS)        -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS)   -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32cfolly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32CFollyHash\>
 
 .PHONY: clean
 

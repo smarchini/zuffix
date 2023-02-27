@@ -5,7 +5,6 @@
 
 #include "util/LInterval.hpp"
 #include "util/LinearProber.hpp"
-#include "util/OpenAddressing.hpp"
 #include "util/String.hpp"
 #include "util/common.hpp"
 
@@ -51,6 +50,7 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) { // const {
 		DEBUGDO(_exit++);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
+		// NOTE: We are not memcmp-ing the whole compacted path of the node.
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -142,7 +142,7 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 		assert(depth <= hlen);
 
 		z.store(h(sa[i], hlen), pack({i, j}));
-		if (z.elements() * 1.5 > z.size()) growZTable(); // TODO tweak this constant?
+		if (z.elements() * 3 / 2 > z.size()) growZTable(); // TODO tweak this constant?
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, depth + 1);
@@ -179,7 +179,7 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 				if (maxhlen <= hlen) maxhlen = hlen;
 
 				z.store(h(sa[intervali], hlen), pack({intervali, intervalj}));
-				if (z.elements() * 1.5 > z.size()) growZTable(); // TODO tweak this constnat?
+				if (z.elements() * 3 / 2 > z.size()) growZTable(); // TODO tweak this constnat?
 
 				lb = intervali;
 			}

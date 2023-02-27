@@ -2,12 +2,10 @@
 
 #include "../common.hpp"
 
-// clang-format off
 #include "SimpleSuffixArray.hpp"
 #include "EnhancedSuffixArray.hpp"
 #include "ExactZuffixArray.hpp"
 #include "AllTheSame.hpp"
-// clang-format on
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);

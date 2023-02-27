@@ -11,6 +11,7 @@ using namespace sux::util;
 		uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                              \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
 		for (auto _ : state) {                                                                                                                                                                         \
+			benchmark::DoNotOptimize(string);                                                                                                                                                          \
 			benchmark::DoNotOptimize(FOO(string));                                                                                                                                                     \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
@@ -27,6 +28,8 @@ BM_SA(GrebnovSAIS, SAConstructByGrebnovSAIS)
 		auto string = random(n, charset, 26);                                                                                                                                                          \
 		auto sa = SAConstructByGrebnovSAIS(string);                                                                                                                                                    \
 		for (auto _ : state) {                                                                                                                                                                         \
+			benchmark::DoNotOptimize(string);                                                                                                                                                          \
+			benchmark::DoNotOptimize(sa);                                                                                                                                                              \
 			benchmark::DoNotOptimize(FOO(string, sa));                                                                                                                                                 \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
@@ -42,6 +45,8 @@ BM_LCP(GrebnovSAIS, LCPConstructByGrebnovSAIS)
 		auto string = fibonacci(n);                                                                                                                                                                    \
 		auto sa = SAConstructByDivSufSort(string);                                                                                                                                                     \
 		for (auto _ : state) {                                                                                                                                                                         \
+			benchmark::DoNotOptimize(string);                                                                                                                                                          \
+			benchmark::DoNotOptimize(sa);                                                                                                                                                              \
 			benchmark::DoNotOptimize(FOO(string, sa));                                                                                                                                                 \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
@@ -58,6 +63,7 @@ static void BM_CtByAbouelhoda(benchmark::State &state) {
 	auto sa = SAConstructByGrebnovSAIS(string);
 	auto lcp = LCPConstructByKarkkainenPsi(string, sa);
 	for (auto _ : state) {
+		benchmark::DoNotOptimize(lcp);
 		benchmark::DoNotOptimize(CTConstructByAbouelhoda(lcp));
 	}
 }

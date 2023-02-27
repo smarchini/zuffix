@@ -1,3 +1,4 @@
+#define DEBUG
 #include "common.hpp"
 #include <benchmark/benchmark.h>
 #include <unistd.h>
@@ -7,14 +8,6 @@
 
 using namespace std;
 using namespace zarr;
-
-tuple<size_t, chrono::nanoseconds::rep> find(DATASTRUCTURETYPE &ds, const String<SYMBOLTYPE> &p) {
-	auto begin = chrono::high_resolution_clock::now();
-	auto result = ds.find(p).length();
-	auto end = chrono::high_resolution_clock::now();
-	auto time = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
-	return make_tuple(result, time);
-}
 
 int main(int argc, char **argv) {
 	if (argc < 3) {
@@ -26,7 +19,6 @@ int main(int argc, char **argv) {
 
 	std::ifstream file(argv[1], std::ios::in);
 	DATASTRUCTURETYPE ds(file_to_string<SYMBOLTYPE>(argv[1]));
-	// file >> ds;
 	cout << STRINGIFY(DATASTRUCTURETYPE) << ": " << argv[1] << "\n" << endl;
 
 	for (int i = 2; i < argc; i++) {
@@ -41,11 +33,14 @@ int main(int argc, char **argv) {
 		cin.ignore();
 
 		for (const auto &pattern : p) {
-			auto [count, time] = find(ds, pattern);
-			sum += count;
-			record.push_back(time);
-			// cout << " (" << pattern.length() << "), count: " << count << ", time: " << pretty(time) << " ns" << endl;
-			// cout << "\tpattern: " << &p << ", length: " << pattern.length() << ", count: " << count << ", time: " << pretty(time) << " ns" << endl;
+			auto begin = chrono::high_resolution_clock::now();
+			benchmark::DoNotOptimize(pattern);
+			auto result = ds.find(pattern);
+			benchmark::DoNotOptimize(result);
+			auto end = chrono::high_resolution_clock::now();
+			sum += result.length();
+			// cout << result << endl; // TODO remove me
+			record.push_back(chrono::duration_cast<chrono::nanoseconds>(end - begin).count());
 		}
 
 		sort(begin(record), end(record));
