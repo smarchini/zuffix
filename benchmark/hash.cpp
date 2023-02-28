@@ -65,6 +65,14 @@ static void args(benchmark::internal::Benchmark *b) {
 
 #define COMMA ,
 
+BM_PREFIX(XXH3, XXH3Hash<uint8_t>)
+BM_MIDDLE(XXH3, XXH3Hash<uint8_t>)
+BM_IMMEDIATE(XXH3, XXH3Hash<uint8_t>)
+
+BM_PREFIX(WyHash, WyHash<uint8_t>)
+BM_MIDDLE(WyHash, WyHash<uint8_t>)
+BM_IMMEDIATE(Wyhash, WyHash<uint8_t>)
+
 BM_PREFIX(CRC32CFolly, CRC32CFollyHash<uint8_t>)
 BM_MIDDLE(CRC32CFolly, CRC32CFollyHash<uint8_t>)
 BM_IMMEDIATE(CRC32CFolly, CRC32CFollyHash<uint8_t>)
@@ -73,9 +81,9 @@ BM_PREFIX(CRC32Zlib, CRC32ZlibHash<uint8_t>)
 BM_MIDDLE(CRC32Zlib, CRC32ZlibHash<uint8_t>)
 BM_IMMEDIATE(CRC32Zlib, CRC32ZlibHash<uint8_t>)
 
-BM_PREFIX(XXH3, XXH3Hash<uint8_t>)
-BM_MIDDLE(XXH3, XXH3Hash<uint8_t>)
-BM_IMMEDIATE(XXH3, XXH3Hash<uint8_t>)
+BM_PREFIX(CRC32Plus32CFolly, CRC32Plus32CFollyHash<uint8_t>)
+BM_MIDDLE(CRC32Plus32CFolly, CRC32Plus32CFollyHash<uint8_t>)
+BM_IMMEDIATE(CRC32Plus32CFolly, CRC32Plus32CFollyHash<uint8_t>)
 
 BM_PREFIX(RabinKarpHash, RabinKarpHash<uint8_t>)
 BM_MIDDLE(RabinKarpHash, RabinKarpHash<uint8_t>)
@@ -85,13 +93,12 @@ BM_PREFIX(CyclicPoly128, CyclicPolyHash<uint8_t COMMA 128>)
 BM_MIDDLE(CyclicPoly128, CyclicPolyHash<uint8_t COMMA 128>)
 BM_IMMEDIATE(CyclicPoly128, CyclicPolyHash<uint8_t COMMA 128>)
 
-BM_PREFIX(O1, O1Hash<uint8_t>)
-BM_MIDDLE(O1, O1Hash<uint8_t>)
-BM_IMMEDIATE(O1, O1Hash<uint8_t>)
-
 BM_PREFIX(CRC32, CRC32Hash<uint8_t>)
 BM_MIDDLE(CRC32, CRC32Hash<uint8_t>)
 BM_IMMEDIATE(CRC32, CRC32Hash<uint8_t>)
 
+BM_PREFIX(O1, O1Hash<uint8_t>)
+BM_MIDDLE(O1, O1Hash<uint8_t>)
+BM_IMMEDIATE(O1, O1Hash<uint8_t>)
 
 BENCHMARK_MAIN();

@@ -51,6 +51,7 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 		DEBUGDO(_exit++);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
 		// NOTE: We are not memcmp-ing the whole compacted path of the node.
+		// TODO: Maybe we can memcpy up to maxhlen to make it more reasonable.
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};

@@ -17,26 +17,24 @@ template <typename T> inline void battery(T h, int n, int skip = 1) {
 
 zarr::String<char> abracadabra("abracadabra~");
 
+TEST(hash, XXH3) { battery(zarr::XXH3Hash<char>(&abracadabra), 12); }
 TEST(hash, WyHash) { battery(zarr::WyHash<char>(&abracadabra), 12); }
-
-TEST(hash, CRC32Plus32CFolly) { battery(zarr::CRC32Plus32CFollyHash<char>(&abracadabra), 12); }
 TEST(hash, CRC32CFolly) { battery(zarr::CRC32CFollyHash<char>(&abracadabra), 12); }
 TEST(hash, CRC32Zlib) { battery(zarr::CRC32ZlibHash<char>(&abracadabra), 12); }
+TEST(hash, CRC32Plus32CFolly) { battery(zarr::CRC32Plus32CFollyHash<char>(&abracadabra), 12); }
 TEST(hash, RabinKarp) { battery(zarr::RabinKarpHash<char>(&abracadabra), 12); }
 TEST(hash, CyclicPoly128) { battery(zarr::CyclicPolyHash<char, 128>(&abracadabra), 12); }
-TEST(hash, O1) { battery(zarr::O1Hash<char>(&abracadabra), 12); }
-TEST(hash, XXH3) { battery(zarr::XXH3Hash<char>(&abracadabra), 12); }
 TEST(hash, CRC32) { battery(zarr::CRC32Hash<char>(&abracadabra), 12); }
+TEST(hash, O1) { battery(zarr::O1Hash<char>(&abracadabra), 12); }
 
 zarr::String<char> fibo(fibonacci(34)); // slightly over 14 MiB
 
+TEST(longhash, XXH3) { battery(zarr::XXH3Hash<char>(&fibo), 1 << 20, 10000); }
 TEST(longhash, WyHash) { battery(zarr::WyHash<char>(&fibo), 1 << 20, 10000); }
-
-TEST(longhash, CRC32Plus32CFolly) { battery(zarr::CRC32Plus32CFollyHash<char>(&fibo), 1 << 20, 10000); }
 TEST(longhash, CRC32CFolly) { battery(zarr::CRC32CFollyHash<char>(&fibo), 1 << 20, 10000); }
 TEST(longhash, CRC32Zlib) { battery(zarr::CRC32ZlibHash<char>(&fibo), 1 << 20, 10000); }
+TEST(longhash, CRC32Plus32CFolly) { battery(zarr::CRC32Plus32CFollyHash<char>(&fibo), 1 << 20, 10000); }
 TEST(longhash, RabinKarp) { battery(zarr::RabinKarpHash<char>(&fibo), 1 << 20, 10000); }
 TEST(longhash, CyclicPoly128) { battery(zarr::CyclicPolyHash<char, 128>(&fibo), 1 << 20, 10000); }
-TEST(longhash, O1) { battery(zarr::O1Hash<char>(&fibo), 1 << 20, 10000); }
-TEST(longhash, XXH3) { battery(zarr::XXH3Hash<char>(&fibo), 1 << 20, 10000); }
 TEST(longhash, CRC32) { battery(zarr::CRC32Hash<char>(&fibo), 1 << 20, 10000); }
+TEST(longhash, O1) { battery(zarr::O1Hash<char>(&fibo), 1 << 20, 10000); }

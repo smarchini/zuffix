@@ -39,6 +39,7 @@ template <typename T> void run(const char *name, T &ds, const String<char> &p) {
 	auto begin = chrono::high_resolution_clock::now();
 	benchmark::DoNotOptimize(p);
 	auto result = ds.find(p);
+	benchmark::DoNotOptimize(result);
 	auto end = chrono::high_resolution_clock::now();
 	auto time = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
 	cout << name << ": " << result << " found " << result.length() << " occurrences in " << time << " ns" << endl;
@@ -60,6 +61,9 @@ int main(int argc, char **argv) {
 	ExactZuffixArray<char, XXH3Hash> e_xxh3(file_to_string<char>(argv[1]));
 	ProbabilisticZuffixArray<char, XXH3Hash> p_xxh3(file_to_string<char>(argv[1]));
 
+	ExactZuffixArray<char, WyHash> e_wyhash(file_to_string<char>(argv[1]));
+	ProbabilisticZuffixArray<char, WyHash> p_wyhash(file_to_string<char>(argv[1]));
+
 	ExactZuffixArray<char, CRC32CFollyHash> e_crc32cfolly(file_to_string<char>(argv[1]));
 	ProbabilisticZuffixArray<char, CRC32CFollyHash> p_crc32cfolly(file_to_string<char>(argv[1]));
 
@@ -78,12 +82,14 @@ int main(int argc, char **argv) {
 		run("Enhanced                  ", enhanced, pattern);
 		run("ExactXXH3                 ", e_xxh3, pattern);
 		run("ProbabilisticXXH3         ", p_xxh3, pattern);
+		run("ExactWyHash               ", e_wyhash, pattern);
+		run("ProbabilisticWyHash       ", p_wyhash, pattern);
 		run("ExactCRC32CFolly          ", e_crc32cfolly, pattern);
 		run("ProbabilisticCRC32CFolly  ", p_crc32cfolly, pattern);
 		run("ExactCRC32Zlib            ", e_crc32zlib, pattern);
 		run("ProbabilisticCRC32Zlib    ", p_crc32zlib, pattern);
 		run("ExactCRC32+CRC32C         ", e_crc32zlib, pattern);
-		run("ProbabilisticCRC32+CRC32C ", e_crc32zlib, pattern);
+		run("ProbabilisticCRC32+CRC32C ", p_crc32zlib, pattern);
 		cout << endl;
 	}
 

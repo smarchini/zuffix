@@ -12,6 +12,7 @@
 #include <zuffix/util/common.hpp>
 #include <zuffix/util/String.hpp>
 
+#include <zuffix/hash/WyHash.hpp>
 #include <zuffix/hash/CRC32Plus32CFollyHash.hpp>
 #include <zuffix/hash/CRC32CFollyHash.hpp>
 #include <zuffix/hash/CRC32ZlibHash.hpp>
