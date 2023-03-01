@@ -6,6 +6,7 @@
 #include "EnhancedSuffixArray.hpp"
 #include "ExactZuffixArray.hpp"
 #include "AllTheSame.hpp"
+#include "LambdaLess.hpp"
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);

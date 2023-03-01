@@ -6,7 +6,10 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, size_t C = 1 << 15> class XXH3Hash {
+// WARNING: It is possible that XXH3 on master is bugged. If you set a different
+// parameter C, you must run the tests to see if everything is okay. C = 1 << 12
+// seems to be currently (2023/03/01) broken.
+template <typename T, size_t C = 1 << 11> class XXH3Hash {
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;

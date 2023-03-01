@@ -100,7 +100,7 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 			assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
 			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
 			size_t elen = getlcp(beta.from, beta.to) + 1;
-			if (beta.isEmpty()) { // NOTE: `|| hlen != f` requries lambda
+			if (beta.isEmpty() || alpha == beta) { // NOTE: `|| hlen != f` requries lambda
 				DEBUGDO(_fatBinarySearch_beta_empty++);
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
