@@ -77,44 +77,30 @@ constexpr uint8_t charset[] = {0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  
 
 static void args2(benchmark::internal::Benchmark *b) {
 	// { text_length, pattern_length }
-	for (int i = 15; i < 20; i++) b->Args({1L << 25, 1L << i});
+	for (int i = 5; i < 10; i++) b->Args({1L << 15, 1L << i});
+	for (int i = 15; i < 20; i++) b->Args({1L << 21, 1L << i});
 }
 
-static void BM_zuffix_lambda(benchmark::State &state) {
-	size_t n = state.range(0), m = state.range(1);
-	auto t = random(n, charset, 255);
-	zarr::ExactZuffixArray<uint8_t, zarr::WyHash> ds(t.substring(0, n));
-	static std::random_device rd;
-	static zarr::xoroshiro128plus_engine rng(rd());
-	std::uniform_int_distribution<uint64_t> dist(0, n - m);
-	int64_t nonempty = 0;
-	for (auto _ : state) {
-		state.PauseTiming();
-		size_t from = dist(rng);
-		auto p = t.substring(from, m);
-		state.ResumeTiming();
-		benchmark::DoNotOptimize(ds.fatBinarySearch(p));
-	}
-}
-BENCHMARK(BM_zuffix_lambda)->Apply(args2);
+#define BM(NAME, OP)                                                                                                                                                                                   \
+static void BM_zuffix_##NAME(benchmark::State &state) { \
+	size_t n = state.range(0), m = state.range(1); \
+	auto t = random(n, charset, 255); \
+	zarr::ExactZuffixArray<uint8_t, zarr::WyHash> ds(t.substring(0, n)); \
+	static std::random_device rd; \
+	static zarr::xoroshiro128plus_engine rng(rd()); \
+	std::uniform_int_distribution<uint64_t> dist(0, n - m); \
+	for (auto _ : state) { \
+		state.PauseTiming(); \
+		size_t from = dist(rng); \
+		auto p = t.substring(from, m); \
+		state.ResumeTiming(); \
+		benchmark::DoNotOptimize(ds.OP(p)); \
+	} \
+} \
+BENCHMARK(BM_zuffix_##NAME)->Apply(args2);
 
-static void BM_zuffix_lambdaless(benchmark::State &state) {
-	size_t n = state.range(0), m = state.range(1);
-	auto t = random(n, charset, 255);
-	zarr::ExactZuffixArray<uint8_t, zarr::WyHash> ds(t.substring(0, n));
-	static std::random_device rd;
-	static zarr::xoroshiro128plus_engine rng(rd());
-	std::uniform_int_distribution<uint64_t> dist(0, n - m);
-	int64_t nonempty = 0;
-	for (auto _ : state) {
-		state.PauseTiming();
-		size_t from = dist(rng);
-		auto p = t.substring(from, m);
-		state.ResumeTiming();
-		benchmark::DoNotOptimize(ds.fatBinarySearch_lambdaless(p));
-	}
-	state.counters["nonempty"] = nonempty;
-}
-BENCHMARK(BM_zuffix_lambdaless)->Apply(args2);
+BM(lambda, fatBinarySearch)
+BM(lambdaless, fatBinarySearch_lambdaless)
+BM(quasilambdaless, fatBinarySearch_quasilambdaless)
 
 BENCHMARK_MAIN();
