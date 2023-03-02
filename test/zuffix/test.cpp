@@ -6,7 +6,7 @@
 #include "EnhancedSuffixArray.hpp"
 #include "ExactZuffixArray.hpp"
 #include "AllTheSame.hpp"
-#include "LambdaLess.hpp"
+#include "FatBinarySearch.hpp"
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);

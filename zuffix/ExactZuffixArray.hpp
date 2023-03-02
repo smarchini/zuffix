@@ -64,7 +64,7 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 		return {i, j};
 	}
 
-	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
+	LInterval<size_t> fatBinarySearch_lambdabased(const String<T> &pattern) {
 		DEBUGDO(_fatBinarySearch++);
 		RH<T> h(&pattern);
 		LInterval<size_t> alpha = {0, text.length()};
@@ -167,9 +167,45 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 		return alpha;
 	}
 
+	LInterval<size_t> fatBinarySearch_quasilambdaless2(const String<T> &pattern) {
+		DEBUGDO(_fatBinarySearch++);
+		RH<T> h(&pattern);
+		LInterval<size_t> alpha = {0, text.length()};
+		size_t l = 0, r = min(pattern.length(), maxhlen);
+		int64_t m = -1ULL << (lambda(l ^ r) + 1); // int64_t m = -1ULL << 63;
+		while (l < r) {
+			DEBUGDO(_fatBinarySearch_while_reps++);
+			while ((m & l) == (m & r)) m >>= 1;
+			size_t f = m & r;
+			assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
+			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
+			size_t elen = getlcp(beta.from, beta.to) + 1;
+			size_t nlen = 1 + max(lcp[beta.from], lcp[beta.to]);
+			size_t hlen = twoFattestLR(nlen, elen);
+			if (beta.isEmpty() || hlen != f) {
+				DEBUGDO(_fatBinarySearch_beta_empty++);
+				r = f - 1;
+			} else if (!alpha.contains(beta)) {
+				DEBUGDO(_fatBinarySearch_wrong_beta_by_contains++);
+				l = elen;
+			} else {
+				DEBUGDO(_fatBinarySearch_beta_ok++);
+				l = elen - 1;
+				alpha = beta;
+			}
+		}
+		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		size_t end = min(nlen, pattern.length());
+		if (memcmp(&pattern, &text + sa[alpha.from], end * sizeof(T))) {
+			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
+			return {0, text.length()};
+		}
+		return alpha;
+	}
+
 	LInterval<size_t> find(const String<T> &pattern) {
 		DEBUGDO(_find++);
-		auto [i, j] = fatBinarySearch(pattern);
+		auto [i, j] = fatBinarySearch_quasilambdaless(pattern);
 		return exit(pattern, i, j);
 	}
 
