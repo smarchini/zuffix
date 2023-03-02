@@ -101,6 +101,6 @@ static void args2(benchmark::internal::Benchmark *b) {
 BM(lambdabased, fatBinarySearch_lambdabased)
 BM(lambdaless, fatBinarySearch_lambdaless)
 BM(quasilambdaless, fatBinarySearch_quasilambdaless)
-BM(quasilambdaless2, fatBinarySearch_quasilambdaless2)
+BM(final, fatBinarySearch)
 
 BENCHMARK_MAIN();

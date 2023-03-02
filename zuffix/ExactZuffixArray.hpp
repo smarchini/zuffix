@@ -167,12 +167,12 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 		return alpha;
 	}
 
-	LInterval<size_t> fatBinarySearch_quasilambdaless2(const String<T> &pattern) {
+	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
 		DEBUGDO(_fatBinarySearch++);
 		RH<T> h(&pattern);
 		LInterval<size_t> alpha = {0, text.length()};
 		size_t l = 0, r = min(pattern.length(), maxhlen);
-		int64_t m = -1ULL << (lambda(l ^ r) + 1); // int64_t m = -1ULL << 63;
+		int64_t m = -1ULL << (lambda(l ^ r) + 1);
 		while (l < r) {
 			DEBUGDO(_fatBinarySearch_while_reps++);
 			while ((m & l) == (m & r)) m >>= 1;
@@ -205,7 +205,7 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 
 	LInterval<size_t> find(const String<T> &pattern) {
 		DEBUGDO(_find++);
-		auto [i, j] = fatBinarySearch_quasilambdaless(pattern);
+		auto [i, j] = fatBinarySearch(pattern);
 		return exit(pattern, i, j);
 	}
 

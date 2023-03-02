@@ -14,7 +14,7 @@ TEST(FatBinarySearch, random) {
             auto expected = zuffix.fatBinarySearch_lambdabased(p);
             EXPECT_EQ(expected, zuffix.fatBinarySearch_lambdaless(p));
             EXPECT_EQ(expected, zuffix.fatBinarySearch_quasilambdaless(p));
-            EXPECT_EQ(expected, zuffix.fatBinarySearch_quasilambdaless2(p));
+            EXPECT_EQ(expected, zuffix.fatBinarySearch(p));
         }
     }
 }
