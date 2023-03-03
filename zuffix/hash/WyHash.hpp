@@ -8,6 +8,7 @@ using ::sux::util::Vector;
 
 template <typename T, size_t C = 48> class WyHash {
   public:
+    // TODO: Fix the algorithm: C multiple of 48 should be sufficient
     static_assert(C == 48, "48 is an important parameter in WyHash");
 
   private:

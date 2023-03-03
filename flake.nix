@@ -48,13 +48,16 @@
               pkgs.gbenchmark
               pkgs.llvmPackages_latest.openmp
 
-              nativePkgs.folly
-              nativePkgs.zlib
-              nativePkgs.xxHash
-              nativePkgs.libdivsufsort64
-              (nativePkgs.callPackage ./nix/sux.nix { })
-              (nativePkgs.callPackage ./nix/libsais.nix { })
-              (nativePkgs.callPackage ./nix/wyhash.nix { })
+              pkgs.boost
+              pkgs.folly
+
+              # nativePkgs.folly
+              # nativePkgs.zlib
+              # nativePkgs.xxHash
+              # nativePkgs.libdivsufsort64
+              # (nativePkgs.callPackage ./nix/sux.nix { })
+              # (nativePkgs.callPackage ./nix/libsais.nix { })
+              # (nativePkgs.callPackage ./nix/wyhash.nix { })
 
               (pkgs.callPackage ./nix/pizzachili.nix { })
               (pkgs.callPackage ./nix/r-index.nix { })
