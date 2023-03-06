@@ -12,7 +12,7 @@ namespace zarr {
 
 template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class String {
   public:
-	static constexpr char DOLLAR = std::numeric_limits<T>::max();
+	static constexpr T DOLLAR = std::numeric_limits<T>::max();
 
   private:
 	sux::util::Vector<T, AT> data;
