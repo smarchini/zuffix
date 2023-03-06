@@ -23,7 +23,7 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
   public:
 	ExactZuffixArray() {}
 
-	ExactZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	ExactZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		// z.resize(ceil_pow2(text.length()) << 1); // TODO: tweak me to improve construction performance
 		RH<T> hash(&text);
 		// hash(text.length() - 1); // TODO: try me to improve construction performance preload
