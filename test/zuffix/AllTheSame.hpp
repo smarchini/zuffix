@@ -12,7 +12,8 @@ TEST(AllTheSame, fibonacci) {
 	ExactZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
 	ExactZuffixArray<char, O1Hash> o1{String<char>(text, true)};
 	ExactZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ExactZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
+	ExactZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
+	ProbabilisticZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
 
 	ExactZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
@@ -22,8 +23,9 @@ TEST(AllTheSame, fibonacci) {
 		EXPECT_EQ(simple.find(p), cyclicpoly.find(p));
 		EXPECT_EQ(simple.find(p), o1.find(p));
 		EXPECT_EQ(simple.find(p), xxh3.find(p));
-		EXPECT_EQ(simple.find(p), crc64.find(p));
+		EXPECT_EQ(simple.find(p), crc32.find(p));
 		EXPECT_EQ(simple.find(p), bad.find(p));
+		EXPECT_EQ(simple.find(p), pcrc32.find(p));
 	}
 }
 
@@ -37,7 +39,8 @@ inline void fixlen(std::string charset, size_t n, size_t m) {
 	ExactZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
 	ExactZuffixArray<char, O1Hash> o1{String<char>(text, true)};
 	ExactZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ExactZuffixArray<char, CRC32Hash> crc64{String<char>(text, true)};
+	ExactZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
+	ProbabilisticZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
 
 	ExactZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
@@ -47,8 +50,9 @@ inline void fixlen(std::string charset, size_t n, size_t m) {
 		EXPECT_EQ(simple.find(p), cyclicpoly128.find(p));
 		EXPECT_EQ(simple.find(p), o1.find(p));
 		EXPECT_EQ(simple.find(p), xxh3.find(p));
-		EXPECT_EQ(simple.find(p), crc64.find(p));
+		EXPECT_EQ(simple.find(p), crc32.find(p));
 		EXPECT_EQ(simple.find(p), bad.find(p));
+		EXPECT_EQ(simple.find(p), pcrc32.find(p));
 	}
 }
 

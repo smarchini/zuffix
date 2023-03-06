@@ -6,6 +6,7 @@
 #include <zuffix/EnhancedSuffixArray.hpp>
 #include <zuffix/ExactZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
+#include <zuffix/ProbabilisticZuffixArray.hpp>
 
 #include <zuffix/hash/WyHash.hpp>
 #include <zuffix/hash/CRC32Plus32CFollyHash.hpp>

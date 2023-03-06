@@ -2,11 +2,6 @@
 
 #include "common.hpp"
 
-// 50MB
-#define N (1ULL << 25)
-#define COMMA ,
-#define ALPHABET 4
-
 using namespace zarr;
 using namespace sux::util;
 
@@ -20,32 +15,30 @@ constexpr uint8_t charset[] = {0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  
 							   224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254};
 
 static void args(benchmark::internal::Benchmark *b) {
-	for (int i = 1; i <= 24; i++) b->Args({1L << i});
+	for (int i = 1; i < 10; i++) b->Args({1L << i});
 }
 
 static void BM_run(benchmark::State &state) {
+    size_t n = state.range(0), m = state.range(1);
+    auto t = random(n, charset, SIGMA);
+    DS ds(t.substring(0, n));
     static std::random_device rd;
-    static zarr::xoroshiro128plus_engine rng(1337);
-    static zarr::String<uint8_t> t = random(N, charset, 2);
-    t[t.length() - 1] = t.DOLLAR; // TODO vedere se serve, sistemare common.hpp
-    static zarr::EnhancedSuffixArray<uint8_t> reference(t.substring(0, N));
-    static MYTYPE ds(t.substring(0, N));
-    size_t m = state.range(0);
-    std::uniform_int_distribution<uint64_t> dist(0, N - m - 1);
-    int64_t empty = 0, errors = 0;
+    static zarr::xoroshiro128plus_engine rng(rd());
+    std::uniform_int_distribution<uint64_t> dist(0, n - m);
+    int64_t nonempty = 0;
     for (auto _ : state) {
         state.PauseTiming();
         size_t from = dist(rng);
         auto p = t.substring(from, m);
-        auto expected = reference.find(p);
-        empty += expected.isEmpty();
-        benchmark::DoNotOptimize(p);
         state.ResumeTiming();
-        benchmark::DoNotOptimize(errors += ds.find(p) != expected);
+        benchmark::DoNotOptimize(nonempty += !ds.find(p).isEmpty());
     }
-    state.counters["empty"] = empty;
-    state.counters["errors"] = errors;
+    state.counters["nonempty"] = nonempty;
 }
-BENCHMARK(BM_run)->Apply(args)->Iterations(10000);
+BENCHMARK(BM_run)->Apply(args);
 
-BENCHMARK_MAIN();
+int main(int argc, char **argv) {
+	your_custom_init();
+	::benchmark::Initialize(&argc, argv);
+	::benchmark::RunSpecifiedBenchmarks();
+}

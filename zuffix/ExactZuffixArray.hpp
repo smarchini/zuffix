@@ -23,7 +23,7 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
   public:
 	ExactZuffixArray() {}
 
-	ExactZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	ExactZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructBySort(text)), lcp(LCPConstructByStrcmp(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		// z.resize(ceil_pow2(text.length()) << 1); // TODO: tweak me to improve construction performance
 		RH<T> hash(&text);
 		// hash(text.length() - 1); // TODO: try me to improve construction performance preload
@@ -51,11 +51,11 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 		DEBUGDO(_exit++);
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
-		size_t clen = min(elen, pattern.length()) - nlen;
+		size_t end = min(elen, pattern.length()) - nlen;
 		// NOTE: The following comparison is expensive on the leaves because
 		// most of the text falls into there: eg., in a book, you rarely read
 		// the same sentence twice.
-		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, clen * sizeof(T))) return {1, 0};
+		if (memcmp(&pattern + nlen, &text + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};

@@ -48,8 +48,26 @@
               pkgs.gbenchmark
               pkgs.llvmPackages_latest.openmp
 
-              pkgs.boost
-              pkgs.folly
+              pkgs.folly # this needs to be removed
+              # folly stuff
+              pkgs.autoconf
+              pkgs.automake
+              pkgs.autoconf
+              pkgs.automake
+              pkgs.boost178
+              pkgs.cmake
+              pkgs.double-conversion
+              pkgs.gflags
+              pkgs.glog
+              pkgs.libevent
+              pkgs.libsodium
+              pkgs.libtool
+              pkgs.zstd
+              pkgs.lz4
+              pkgs.ninja
+              pkgs.snappy
+              pkgs.xz
+              pkgs.openssl # this needs to be installed on blew
 
               # nativePkgs.folly
               # nativePkgs.zlib

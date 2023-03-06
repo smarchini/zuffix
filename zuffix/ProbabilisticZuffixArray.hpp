@@ -20,13 +20,14 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 	LinearProber<uint64_t> z;
 	size_t maxhlen = 0;
 
+	RH<T> hash;
+
   public:
 	ProbabilisticZuffixArray() {}
 
-	ProbabilisticZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	ProbabilisticZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)), hash(&text) {
 		// z.resize(ceil_pow2(text.length()) << 1); // TODO: tweak me to improve construction performance
-		RH<T> hash(&text);
-		// hash(text.length() - 1); // TODO: try me to improve construction performance preload
+		hash(text.length() - 1); // TODO: try me to improve construction performance preload
 		ZFillByDFS(0, text.length(), 0, hash);
 		// ZFillByBottomUp();       // TODO: test if it is faster or slower than ZFillByDFS
 		DEBUGDO(print_stats("Construction"));
@@ -47,17 +48,21 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 		return {l, r};
 	}
 
-	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) { // const {
+	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j, RH<T> &h) { // const {
 		DEBUGDO(_exit++);
+		//size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
+		//size_t end = min(elen, pattern.length()) - nlen;
+		//if (h(nlen, end) != hash(sa[i] + nlen, end)) return {1, 0};
 		// NOTE: We are not memcmp-ing the whole compacted path of the node.
 		// TODO: Maybe we can memcpy up to maxhlen to make it more reasonable.
 		// TODO: Maybe we can exploit the bi-directional rolling-hash to compare signatures.
 		if (elen < pattern.length()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
-			return exit(pattern, l, r);
+			return exit(pattern, l, r, h);
 		}
+		//if (memcmp(&pattern + nlen, &text + sa[i] + nlen, clen * sizeof(T))) return {1, 0};
 		return {i, j};
 	}
 
@@ -146,9 +151,8 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 		return alpha;
 	}
 
-	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
+	LInterval<size_t> fatBinarySearch(const String<T> &pattern, RH<T> &h) {
 		DEBUGDO(_fatBinarySearch++);
-		RH<T> h(&pattern);
 		LInterval<size_t> alpha = {0, text.length()};
 		size_t l = 0, r = min(pattern.length(), maxhlen);
 		int64_t m = -1ULL << (lambda(l ^ r) + 1);
@@ -173,13 +177,20 @@ template <typename T, template <typename U> class RH> class ProbabilisticZuffixA
 				alpha = beta;
 			}
 		}
+		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		size_t end = min(nlen, pattern.length());
+		if (h(end) != hash(sa[alpha.from], end)) {
+			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
+			return {0, text.length()};
+		}
 		return alpha;
 	}
 
 	LInterval<size_t> find(const String<T> &pattern) {
 		DEBUGDO(_find++);
-		auto [i, j] = fatBinarySearch(pattern);
-		return exit(pattern, i, j);
+		RH<T> h(&pattern);
+		auto [i, j] = fatBinarySearch(pattern, h);
+		return exit(pattern, i, j, h);
 	}
 
 	const String<T> &getText() const { return text; }

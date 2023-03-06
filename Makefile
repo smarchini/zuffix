@@ -7,10 +7,10 @@ EXTERNAL_INCLUDES = -I ./dependencies/folly \
 					-I ./dependencies/zlib/build/include
 
 # TODO: compile folly statically (remember to test if CRCs run in hardware) then remove this
-EXTERNAL_SOURCES =  ./dependencies/folly/folly/hash/Checksum.cpp \
-					./dependencies/folly/folly/hash/detail/ChecksumDetail.cpp \
-					./dependencies/folly/folly/hash/detail/Crc32CombineDetail.cpp \
-					./dependencies/folly/folly/hash/detail/Crc32cDetail.cpp
+EXTERNAL_SOURCES = ./dependencies/folly/folly/hash/Checksum.cpp \
+				   ./dependencies/folly/folly/hash/detail/ChecksumDetail.cpp \
+				   ./dependencies/folly/folly/hash/detail/Crc32CombineDetail.cpp \
+				   ./dependencies/folly/folly/hash/detail/Crc32cDetail.cpp
 
 EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivsufsort.a \
 					   $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivsufsort64.a \
@@ -18,6 +18,8 @@ EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivs
 					   $(shell pwd)/dependencies/xxHash/build/lib/libxxhash.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais64.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais.a
+					   #$(shell pwd)/dependencies/folly/build/libfolly.a
+
 
 CXXFLAGS += -std=c++17 -fno-omit-frame-pointer -march=native -mtune=native -fopenmp -Wall -Wextra -I ./ $(EXTERNAL_INCLUDES) $(EXTERNAL_SOURCES)
 ifeq ($(CXX), clang++)

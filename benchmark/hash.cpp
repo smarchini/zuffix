@@ -7,7 +7,7 @@ using namespace sux::util;
 
 static void args(benchmark::internal::Benchmark *b) {
 	// { length }
-	b->Args({1 << 5})->Args({1 << 10})->Args({1 << 15})->Args({1 << 20})->Args({1 << 30});
+	b->Args({1 << 5})->Args({1 << 10})->Args({1 << 15})->Args({1 << 20})->Args({1 << 25})->Args({1 << 30});
 }
 
 #define BM_PREFIX(NAME, DS)                                                                                                                                                                            \
