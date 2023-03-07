@@ -10,6 +10,8 @@ template <typename RH> size_t simulation(RH &h, size_t n) {
 	static xoroshiro128plus_engine rng(rd());
 	static std::uniform_int_distribution<int64_t> offset(0, 10);
 
+	benchmark::DoNotOptimize(h(n));
+
 	int64_t cnt = 0;
 	size_t l = 0, r = n;
 	while (l < r) {
@@ -67,6 +69,13 @@ BM_SIMULATION(CRC32CFolly_128kB,  CRC32CFollyHash<uint8_t COMMA 1 << 17>)
 BM_SIMULATION(CRC32CFolly_256kB,  CRC32CFollyHash<uint8_t COMMA 1 << 18>)
 BM_SIMULATION(CRC32CFolly_512kB,  CRC32CFollyHash<uint8_t COMMA 1 << 19>)
 BM_SIMULATION(CRC32CFolly_1MB,  CRC32CFollyHash<uint8_t COMMA 1 << 20>)
+BM_SIMULATION(CRC32CFolly_2MB,  CRC32CFollyHash<uint8_t COMMA 1 << 21>)
+BM_SIMULATION(CRC32CFolly_4MB,  CRC32CFollyHash<uint8_t COMMA 1 << 22>)
+BM_SIMULATION(CRC32CFolly_8MB,  CRC32CFollyHash<uint8_t COMMA 1 << 23>)
+BM_SIMULATION(CRC32CFolly_16MB,  CRC32CFollyHash<uint8_t COMMA 1 << 24>)
+BM_SIMULATION(CRC32CFolly_32MB,  CRC32CFollyHash<uint8_t COMMA 1 << 25>)
+BM_SIMULATION(CRC32CFolly_64MB,  CRC32CFollyHash<uint8_t COMMA 1 << 26>)
+BM_SIMULATION(CRC32CFolly_128MB,  CRC32CFollyHash<uint8_t COMMA 1 << 27>)
 
 BM_SIMULATION(CRC32Zlib_16B, CRC32ZlibHash<uint8_t COMMA 1 << 4>)
 BM_SIMULATION(CRC32Zlib_32B, CRC32ZlibHash<uint8_t COMMA 1 << 5>)
@@ -142,6 +151,35 @@ BM_SIMULATION(XXH3_16MB, XXH3Hash<uint8_t COMMA 1 << 24>)
 BM_SIMULATION(XXH3_32MB, XXH3Hash<uint8_t COMMA 1 << 25>)
 BM_SIMULATION(XXH3_64MB, XXH3Hash<uint8_t COMMA 1 << 26>)
 BM_SIMULATION(XXH3_128MB, XXH3Hash<uint8_t COMMA 1 << 27>)
+
+BM_SIMULATION(WyHash_1, WyHash<uint8_t COMMA 48 * 1>)
+BM_SIMULATION(WyHash_2, WyHash<uint8_t COMMA 48 * 2>)
+BM_SIMULATION(WyHash_3, WyHash<uint8_t COMMA 48 * 3>)
+BM_SIMULATION(WyHash_4, WyHash<uint8_t COMMA 48 * 4>)
+BM_SIMULATION(WyHash_5, WyHash<uint8_t COMMA 48 * 5>) // default (testare su blew)
+BM_SIMULATION(WyHash_6, WyHash<uint8_t COMMA 48 * 6>)
+BM_SIMULATION(WyHash_7, WyHash<uint8_t COMMA 48 * 7>)
+BM_SIMULATION(WyHash_8, WyHash<uint8_t COMMA 48 * 8>)
+BM_SIMULATION(WyHash_9, WyHash<uint8_t COMMA 48 * 9>)
+BM_SIMULATION(WyHash_10, WyHash<uint8_t COMMA 48 * 10>)
+BM_SIMULATION(WyHash_20, WyHash<uint8_t COMMA 48 * 20>)
+BM_SIMULATION(WyHash_30, WyHash<uint8_t COMMA 48 * 30>)
+BM_SIMULATION(WyHash_40, WyHash<uint8_t COMMA 48 * 40>)
+BM_SIMULATION(WyHash_50, WyHash<uint8_t COMMA 48 * 50>)
+BM_SIMULATION(WyHash_60, WyHash<uint8_t COMMA 48 * 60>)
+BM_SIMULATION(WyHash_70, WyHash<uint8_t COMMA 48 * 70>)
+BM_SIMULATION(WyHash_80, WyHash<uint8_t COMMA 48 * 80>)
+BM_SIMULATION(WyHash_90, WyHash<uint8_t COMMA 48 * 90>)
+BM_SIMULATION(WyHash_100, WyHash<uint8_t COMMA 48 * 100>)
+BM_SIMULATION(WyHash_200, WyHash<uint8_t COMMA 48 * 200>)
+BM_SIMULATION(WyHash_300, WyHash<uint8_t COMMA 48 * 300>)
+BM_SIMULATION(WyHash_400, WyHash<uint8_t COMMA 48 * 400>)
+BM_SIMULATION(WyHash_500, WyHash<uint8_t COMMA 48 * 500>)
+BM_SIMULATION(WyHash_1000, WyHash<uint8_t COMMA 48 * 1000>)
+BM_SIMULATION(WyHash_10000, WyHash<uint8_t COMMA 48 * 10000>)
+BM_SIMULATION(WyHash_100000, WyHash<uint8_t COMMA 48 * 100000>)
+BM_SIMULATION(WyHash_1000000, WyHash<uint8_t COMMA 48 * 1000000>)
+BM_SIMULATION(WyHash_10000000, WyHash<uint8_t COMMA 48 * 10000000>)
 
 // BM_SIMULATION(RabinKarp_16B, RabinKarpHash<uint8_t COMMA 1 << 4>)
 // BM_SIMULATION(RabinKarp_32B, RabinKarpHash<uint8_t COMMA 1 << 5>)

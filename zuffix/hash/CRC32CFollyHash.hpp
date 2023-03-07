@@ -17,7 +17,7 @@ using ::sux::util::Vector;
 // 32-bit word per cycle despite the three-cycle latency (by processing 3
 // streams of data in parallel and using linear algebra to combine the results).
 
-template <typename T, size_t C = 1 << 12> class CRC32CFollyHash { // 9
+template <typename T, size_t C = 1 << 14> class CRC32CFollyHash {
   private:
 	const T *string;
 	Vector<uint64_t> statetable;

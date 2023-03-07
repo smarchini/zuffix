@@ -1,4 +1,5 @@
 EXTERNAL_INCLUDES = -I ./dependencies/folly \
+					-I ./dependencies/folly/installed/include \
 					-I ./dependencies/sux \
 					-I ./dependencies/wyhash \
 					-I ./dependencies/libdivsufsort/build/include \

@@ -7,7 +7,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, size_t C = 1 << 12> class CRC32Plus32CFollyHash { // TODO benchmark best C
+template <typename T, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
   private:
     const T *string;
     Vector<uint64_t> statetable;

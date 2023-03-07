@@ -6,13 +6,13 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, size_t C = 48> class WyHash {
-  public:
-    // TODO: Fix the algorithm: C multiple of 48 should be sufficient
-    static_assert(C == 48, "48 is an important parameter in WyHash");
+template <typename T, size_t C = 48 * 10> class WyHash {
+    static_assert(C % 49, "C should be a multiple of 48");
 
   private:
-    struct WyHashState { uint64_t seed, see1, see2; };
+    struct WyHashState {
+        uint64_t seed, see1, see2;
+    };
 
     const T *string;
     Vector<WyHashState> statetable;
@@ -20,7 +20,7 @@ template <typename T, size_t C = 48> class WyHash {
   public:
     WyHash(T *string) : string(string), statetable(1) {
         uint64_t zero = _wymix(_wyp[0], _wyp[1]);
-        statetable[0] = (WyHashState) { zero, zero, zero };
+        statetable[0] = (WyHashState){zero, zero, zero};
     }
 
     uint64_t operator()(size_t to) {
@@ -37,16 +37,34 @@ template <typename T, size_t C = 48> class WyHash {
             uint64_t see2 = statetable[last].see2;
             statetable.resize(tpos + 1);
             for (size_t i = last + 1; i <= tpos; i++) {
-                const uint8_t *p = str + (i - 1) * 48;
-                seed = statetable[i].seed = _wymix(_wyr8(p) ^ _wyp[1], _wyr8(p + 8) ^ seed);
-                see1 = statetable[i].see1 = _wymix(_wyr8(p + 16) ^ _wyp[2], _wyr8(p + 24) ^ see1);
-                see2 = statetable[i].see2 = _wymix(_wyr8(p + 32) ^ _wyp[3], _wyr8(p + 40) ^ see2);
+                for (size_t j = 0; j < C / 48; j++) {
+                    const uint8_t *p = str + (i - 1) * C + (48 * j);
+                    seed = _wymix(_wyr8(p) ^ _wyp[1], _wyr8(p + 8) ^ seed);
+                    see1 = _wymix(_wyr8(p + 16) ^ _wyp[2], _wyr8(p + 24) ^ see1);
+                    see2 = _wymix(_wyr8(p + 32) ^ _wyp[3], _wyr8(p + 40) ^ see2);
+                }
+                statetable[i].seed = seed;
+                statetable[i].see1 = see1;
+                statetable[i].see2 = see2;
             }
         }
 
-        const uint8_t *p = str + tpos * C;
         size_t i = length - tpos * C;
-        uint64_t seed = statetable[tpos].seed ^ statetable[tpos].see1 ^ statetable[tpos].see2;
+        const uint8_t *p = str + tpos * C;
+
+        uint64_t seed = statetable[tpos].seed;
+        uint64_t see1 = statetable[tpos].see1;
+        uint64_t see2 = statetable[tpos].see2;
+
+        while (_likely_(i > 48)) {
+            seed = _wymix(_wyr8(p) ^ _wyp[1], _wyr8(p + 8) ^ seed);
+            see1 = _wymix(_wyr8(p + 16) ^ _wyp[2], _wyr8(p + 24) ^ see1);
+            see2 = _wymix(_wyr8(p + 32) ^ _wyp[3], _wyr8(p + 40) ^ see2);
+            i -= 48;
+            p += 48;
+        }
+
+        seed ^= see1 ^ see2;
 
         while (_unlikely_(i > 16)) {
             seed = _wymix(_wyr8(p) ^ _wyp[1], _wyr8(p + 8) ^ seed);

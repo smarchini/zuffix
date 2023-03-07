@@ -6,10 +6,8 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-// WARNING: It is possible that XXH3 on master is bugged. If you set a different
-// parameter C, you must run the tests to see if everything is okay. C = 1 << 12
-// seems to be currently (2023/03/01) broken.
-template <typename T, size_t C = 1 << 11> class XXH3Hash {
+// WARNING: https://github.com/Cyan4973/xxHash/issues/816
+template <typename T, size_t C = 1 << 16> class XXH3Hash {
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;
@@ -44,7 +42,7 @@ template <typename T, size_t C = 1 << 11> class XXH3Hash {
 		}
 
 		XXH3_copyState(state, statetable[tpos]);
-		if (to % C != 0) XXH3_64bits_update(state, str + tpos * C, length % C);
+		if (length % C) XXH3_64bits_update(state, str + tpos * C, length % C);
 		return XXH3_64bits_digest(state);
 	}
 
