@@ -51,6 +51,8 @@ BENCHMARKS = bin/benchmark/lambda          \
 			 bin/benchmark/findfile        \
 			 bin/benchmark/build           \
 
+UTILS = bin/util/generate_random_string
+
 # TEST
 test: $(TESTS)
 	# ./bin/test/random --gtest_color=yes
@@ -73,6 +75,13 @@ bin/test/saca: test/saca/test.cpp $(DEPENDENCIES)
 bin/test/zuffix: test/zuffix/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
 	$(CXX) $(CXXFLAGS) $(DEBUG) -o $@ $< $(LDLIBS)
+
+# UTIL
+util: $(UTILS)
+
+bin/util/generate_random_string: util/generate_random_string.cpp $(DEPENDENCIES)
+	@mkdir -p bin/util
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
 # BENCHMARK
 benchmark: $(BENCHMARKS)
