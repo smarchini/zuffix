@@ -19,10 +19,10 @@ static void args(benchmark::internal::Benchmark *b) {
 	for (int i = 1; i < 10; i++) b->Args({1L << 25, 1L << i});
 }
 
-#define BM(NAME, DS, SIGMA)                                                                                                                                                                            \
+#define BM(NAME, DS, SIGMA_T)                                                                                                                                                                            \
 	static void BM_##NAME(benchmark::State &state) {                                                                                                                                                   \
 		size_t n = state.range(0), m = state.range(1);                                                                                                                                                 \
-		auto t = random(n, charset, SIGMA);                                                                                                                                                            \
+		auto t = random(n, charset, SIGMA_T);                                                                                                                                                            \
 		DS ds(t.substring(0, n));                                                                                                                                                                      \
 		static std::random_device rd;                                                                                                                                                                  \
 		static zarr::xoroshiro128plus_engine rng(rd());                                                                                                                                                \
@@ -45,24 +45,24 @@ static void args(benchmark::internal::Benchmark *b) {
 BM(Simple, SimpleSuffixArray<uint8_t>, ALPHABET)
 BM(Enhanced, EnhancedSuffixArray<uint8_t>, ALPHABET)
 
-BM(ExactZuffixXXH3, ExactZuffixArray<uint8_t COMMA XXH3Hash>, ALPHABET)
-BM(ProbabilisticZuffixXXH3, ProbabilisticZuffixArray<uint8_t COMMA XXH3Hash>, ALPHABET)
+BM(MemcmpZuffixXXH3, MemcmpZuffixArray<uint8_t COMMA XXH3Hash>, ALPHABET)
+BM(SignatureZuffixXXH3, SignatureZuffixArray<uint8_t COMMA XXH3Hash>, ALPHABET)
 
-BM(ExactZuffixCRC32CFolly, ExactZuffixArray<uint8_t COMMA CRC32CFollyHash>, ALPHABET)
-BM(ProbabilisticZuffixCRC32CFolly, ProbabilisticZuffixArray<uint8_t COMMA CRC32CFollyHash>, ALPHABET)
+BM(MemcmpZuffixCRC32CFolly, MemcmpZuffixArray<uint8_t COMMA CRC32CFollyHash>, ALPHABET)
+BM(SignatureZuffixCRC32CFolly, SignatureZuffixArray<uint8_t COMMA CRC32CFollyHash>, ALPHABET)
 
-BM(ExactZuffixCRC32Zlib, ExactZuffixArray<uint8_t COMMA CRC32ZlibHash>, ALPHABET)
-BM(ProbabilisticZuffixCRC32Zlib, ProbabilisticZuffixArray<uint8_t COMMA CRC32ZlibHash>, ALPHABET)
+BM(MemcmpZuffixCRC32Zlib, MemcmpZuffixArray<uint8_t COMMA CRC32ZlibHash>, ALPHABET)
+BM(SignatureZuffixCRC32Zlib, SignatureZuffixArray<uint8_t COMMA CRC32ZlibHash>, ALPHABET)
 
-BM(ExactZuffixCRC32Plus32CFolly, ExactZuffixArray<uint8_t COMMA CRC32Plus32CFollyHash>, ALPHABET)
-BM(ProbabilisticZuffixCRC32Plus32CFolly, ProbabilisticZuffixArray<uint8_t COMMA CRC32Plus32CFollyHash>, ALPHABET)
+BM(MemcmpZuffixCRC32Plus32CFolly, MemcmpZuffixArray<uint8_t COMMA CRC32Plus32CFollyHash>, ALPHABET)
+BM(SignatureZuffixCRC32Plus32CFolly, SignatureZuffixArray<uint8_t COMMA CRC32Plus32CFollyHash>, ALPHABET)
 
-// BM(ExactZuffixRabinKarp, ExactZuffixArray<uint8_t COMMA RabinKarpHash>, ALPHABET)
-// BM(ProbabilisticZuffixRabinKarp, ProbabilisticZuffixArray<uint8_t COMMA RabinKarpHash>, ALPHABET)
+// BM(MemcmpZuffixRabinKarp, MemcmpZuffixArray<uint8_t COMMA RabinKarpHash>, ALPHABET)
+// BM(SignatureZuffixRabinKarp, SignatureZuffixArray<uint8_t COMMA RabinKarpHash>, ALPHABET)
 //
-// BM(ExactZuffixCyclicPoly128, ExactZuffixArray<uint8_t COMMA CyclicPoly128Hash>, ALPHABET)
-// BM(ProbabilisticZuffixCyclicPoly128, ProbabilisticZuffixArray<uint8_t COMMA CyclicPoly128Hash>, ALPHABET)
+// BM(MemcmpZuffixCyclicPoly128, MemcmpZuffixArray<uint8_t COMMA CyclicPoly128Hash>, ALPHABET)
+// BM(SignatureZuffixCyclicPoly128, SignatureZuffixArray<uint8_t COMMA CyclicPoly128Hash>, ALPHABET)
 
-// BM(ZuffixO1, ExactZuffixArray<uint8_t COMMA O1Hash>, 4)
+// BM(ZuffixO1, MemcmpZuffixArray<uint8_t COMMA O1Hash>, 4)
 
 BENCHMARK_MAIN();

@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	DATASTRUCTURETYPE ds(file_to_string<SYMBOLTYPE>(argv[1]));
+	STRUCTURE_T ds(file_to_string<SIGMA_T>(argv[1]));
 	cout << ds;
 
 	return 0;

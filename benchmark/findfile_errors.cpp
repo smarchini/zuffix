@@ -15,12 +15,12 @@ int main(int argc, char **argv) {
     std::ifstream file(argv[1], std::ios::in);
 
     // TODO: switch to SimpleSuffixArray (when I'll be sure it's 100% correct)
-    EnhancedSuffixArray<SYMBOLTYPE> enhanced(file_to_string<SYMBOLTYPE>(argv[1]));
+    EnhancedSuffixArray<SIGMA_T> enhanced(file_to_string<SIGMA_T>(argv[1]));
     size_t err_xxh3 = 0, err_crc32 = 0, err_crc32c = 0, err_crc32pluscrc32c = 0;
 
     for (int i = 2; i < argc; i++) {
         cout << "Pattern: " << argv[i] << endl;
-        auto [file, number, length, p] = load_pizzachili_patterns<SYMBOLTYPE>(argv[i]);
+        auto [file, number, length, p] = load_pizzachili_patterns<SIGMA_T>(argv[i]);
 
         for (const auto &pattern : p) {
             auto expected = enhanced.find(pattern);
@@ -28,22 +28,22 @@ int main(int argc, char **argv) {
             // TODO not like this
 
             {
-                ProbabilisticZuffixArray<SYMBOLTYPE, XXH3Hash> xxh3(file_to_string<SYMBOLTYPE>(argv[1]));
+                SignatureZuffixArray<SIGMA_T, XXH3Hash> xxh3(file_to_string<SIGMA_T>(argv[1]));
                 err_xxh3 += expected != xxh3.find(pattern);
             }
 
             {
-                ProbabilisticZuffixArray<SYMBOLTYPE, CRC32CFollyHash> crc32c(file_to_string<SYMBOLTYPE>(argv[1]));
+                SignatureZuffixArray<SIGMA_T, CRC32CFollyHash> crc32c(file_to_string<SIGMA_T>(argv[1]));
                 err_crc32c += expected != crc32c.find(pattern);
             }
 
             {
-                ProbabilisticZuffixArray<SYMBOLTYPE, CRC32ZlibHash> crc32(file_to_string<SYMBOLTYPE>(argv[1]));
+                SignatureZuffixArray<SIGMA_T, CRC32ZlibHash> crc32(file_to_string<SIGMA_T>(argv[1]));
                 err_crc32 += expected != crc32.find(pattern);
             }
 
             {
-                ProbabilisticZuffixArray<SYMBOLTYPE, CRC32Plus32CFollyHash> crc32plus32c(file_to_string<SYMBOLTYPE>(argv[1]));
+                SignatureZuffixArray<SIGMA_T, CRC32Plus32CFollyHash> crc32plus32c(file_to_string<SIGMA_T>(argv[1]));
                 err_crc32pluscrc32c += expected != crc32plus32c.find(pattern);
             }
         }

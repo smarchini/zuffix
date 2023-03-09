@@ -23,10 +23,11 @@
 #include <zuffix/hash/XXH3Hash.hpp>
 #include <zuffix/hash/functions.hpp>
 
-#include <zuffix/EnhancedSuffixArray.hpp>
-#include <zuffix/ExactZuffixArray.hpp>
-#include <zuffix/ProbabilisticZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
+#include <zuffix/EnhancedSuffixArray.hpp>
+#include <zuffix/MemcmpZuffixArray.hpp>
+#include <zuffix/SignatureZuffixArray.hpp>
+#include <zuffix/NothingZuffixArray.hpp>
 
 template <typename T> using CyclicPoly4Hash = zarr::CyclicPolyHash<T, 4>;
 template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;

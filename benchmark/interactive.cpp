@@ -9,7 +9,7 @@
 using namespace std;
 using namespace zarr;
 
-void print_results(LInterval<size_t> match, const SIGMA *text, const size_t *sa, size_t n) {
+void print_results(LInterval<size_t> match, const SIGMA_T *text, const size_t *sa, size_t n) {
 	constexpr size_t LINE_LENGTH = 80;
 	if (match.isEmpty()) return;
 	if (match.length() <= 5) {
@@ -43,13 +43,13 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	MYTYPE ds(file_to_string<SIGMA>(argv[1]));
+	STRUCTURE_T ds(file_to_string<SIGMA_T>(argv[1]));
 
 	while (true) {
 		string input;
 		cout << ">>> ";
 		getline(cin, input);
-		String<SIGMA> pattern(input);
+		String<SIGMA_T> pattern(input);
 		LInterval<size_t> result;
 		auto begin = chrono::high_resolution_clock::now();
 		for (size_t reps = 0; reps < 1000000; reps++) {

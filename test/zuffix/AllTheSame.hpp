@@ -8,14 +8,14 @@ TEST(AllTheSame, fibonacci) {
 
 	SimpleSuffixArray<char> simple{String<char>(text, true)};
 	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
-	ExactZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
-	ExactZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
-	ExactZuffixArray<char, O1Hash> o1{String<char>(text, true)};
-	ExactZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ExactZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
-	ProbabilisticZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
+	MemcmpZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
+	MemcmpZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
+	MemcmpZuffixArray<char, O1Hash> o1{String<char>(text, true)};
+	MemcmpZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
+	MemcmpZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
+	SignatureZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
 
-	ExactZuffixArray<char, BadHash> bad{String<char>(text, true)};
+	MemcmpZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
 	for (int i = 2; i < 10; i++) {
 		String<char> p = String<char>(fibonacci(i));
@@ -35,14 +35,14 @@ inline void fixlen(std::string charset, size_t n, size_t m) {
 
 	SimpleSuffixArray<char> simple{String<char>(text, true)};
 	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
-	ExactZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
-	ExactZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
-	ExactZuffixArray<char, O1Hash> o1{String<char>(text, true)};
-	ExactZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	ExactZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
-	ProbabilisticZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
+	MemcmpZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
+	MemcmpZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
+	MemcmpZuffixArray<char, O1Hash> o1{String<char>(text, true)};
+	MemcmpZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
+	MemcmpZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
+	SignatureZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
 
-	ExactZuffixArray<char, BadHash> bad{String<char>(text, true)};
+	MemcmpZuffixArray<char, BadHash> bad{String<char>(text, true)};
 
 	for (int i = 0; i < 100; i++) {
 		auto p = String<char>(random(charset, m));

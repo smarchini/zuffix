@@ -28,19 +28,19 @@ static void args(benchmark::internal::Benchmark *b) {
 BM(Simple, SimpleSuffixArray<char>)
 BM(Enhanced, EnhancedSuffixArray<char>)
 
-BM(ExactZuffixXXH3, ExactZuffixArray<char COMMA XXH3Hash>)
-BM(ProbabilisticZuffixXXH3, ProbabilisticZuffixArray<char COMMA XXH3Hash>)
+BM(MemcmpZuffixXXH3, MemcmpZuffixArray<char COMMA XXH3Hash>)
+BM(SignatureZuffixXXH3, SignatureZuffixArray<char COMMA XXH3Hash>)
 
-BM(ExactZuffixCRC32CFolly, ExactZuffixArray<char COMMA CRC32CFollyHash>)
-BM(ProbabilisticZuffixCRC32CFolly, ProbabilisticZuffixArray<char COMMA CRC32CFollyHash>)
+BM(MemcmpZuffixCRC32CFolly, MemcmpZuffixArray<char COMMA CRC32CFollyHash>)
+BM(SignatureZuffixCRC32CFolly, SignatureZuffixArray<char COMMA CRC32CFollyHash>)
 
-BM(ExactZuffixCRC32Zlib, ExactZuffixArray<char COMMA CRC32ZlibHash>)
-BM(ProbabilisticZuffixCRC32Zlib, ProbabilisticZuffixArray<char COMMA CRC32ZlibHash>)
+BM(MemcmpZuffixCRC32Zlib, MemcmpZuffixArray<char COMMA CRC32ZlibHash>)
+BM(SignatureZuffixCRC32Zlib, SignatureZuffixArray<char COMMA CRC32ZlibHash>)
 
-BM(ExactZuffixRabinKarp, ExactZuffixArray<char COMMA RabinKarpHash>)
-BM(ProbabilisticZuffixRabinKarp, ProbabilisticZuffixArray<char COMMA RabinKarpHash>)
+BM(MemcmpZuffixRabinKarp, MemcmpZuffixArray<char COMMA RabinKarpHash>)
+BM(SignatureZuffixRabinKarp, SignatureZuffixArray<char COMMA RabinKarpHash>)
 
-BM(ExactZuffixCyclicPoly128, ExactZuffixArray<char COMMA CyclicPoly128Hash>)
-BM(ProbabilisticZuffixCyclicPoly128, ProbabilisticZuffixArray<char COMMA CyclicPoly128Hash>)
+BM(MemcmpZuffixCyclicPoly128, MemcmpZuffixArray<char COMMA CyclicPoly128Hash>)
+BM(SignatureZuffixCyclicPoly128, SignatureZuffixArray<char COMMA CyclicPoly128Hash>)
 
 BENCHMARK_MAIN();

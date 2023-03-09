@@ -19,12 +19,12 @@ int main(int argc, char **argv) {
 	}
 
 	std::ifstream file(argv[1], std::ios::in);
-	DATASTRUCTURETYPE ds(file_to_string<SYMBOLTYPE>(argv[1]));
-	cout << STRINGIFY(DATASTRUCTURETYPE) << ": " << argv[1] << "\n" << endl;
+	STRUCTURE_T ds(file_to_string<SIGMA_T>(argv[1]));
+	cout << STRINGIFY(STRUCTURE_T) << ": " << argv[1] << "\n" << endl;
 
 	for (int i = 2; i < argc; i++) {
 		cout << "Pattern: " << argv[i] << endl;
-		auto [file, number, length, p] = load_pizzachili_patterns<SYMBOLTYPE>(argv[i]);
+		auto [file, number, length, p] = load_pizzachili_patterns<SIGMA_T>(argv[i]);
 
 		uint64_t sum = 0;
 		vector<chrono::nanoseconds::rep> record;

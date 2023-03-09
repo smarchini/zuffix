@@ -4,9 +4,10 @@
 #include <string>
 
 #include <zuffix/EnhancedSuffixArray.hpp>
-#include <zuffix/ExactZuffixArray.hpp>
+#include <zuffix/MemcmpZuffixArray.hpp>
 #include <zuffix/SimpleSuffixArray.hpp>
-#include <zuffix/ProbabilisticZuffixArray.hpp>
+#include <zuffix/SignatureZuffixArray.hpp>
+#include <zuffix/NothingZuffixArray.hpp>
 
 #include <zuffix/hash/WyHash.hpp>
 #include <zuffix/hash/CRC32Plus32CFollyHash.hpp>

@@ -11,7 +11,7 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-template <typename T, template <typename U> class RH> class ExactZuffixArray {
+template <typename T, template <typename U> class RH> class MemcmpZuffixArray {
   private:
 	String<T> text;
 	Vector<size_t> sa;
@@ -21,9 +21,9 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 	size_t maxhlen = 0;
 
   public:
-	ExactZuffixArray() {}
+	MemcmpZuffixArray() {}
 
-	ExactZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	MemcmpZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
 		// z.resize(ceil_pow2(text.length()) << 1); // TODO: tweak me to improve construction performance
 		RH<T> hash(&text);
 		// hash(text.length() - 1); // TODO: try me to improve construction performance preload
@@ -295,8 +295,8 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	friend std::ostream &operator<<(std::ostream &os, const ExactZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
-	friend std::istream &operator>>(std::istream &is, ExactZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
+	friend std::ostream &operator<<(std::ostream &os, const MemcmpZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
+	friend std::istream &operator>>(std::istream &is, MemcmpZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
 
 #ifdef DEBUG
   public:
@@ -335,7 +335,7 @@ template <typename T, template <typename U> class RH> class ExactZuffixArray {
 
 	void print_stats(const char *msg = "") {
 		std::cerr << "--------------------------------------------------------------------------------" << std::endl;
-		std::cerr << "ExactZuffixArray.hpp: " << msg << std::endl;
+		std::cerr << "MemcmpZuffixArray.hpp: " << msg << std::endl;
 		std::cerr << "- construction_depth: " << _construction_depth << std::endl;
 		std::cerr << "- construction_maxhlen: " << maxhlen << std::endl;
 		std::cerr << "- getChild: " << _getChild << std::endl;

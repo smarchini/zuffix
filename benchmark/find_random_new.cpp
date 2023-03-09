@@ -20,7 +20,7 @@ static void args(benchmark::internal::Benchmark *b) {
 
 static void BM_run(benchmark::State &state) {
     size_t n = state.range(0), m = state.range(1);
-    auto t = random(n, charset, SIGMA);
+    auto t = random(n, charset, SIGMA_T);
     DS ds(t.substring(0, n));
     static std::random_device rd;
     static zarr::xoroshiro128plus_engine rng(rd());

@@ -29,7 +29,7 @@ static void BM_run(benchmark::State &state) {
     static zarr::String<uint8_t> t = random(N, charset, 2);
     t[t.length() - 1] = t.DOLLAR; // TODO vedere se serve, sistemare common.hpp
     static zarr::EnhancedSuffixArray<uint8_t> reference(t.substring(0, N));
-    static MYTYPE ds(t.substring(0, N));
+    static STRUCTURE_T ds(t.substring(0, N));
     size_t m = state.range(0);
     std::uniform_int_distribution<uint64_t> dist(0, N - m - 1);
     int64_t empty = 0, errors = 0;

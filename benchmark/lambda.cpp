@@ -84,7 +84,7 @@ static void args2(benchmark::internal::Benchmark *b) {
 	static void BM_zuffix_##NAME(benchmark::State &state) {                                                                                                                                            \
 		size_t n = state.range(0), m = state.range(1);                                                                                                                                                 \
 		auto t = random(n, charset, 255);                                                                                                                                                              \
-		zarr::ExactZuffixArray<uint8_t, zarr::WyHash> ds(t.substring(0, n));                                                                                                                           \
+		zarr::MemcmpZuffixArray<uint8_t, zarr::WyHash> ds(t.substring(0, n));                                                                                                                           \
 		static std::random_device rd;                                                                                                                                                                  \
 		static zarr::xoroshiro128plus_engine rng(rd());                                                                                                                                                \
 		std::uniform_int_distribution<uint64_t> dist(0, n - m);                                                                                                                                        \

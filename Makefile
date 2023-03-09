@@ -109,59 +109,87 @@ bin/benchmark/fibonacci: benchmark/fibonacci.cpp $(DEPENDENCIES)
 
 bin/benchmark/interactive: benchmark/interactive.cpp $(DEPENDENCIES)
 	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS)                             -DSIGMA=uint8_t -DMYTYPE=SimpleSuffixArray\<SIGMA\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS)                           -DSIGMA=uint8_t -DMYTYPE=EnhancedSuffixArray\<SIGMA\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-xxh3                  $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ExactZuffixArray\<SIGMA\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-wyhash                $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ExactZuffixArray\<SIGMA\,WyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32zlib             $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ExactZuffixArray\<SIGMA\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32cfolly           $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ExactZuffixArray\<SIGMA\,CRC32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32+crc32c          $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ExactZuffixArray\<SIGMA\,CRC32Plus32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-xxh3          $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ProbabilisticZuffixArray\<SIGMA\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-wyhash        $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ProbabilisticZuffixArray\<SIGMA\,WyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32zlib     $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ProbabilisticZuffixArray\<SIGMA\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32cfolly   $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ProbabilisticZuffixArray\<SIGMA\,CRC32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32+crc32c  $< $(LDLIBS) -DSIGMA=uint8_t -DMYTYPE=ProbabilisticZuffixArray\<SIGMA\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/errors benchmark/findfile_errors.cpp $(LDLIBS) -DSIGMA_T=uint8_t
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-xxh3           $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-wyhash         $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32zlib      $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32cfolly    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32+crc32c   $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
 
 bin/benchmark/findfile: benchmark/findfile.cpp benchmark/findfile_errors.cpp $(DEPENDENCIES)
 	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/errors benchmark/findfile_errors.cpp $(LDLIBS) -DSYMBOLTYPE=uint8_t
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS)                            -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS)                          -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-xxh3 $< $(LDLIBS)                 -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-wyhash $< $(LDLIBS)               -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,WyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32zlib $< $(LDLIBS)            -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32cfolly $< $(LDLIBS)           -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32CFollyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32+crc32c $< $(LDLIBS)         -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32Plus32CFollyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-xxh3 $< $(LDLIBS)         -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-wyhash $< $(LDLIBS)       -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,WyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32zlib $< $(LDLIBS)    -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32cfolly $< $(LDLIBS)   -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,CRC32CFollyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32+crc32c $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ProbabilisticZuffixArray\<SYMBOLTYPE\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/errors benchmark/findfile_errors.cpp $(LDLIBS) -DSIGMA_T=uint8_t
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-xxh3           $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-wyhash         $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32zlib      $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32cfolly    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32+crc32c   $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
 
 bin/benchmark/findrandom: benchmark/findrandom.cpp $(DEPENDENCIES)
 	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS)                             -DMYNAME=simple                            -DMYTYPE=SimpleSuffixArray\<uint8_t\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS)                           -DMYNAME=enhanced                          -DMYTYPE=EnhancedSuffixArray\<uint8_t\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-xxh3                  $< $(LDLIBS) -DMYNAME=exact-zuffix-xxh3                 -DMYTYPE=ExactZuffixArray\<uint8_t\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-wyhash                $< $(LDLIBS) -DMYNAME=exact-zuffix-wyhash               -DMYTYPE=ExactZuffixArray\<uint8_t\,WyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32zlib             $< $(LDLIBS) -DMYNAME=exact-zuffix-crc32zlib            -DMYTYPE=ExactZuffixArray\<uint8_t\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32cfolly           $< $(LDLIBS) -DMYNAME=exact-zuffix-crc32folly           -DMYTYPE=ExactZuffixArray\<uint8_t\,CRC32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/exact-zuffix-crc32+crc32c          $< $(LDLIBS) -DMYNAME=exact-zuffix-crc32+crc32c         -DMYTYPE=ExactZuffixArray\<uint8_t\,CRC32Plus32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-xxh3          $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-xxh3         -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-wyhash        $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-wyhash       -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,WyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32zlib     $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-crc32zlib    -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32cfolly   $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-crc32folly   -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,CRC32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/probabilistic-zuffix-crc32+crc32c  $< $(LDLIBS) -DMYNAME=probabilistic-zuffix-crc32+crc32c -DMYTYPE=ProbabilisticZuffixArray\<uint8_t\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                         $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3             $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash           $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib        $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly      $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3          $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash        $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly   $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c  $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
 
 # TODO Test operator<< and operator>> they are likely wrong.
-# For now this is only useful to benchmark construction time.
+# For now this is only useful to benchmark construction time, not to dump/load the structure into/from a file.
 bin/benchmark/build: benchmark/build.cpp $(DEPENDENCIES)
 	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple $< $(LDLIBS)             -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=SimpleSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced $< $(LDLIBS)           -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=EnhancedSuffixArray\<SYMBOLTYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-xxh3 $< $(LDLIBS)        -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32zlib $< $(LDLIBS)   -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/zuffix-crc32cfolly $< $(LDLIBS) -DSYMBOLTYPE=uint8_t -DDATASTRUCTURETYPE=ExactZuffixArray\<SYMBOLTYPE\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                         $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3             $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash           $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib        $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly      $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3          $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash        $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly   $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c  $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
 
 .PHONY: clean
 

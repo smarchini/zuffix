@@ -4,7 +4,7 @@
 
 #include "SimpleSuffixArray.hpp"
 #include "EnhancedSuffixArray.hpp"
-#include "ExactZuffixArray.hpp"
+#include "MemcmpZuffixArray.hpp"
 #include "AllTheSame.hpp"
 #include "FatBinarySearch.hpp"
 
