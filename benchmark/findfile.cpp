@@ -1,4 +1,5 @@
-#define DEBUG
+// #define DEBUG // Enable statistics (must be defined before common.hpp)
+
 #include "common.hpp"
 #include <benchmark/benchmark.h>
 #include <unistd.h>
@@ -32,11 +33,14 @@ int main(int argc, char **argv) {
 		cout << "Run `perf record -g -p " << ::getpid() << "` and press enter" << std::endl;
 		cin.ignore();
 
+		LInterval<size_t> result;
 		for (const auto &pattern : p) {
 			auto begin = chrono::high_resolution_clock::now();
-			benchmark::DoNotOptimize(pattern);
-			auto result = ds.find(pattern);
-			benchmark::DoNotOptimize(result);
+			for (size_t reps = 0; reps < 100; reps++) {
+				benchmark::DoNotOptimize(pattern);
+				result = ds.find(pattern);
+				benchmark::DoNotOptimize(result);
+			}
 			auto end = chrono::high_resolution_clock::now();
 			sum += result.length();
 			// cout << result << endl; // TODO remove me
