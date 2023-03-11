@@ -18,7 +18,7 @@ template <typename T, size_t C = 48 * 10> class WyHash {
     Vector<WyHashState> statetable;
 
   public:
-    WyHash(T *string) : string(string), statetable(1) {
+    WyHash(const T *string) : string(string), statetable(1) {
         uint64_t zero = _wymix(_wyp[0], _wyp[1]);
         statetable[0] = (WyHashState){zero, zero, zero};
     }

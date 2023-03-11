@@ -4,8 +4,9 @@
 
 TEST(MemcmpZuffixArray, abracadabra) {
 	using namespace zarr;
-	std::string t("ABRACADABRA");
-	MemcmpZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};
+	std::string text = "ABRACADABRA";
+	text.push_back(std::numeric_limits<char>::max());
+	MemcmpZuffixArray<char, RabinKarpHash> zuffix{text};
 
 	EXPECT_EQ(zuffix.getSA().size(), 12);
 	const size_t sa[12] = {0, 7, 3, 5, 10, 1, 8, 4, 6, 2, 9, 11};
@@ -19,14 +20,14 @@ TEST(MemcmpZuffixArray, abracadabra) {
 	const size_t ct[12] = {12, 1, 3, 4, 2, 7, 6, 8, 9, 11, 10, 5};
 	for (size_t i = 0; i < 12; i++) EXPECT_EQ(zuffix.getCT()[i], ct[i]) << "at index " << i;
 
-	EXPECT_EQ(zuffix.find(String<char>("ABRACADABRA")), LInterval<size_t>(0, 1));
-	EXPECT_EQ(zuffix.find(String<char>("ABRACAD")), LInterval<size_t>(0, 1));
-	EXPECT_EQ(zuffix.find(String<char>("0")), LInterval<size_t>(1, 0));
-	EXPECT_EQ(zuffix.find(String<char>("Z")), LInterval<size_t>(1, 0));
-	EXPECT_EQ(zuffix.find(String<char>("ABRACADABR0")), LInterval<size_t>(1, 0));
-	EXPECT_EQ(zuffix.find(String<char>("ABRACADABRZ")), LInterval<size_t>(1, 0));
+	// NOTE: string literals are null-terminated, they don't exist in the text
+	EXPECT_EQ(zuffix.find(std::string("ABRACADABRA")), LInterval<size_t>(0, 1));
+	EXPECT_EQ(zuffix.find(std::string("ABRACAD")), LInterval<size_t>(0, 1));
+	EXPECT_EQ(zuffix.find(std::string("0")), LInterval<size_t>(1, 0));
+	EXPECT_EQ(zuffix.find(std::string("Z")), LInterval<size_t>(1, 0));
+	EXPECT_EQ(zuffix.find(std::string("ABRACADABR0")), LInterval<size_t>(1, 0));
+	EXPECT_EQ(zuffix.find(std::string("ABRACADABRZ")), LInterval<size_t>(1, 0));
 
-	// clang-format off
 	std::string patterns[] = { "A", "B", "C", "D", "R",
 							   "AB", "BR", "CA", "DA", "RA",
 							   "ABR", "BRA", "CAD", "DAB",
@@ -36,22 +37,21 @@ TEST(MemcmpZuffixArray, abracadabra) {
 							   "ABRACAD", "BRACADA", "CADABRA",
 							   "ABRACADA", "BRACADAB",
 							   "ABRACADAB", "ABRACADABR", "ABRACADABRA" };
-	// clang-format on
 
 	for (auto p : patterns) {
-		auto match = zuffix.find(String<char>(p));
+		auto match = zuffix.find(p);
 		EXPECT_LE(match.from, match.to) << " on pattern: " << p;
-		for (size_t i = match.from; i < match.to; i++) EXPECT_EQ(t.substr(sa[i], p.length()), p) << t.substr(sa[i], p.length()) << " != " << p;
+		for (size_t i = match.from; i < match.to; i++) EXPECT_EQ(text.substr(sa[i], p.length()), p) << text.substr(sa[i], p.length()) << " != " << p;
 	}
 }
 
 #define TS(NAME, DS)                                                                                                                                                                                   \
-	TEST(MemcmpZuffixArray, NAME) {                                                                                                                                                                  \
+	TEST(MemcmpZuffixArray, NAME) {                                                                                                                                                                    \
 		using namespace zarr;                                                                                                                                                                          \
-		std::string t = fibonacci(10);                                                                                                                                                                 \
-		MemcmpZuffixArray<char, RabinKarpHash> zuffix{String<char>(t, true)};                                                                                                                        \
+		std::string text = fibonacci(10);                                                                                                                                                              \
+		MemcmpZuffixArray<char, RabinKarpHash> zuffix{text};                                                                                                                                           \
 		for (size_t i = 1; i <= 10; i++) {                                                                                                                                                             \
-			auto match = zuffix.find(String<char>(fibonacci(i)));                                                                                                                                      \
+			auto match = zuffix.find(fibonacci(i));                                                                                                                                                    \
 			EXPECT_LE(match.from, match.to) << " on fibonacci: " << i;                                                                                                                                 \
 		}                                                                                                                                                                                              \
 	}

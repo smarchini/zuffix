@@ -5,20 +5,21 @@
 TEST(AllTheSame, fibonacci) {
 	using namespace zarr;
 	std::string text = fibonacci(10);
+	text.push_back(std::numeric_limits<char>::max());
 
-	SimpleSuffixArray<char> simple{String<char>(text, true)};
-	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
-	MemcmpZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
-	MemcmpZuffixArray<char, CyclicPoly128Hash> cyclicpoly{String<char>(text, true)};
-	MemcmpZuffixArray<char, O1Hash> o1{String<char>(text, true)};
-	MemcmpZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	MemcmpZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
-	SignatureZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
+	SimpleSuffixArray<char> simple{text};
+	EnhancedSuffixArray<char> enhanced{text};
+	MemcmpZuffixArray<char, RabinKarpHash> rabinkarp{text};
+	MemcmpZuffixArray<char, CyclicPoly128Hash> cyclicpoly{text};
+	MemcmpZuffixArray<char, O1Hash> o1{text};
+	MemcmpZuffixArray<char, XXH3Hash> xxh3{text};
+	MemcmpZuffixArray<char, CRC32Hash> crc32{text};
+	SignatureZuffixArray<char, CRC32CFollyHash> pcrc32{text};
 
-	MemcmpZuffixArray<char, BadHash> bad{String<char>(text, true)};
+	MemcmpZuffixArray<char, BadHash> bad{text};
 
 	for (int i = 2; i < 10; i++) {
-		String<char> p = String<char>(fibonacci(i));
+		std::string p = fibonacci(i);
 		EXPECT_EQ(simple.find(p), rabinkarp.find(p));
 		EXPECT_EQ(simple.find(p), cyclicpoly.find(p));
 		EXPECT_EQ(simple.find(p), o1.find(p));
@@ -32,20 +33,21 @@ TEST(AllTheSame, fibonacci) {
 inline void fixlen(std::string charset, size_t n, size_t m) {
 	using namespace zarr;
 	std::string text = random(charset, n);
+	text.push_back(std::numeric_limits<char>::max());
 
-	SimpleSuffixArray<char> simple{String<char>(text, true)};
-	EnhancedSuffixArray<char> enhanced{String<char>(text, true)};
-	MemcmpZuffixArray<char, RabinKarpHash> rabinkarp{String<char>(text, true)};
-	MemcmpZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{String<char>(text, true)};
-	MemcmpZuffixArray<char, O1Hash> o1{String<char>(text, true)};
-	MemcmpZuffixArray<char, XXH3Hash> xxh3{String<char>(text, true)};
-	MemcmpZuffixArray<char, CRC32Hash> crc32{String<char>(text, true)};
-	SignatureZuffixArray<char, CRC32CFollyHash> pcrc32{String<char>(text, true)};
+	SimpleSuffixArray<char> simple{text};
+	EnhancedSuffixArray<char> enhanced{text};
+	MemcmpZuffixArray<char, RabinKarpHash> rabinkarp{text};
+	MemcmpZuffixArray<char, CyclicPoly128Hash> cyclicpoly128{text};
+	MemcmpZuffixArray<char, O1Hash> o1{text};
+	MemcmpZuffixArray<char, XXH3Hash> xxh3{text};
+	MemcmpZuffixArray<char, CRC32Hash> crc32{text};
+	SignatureZuffixArray<char, CRC32CFollyHash> pcrc32{text};
 
-	MemcmpZuffixArray<char, BadHash> bad{String<char>(text, true)};
+	MemcmpZuffixArray<char, BadHash> bad{text};
 
 	for (int i = 0; i < 100; i++) {
-		auto p = String<char>(random(charset, m));
+		auto p = random(charset, m);
 		EXPECT_EQ(simple.find(p), rabinkarp.find(p));
 		EXPECT_EQ(simple.find(p), cyclicpoly128.find(p));
 		EXPECT_EQ(simple.find(p), o1.find(p));

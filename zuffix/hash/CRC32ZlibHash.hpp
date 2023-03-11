@@ -13,7 +13,7 @@ template <typename T, size_t C = 1 << 13> class CRC32ZlibHash {
 	uint64_t state = 0;
 
   public:
-	CRC32ZlibHash(T *string) : string(string), statetable(1) { statetable[0] = 0; }
+	CRC32ZlibHash(const T *string) : string(string), statetable(1) { statetable[0] = 0; }
 
 	uint64_t operator()(size_t to) {
 		const uint8_t *s = reinterpret_cast<const uint8_t *>(string);

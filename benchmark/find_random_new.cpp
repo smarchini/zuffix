@@ -1,3 +1,4 @@
+// TODO remove me
 #include <benchmark/benchmark.h>
 
 #include "common.hpp"
@@ -23,10 +24,10 @@ static void BM_run(benchmark::State &state) {
     auto t = random(n, charset, SIGMA_T);
     DS ds(t.substring(0, n));
     static std::random_device rd;
-    static zarr::xoroshiro128plus_engine rng(rd());
+    std::mt19937 rng(rd());
     std::uniform_int_distribution<uint64_t> dist(0, n - m);
     int64_t nonempty = 0;
-    for (auto _ : state) {
+	for (auto _ : state) {
         state.PauseTiming();
         size_t from = dist(rng);
         auto p = t.substring(from, m);

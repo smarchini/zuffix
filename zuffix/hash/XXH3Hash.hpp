@@ -14,7 +14,7 @@ template <typename T, size_t C = 1 << 16> class XXH3Hash {
 	XXH3_state_t *state = XXH3_createState();
 
   public:
-	XXH3Hash(T *string) : string(string), statetable(1) {
+	XXH3Hash(const T *string) : string(string), statetable(1) {
 		XXH3_64bits_reset(state);
 		statetable[0] = XXH3_createState();
 		XXH3_copyState(statetable[0], state);

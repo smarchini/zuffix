@@ -6,8 +6,7 @@ using namespace zarr;
 using namespace sux::util;
 
 template <typename RH> size_t simulation(RH &h, size_t n) {
-	static std::random_device rd;
-	static xoroshiro128plus_engine rng(rd());
+	std::mt19937 rng(2023);
 	static std::uniform_int_distribution<int64_t> offset(0, 10);
 
 	benchmark::DoNotOptimize(h(n));

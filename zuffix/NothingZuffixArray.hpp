@@ -13,7 +13,7 @@ using ::sux::util::Vector;
 
 template <typename T, template <typename U> class RH> class NothingZuffixArray {
   private:
-	String<T> text;
+	std::span<const T> text;
 	Vector<size_t> sa;
 	Vector<ssize_t> lcp;
 	Vector<size_t> ct;
@@ -25,10 +25,10 @@ template <typename T, template <typename U> class RH> class NothingZuffixArray {
   public:
 	NothingZuffixArray() {}
 
-	NothingZuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)), hash(&text) {
-		// z.resize(ceil_pow2(text.length()) << 1); // TODO: tweak me to improve construction performance
-		hash(text.length() - 1); // TODO: try me to improve construction performance preload
-		ZFillByDFS(0, text.length(), 0, hash);
+	NothingZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)), hash(text.data()) {
+		// z.resize(ceil_pow2(text.size()) << 1); // TODO: tweak me to improve construction performance
+		hash(text.size() - 1); // TODO: try me to improve construction performance preload
+		ZFillByDFS(0, text.size(), 0, hash);
 		// ZFillByBottomUp();       // TODO: test if it is faster or slower than ZFillByDFS
 		DEBUGDO(print_stats("Construction"));
 	}
@@ -38,20 +38,20 @@ template <typename T, template <typename U> class RH> class NothingZuffixArray {
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t d = lcp[r];
-		while (l < r && r < j && (sa[l] + d >= text.length() || text[sa[l] + d] != c)) {
+		while (l < r && r < j && (sa[l] + d >= text.size() || text[sa[l] + d] != c)) {
 			l = r;
 			r = (lcp[r] != lcp[ct[r]] || lcp[r] > lcp[r + 1]) ? j : ct[r];
 		}
 
-		if (sa[l] + d >= text.length() || text[sa[l] + d] != c) return {1, 0};
+		if (sa[l] + d >= text.size() || text[sa[l] + d] != c) return {1, 0};
 
 		return {l, r};
 	}
 
-	LInterval<size_t> exit(const String<T> &pattern, size_t i, size_t j) { // const {
+	LInterval<size_t> exit(std::span<const T> pattern, size_t i, size_t j) { // const {
 		DEBUGDO(_exit++);
-		size_t elen = j - i == 1 ? text.length() - sa[i] : getlcp(i, j);
-		if (elen < pattern.length()) {
+		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
+		if (elen < pattern.size()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
 			return exit(pattern, l, r);
@@ -59,11 +59,11 @@ template <typename T, template <typename U> class RH> class NothingZuffixArray {
 		return {i, j};
 	}
 
-	LInterval<size_t> fatBinarySearch(const String<T> &pattern) {
+	LInterval<size_t> fatBinarySearch(std::span<const T> pattern) {
 		DEBUGDO(_fatBinarySearch++);
-		RH<T> h(&pattern);
-		LInterval<size_t> alpha = {0, text.length()};
-		size_t l = 0, r = min(pattern.length(), maxhlen);
+		RH<T> h(pattern.data());
+		LInterval<size_t> alpha = {0, text.size()};
+		size_t l = 0, r = min(pattern.size(), maxhlen);
 		int64_t m = -1ULL << (lambda(l ^ r) + 1);
 		while (l < r) {
 			DEBUGDO(_fatBinarySearch_while_reps++);
@@ -89,13 +89,13 @@ template <typename T, template <typename U> class RH> class NothingZuffixArray {
 		return alpha;
 	}
 
-	LInterval<size_t> find(const String<T> &pattern) {
+	LInterval<size_t> find(std::span<const T> pattern) {
 		DEBUGDO(_find++);
 		auto [i, j] = fatBinarySearch(pattern);
 		return exit(pattern, i, j);
 	}
 
-	const String<T> &getText() const { return text; }
+	std::span<const T> getText() const { return text; }
 
 	const Vector<size_t> &getSA() const { return sa; }
 
@@ -129,18 +129,18 @@ template <typename T, template <typename U> class RH> class NothingZuffixArray {
 
 	// TODO clean me
 	void ZFillByBottomUp() {
-		RH<T> h(&text);
+		RH<T> h(text.data());
 		Vector<ssize_t> stackl(0);
 		Vector<ssize_t> stacki(0);
 		Vector<ssize_t> stackj(0);
-		stackl.reserve(text.length());
-		stacki.reserve(text.length());
-		stackj.reserve(text.length());
+		stackl.reserve(text.size());
+		stacki.reserve(text.size());
+		stackj.reserve(text.size());
 		stackl.pushBack(0);
 		stacki.pushBack(0);
-		stackj.pushBack(text.length());
+		stackj.pushBack(text.size());
 
-		for (size_t i = 1; i < text.length(); i++) {
+		for (size_t i = 1; i < text.size(); i++) {
 			size_t lb = i - 1;
 			while (lcp[i] < stackl[stackl.size() - 1]) {
 				size_t intervall = stackl.popBack();

@@ -8,7 +8,7 @@ using namespace std;
 
 int main(int argc, char const *argv[]) {
 	random_device rd;
-	zarr::xoroshiro128plus_engine rng(rd());
+    std::mt19937 rng(dev());
 
 	if (argc < 4) {
 		cerr << "Not enough parameters: <text file> <bytes per symbol> <symbols>\n";

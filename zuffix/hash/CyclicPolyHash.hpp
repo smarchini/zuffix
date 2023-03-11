@@ -18,7 +18,7 @@ template <typename T, size_t sigma, size_t C = 1 << 12> class CyclicPolyHash {
 	// TODO kinda bad doing this thing at runtime
 	// when it will be fixed, recompute the best value of C
 	CyclicPolyHash(const T *string) : string(string), statetable(1) {
-		xoroshiro128plus_engine rng(0); // fixed seed
+		std::mt19937 rng(2023); // fixed seed
 		std::uniform_int_distribution<uint64_t> dist(0, std::numeric_limits<uint64_t>::max());
 		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
 		statetable[0] = 0;

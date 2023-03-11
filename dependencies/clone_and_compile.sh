@@ -2,32 +2,32 @@
 SCRIPT=$(realpath "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 
-# git clone git@github.com:facebook/folly.git
-# git clone git@github.com:madler/zlib.git
-# git clone git@github.com:Cyan4973/xxHash.git
-# git clone git@github.com:y-256/libdivsufsort.git
-# git clone git@github.com:vigna/sux.git
-# git clone git@github.com:IlyaGrebnov/libsais.git
-# git clone git@github.com:wangyi-fudan/wyhash.git
-# git clone git@github.com:google/benchmark.git
-#
-# # libdivsufsort
-# mkdir -p "$SCRIPTPATH"/libdivsufsort/build
-# cd "$SCRIPTPATH"/libdivsufsort/build || exit
-# cmake -DBUILD_DIVSUFSORT64=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_EXAMPLES=OFF -DUSE_OPENMP=ON ..
-# make CFLAGS="-march=native -O3 "
-#
-# # zlib
-# mkdir -p "$SCRIPTPATH"/zlib/build
-# cd "$SCRIPTPATH"/zlib || exit
-# ./configure
-# prefix="$SCRIPTPATH"/zlib/build CFLAGS="-march=native -O3" ./configure --static
-# make install
-#
-# # xxhash
-# mkdir -p "$SCRIPTPATH"/xxHash/build
-# cd "$SCRIPTPATH"/xxHash || exit
-# prefix="$SCRIPTPATH"/xxHash/build CFLAGS="-march=native -O3" make install
+git clone git@github.com:facebook/folly.git
+git clone git@github.com:madler/zlib.git
+git clone git@github.com:Cyan4973/xxHash.git
+git clone git@github.com:y-256/libdivsufsort.git
+git clone git@github.com:vigna/sux.git
+git clone git@github.com:IlyaGrebnov/libsais.git
+git clone git@github.com:wangyi-fudan/wyhash.git
+git clone git@github.com:google/benchmark.git
+
+# libdivsufsort
+mkdir -p "$SCRIPTPATH"/libdivsufsort/build
+cd "$SCRIPTPATH"/libdivsufsort/build || exit
+cmake -DBUILD_DIVSUFSORT64=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_EXAMPLES=OFF -DUSE_OPENMP=ON ..
+make CFLAGS="-march=native -O3 "
+
+# zlib
+mkdir -p "$SCRIPTPATH"/zlib/build
+cd "$SCRIPTPATH"/zlib || exit
+./configure
+prefix="$SCRIPTPATH"/zlib/build CFLAGS="-march=native -O3" ./configure --static
+make install
+
+# xxhash
+mkdir -p "$SCRIPTPATH"/xxHash/build
+cd "$SCRIPTPATH"/xxHash || exit
+prefix="$SCRIPTPATH"/xxHash/build CFLAGS="-march=native -O3" make install
 
 # libsais
 mkdir -p "$SCRIPTPATH"/libsais/build
@@ -44,6 +44,10 @@ cd "$SCRIPTPATH"/benchmark || exit
 cmake -E make_directory "build"
 cmake -E chdir "build" cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$SCRIPTPATH"/benchmark/installed ../
 cmake --build "build" --config Release --target install
+
+# sux
+cd "$SCRIPTPATH"/sux || exit
+git apply "$SCRIPTPATH"/sux_vector_gcc_cpp20.patch
 
 # # folly
 # mkdir -p "$SCRIPTPATH"/folly/installed

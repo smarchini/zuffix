@@ -6,14 +6,13 @@
 #include "util/LInterval.hpp"
 #include "util/String.hpp"
 #include "util/common.hpp"
-#include <stdio.h>
 
 namespace zarr {
 using ::sux::util::Vector;
 
 template <typename T> class EnhancedSuffixArray {
   private:
-	String<T> text;
+	std::span<const T> text;
 	Vector<size_t> sa;
 	Vector<ssize_t> lcp;
 	Vector<size_t> ct;
@@ -21,41 +20,41 @@ template <typename T> class EnhancedSuffixArray {
   public:
 	EnhancedSuffixArray() {}
 
-	EnhancedSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
+	EnhancedSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t d = lcp[r];
-		while (l < r && r < j && (sa[l] + d >= text.length() || text[sa[l] + d] != c)) {
+		while (l < r && r < j && (sa[l] + d >= text.size() || text[sa[l] + d] != c)) {
 			l = r;
 			r = (lcp[r] != lcp[ct[r]] || lcp[r] > lcp[r + 1]) ? j : ct[r];
 		}
 
-		if (sa[l] + d >= text.length() || text[sa[l] + d] != c) return {1, 0};
+		if (sa[l] + d >= text.size() || text[sa[l] + d] != c) return {1, 0};
 
 		return {l, r};
 	}
 
-	LInterval<size_t> find(const String<T> &pattern) const {
+	LInterval<size_t> find(std::span<const T> pattern) const {
 		size_t c = 0;
-		size_t i = 0, j = text.length();
-		while (c < pattern.length() && i < j) {
+		size_t i = 0, j = text.size();
+		while (c < pattern.size() && i < j) {
 			std::tie(i, j) = getChild(i, j, pattern[c]);
 
 			if (j - i == 1) {
-				if (memcmp(&pattern + c, &text + sa[i] + c, (pattern.length() - c) * sizeof(T))) return {1, 0};
+				if (memcmp(pattern.data() + c, text.data() + sa[i] + c, (pattern.size() - c) * sizeof(T))) return {1, 0};
 				break;
 			}
 
-			ssize_t d = min(getlcp(i, j), static_cast<ssize_t>(pattern.length()));
-			if (memcmp(&pattern + c, &text + sa[i] + c, (d - c) * sizeof(T))) return {1, 0};
+			ssize_t d = min(getlcp(i, j), static_cast<ssize_t>(pattern.size()));
+			if (memcmp(pattern.data() + c, text.data() + sa[i] + c, (d - c) * sizeof(T))) return {1, 0};
 			c = d;
 		}
 		return {i, j};
 	}
 
-	const String<T> &getText() const { return text; }
+	std::span<const T> getText() const { return text; }
 
 	const Vector<size_t> &getSA() const { return sa; }
 

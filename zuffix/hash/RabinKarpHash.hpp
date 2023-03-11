@@ -19,7 +19,7 @@ template <typename T, size_t C = 1 << 8> class RabinKarpHash {
 	uint64_t pow = 1;
 
   public:
-	RabinKarpHash(T *string) : string(string), statetable(1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) { statetable[0] = 0; }
+	RabinKarpHash(const T *string) : string(string), statetable(1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) { statetable[0] = 0; }
 
 	uint64_t operator()(size_t to) {
 		const uint8_t *b = reinterpret_cast<const uint8_t *>(string);

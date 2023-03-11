@@ -5,6 +5,8 @@
 using namespace zarr;
 using namespace sux::util;
 
+std::mt19937 rng(2023);
+
 static void args(benchmark::internal::Benchmark *b) {
 	// { length }
 	b->Args({1 << 5})->Args({1 << 10})->Args({1 << 15})->Args({1 << 20})->Args({1 << 25})->Args({1 << 30});
@@ -13,8 +15,6 @@ static void args(benchmark::internal::Benchmark *b) {
 #define BM_PREFIX(NAME, DS)                                                                                                                                                                            \
 	static void BM_##NAME##_prefix(benchmark::State &state) {                                                                                                                                          \
 		auto n = state.range(0);                                                                                                                                                                       \
-		static std::random_device rd;                                                                                                                                                                  \
-		static xoroshiro128plus_engine rng(rd());                                                                                                                                                      \
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
@@ -30,8 +30,6 @@ static void args(benchmark::internal::Benchmark *b) {
 #define BM_MIDDLE(NAME, DS)                                                                                                                                                                            \
 	static void BM_##NAME##_middle(benchmark::State &state) {                                                                                                                                          \
 		auto n = state.range(0);                                                                                                                                                                       \
-		static std::random_device rd;                                                                                                                                                                  \
-		static xoroshiro128plus_engine rng(rd());                                                                                                                                                      \
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
@@ -48,8 +46,6 @@ static void args(benchmark::internal::Benchmark *b) {
 #define BM_IMMEDIATE(NAME, DS)                                                                                                                                                                         \
 	static void BM_##NAME##_immediate(benchmark::State &state) {                                                                                                                                       \
 		auto n = state.range(0);                                                                                                                                                                       \
-		static std::random_device rd;                                                                                                                                                                  \
-		static xoroshiro128plus_engine rng(rd());                                                                                                                                                      \
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \

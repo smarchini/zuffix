@@ -23,6 +23,7 @@
 
 template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;
 
+// TODO: remove me
 std::string fibonacci(size_t n) {
 	std::string prec = "a", curr = "ab";
 	for (size_t i = 0; i < n; i++) {
@@ -33,9 +34,10 @@ std::string fibonacci(size_t n) {
 	return curr;
 }
 
+// TODO: remove me
 std::string random(std::string charset, size_t length) {
 	std::string result;
-	zarr::xoroshiro128plus_engine rng(0); // fixed seed for reproducibility
+    std::mt19937 rng(2023);  // fixed seed for reproducibility
 	std::uniform_int_distribution<size_t> dist(0, charset.length() - 1);
 	result.reserve(length);
 	for (size_t i = 0; i < length; i++) result += charset[dist(rng)];
@@ -44,13 +46,12 @@ std::string random(std::string charset, size_t length) {
 
 template <typename T> class BadHash {
   private:
-	T *string;
+	const T *string;
 	uint64_t state = 0;
 	size_t l = 0, r = 0;
 
   public:
-	BadHash(T *string) : string(string) {}
-	BadHash(T *string, size_t length) : string(string) { /* discard length */ }
+	BadHash(const T *string) : string(string) {}
 
 	uint64_t operator()(size_t to) {
 		for (; r < to; r++) state ^= string[r] & 0b11;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "String.hpp"
+#include <span>
 #include <cstdint>
 #include <divsufsort64.h>
 #include <libsais64.h>
@@ -55,8 +56,8 @@ inline int64_t twoFattestLR(size_t a, size_t b) { return (1L << 63) >> __builtin
  *
  * @return The array SA
  */
-template <typename T> inline Vector<size_t> SAConstructBySort(const String<T> &string) {
-	size_t n = string.length();
+template <typename T> inline Vector<size_t> SAConstructBySort(std::span<const T> string) {
+	size_t n = string.size();
 	Vector<size_t> result(n);
 	for (size_t i = 0; i < n; i++) result[i] = i;
 	std::sort(&result[0], &result[n], [&string](const auto &lhs, const auto &rhs) {
@@ -71,10 +72,10 @@ template <typename T> inline Vector<size_t> SAConstructBySort(const String<T> &s
  *
  * @return The array SA
  */
-template <typename T> inline Vector<size_t> SAConstructByDivSufSort(const String<T> &string) {
-	size_t n = string.length();
+template <typename T> inline Vector<size_t> SAConstructByDivSufSort(std::span<const T> string) {
+	size_t n = string.size();
 	Vector<size_t> result(n);
-	divsufsort64((const unsigned char *)&string, (long int *)&result, n);
+	divsufsort64((const unsigned char *)string.data(), (long int *)&result, n);
 	return result;
 }
 
@@ -82,13 +83,13 @@ template <typename T> inline Vector<size_t> SAConstructByDivSufSort(const String
  *
  * @return The array SA
  */
-template <typename T> inline Vector<size_t> SAConstructByGrebnovSAIS(const String<T> &string) {
-	size_t n = string.length();
+template <typename T> inline Vector<size_t> SAConstructByGrebnovSAIS(std::span<const T> string) {
+	size_t n = string.size();
 	Vector<size_t> result(n);
 #if defined(_OPENMP)
-	libsais64_omp((const uint8_t *)&string, (int64_t *)&result, n, 0, nullptr, 0);
+	libsais64_omp((const uint8_t *)string.data(), (int64_t *)&result, n, 0, nullptr, 0);
 #else
-	libsais64((const uint8_t *)&string, (int64_t *)&result, n, 0, nullptr);
+	libsais64((const uint8_t *)string.data(), (int64_t *)&result, n, 0, nullptr);
 #endif
 	return result;
 }
@@ -97,7 +98,7 @@ template <typename T> inline Vector<size_t> SAConstructByGrebnovSAIS(const Strin
  *
  * @return The array LCP
  */
-template <typename T> inline Vector<ssize_t> LCPConstructByStrcmp(const String<T> &string, const Vector<size_t> &sa) {
+template <typename T> inline Vector<ssize_t> LCPConstructByStrcmp(std::span<const T> string, const Vector<size_t> &sa) {
 	size_t n = sa.size();
 	Vector<ssize_t> result(n + 1);
 
@@ -140,7 +141,7 @@ inline Vector<size_t> CTConstructByAbouelhoda(const Vector<ssize_t> &lcp) {
 	return result;
 }
 
-template <typename T> inline Vector<ssize_t> LCPConstructByKarkkainenPsi(const String<T> &string, const Vector<size_t> &sa) {
+template <typename T> inline Vector<ssize_t> LCPConstructByKarkkainenPsi(std::span<const T> string, const Vector<size_t> &sa) {
 	// using namespace std;
 	size_t n = sa.size();
 	Vector<size_t> plcp(n + 1);
@@ -163,53 +164,21 @@ template <typename T> inline Vector<ssize_t> LCPConstructByKarkkainenPsi(const S
 	return lcp;
 }
 
-template <typename T> inline Vector<ssize_t> LCPConstructByGrebnovSAIS(const String<T> &string, const Vector<size_t> &sa) {
+template <typename T> inline Vector<ssize_t> LCPConstructByGrebnovSAIS(std::span<const T> string, const Vector<size_t> &sa) {
 	size_t n = sa.size();
 	Vector<int64_t> plcp(n);
 	Vector<ssize_t> lcp(n + 1);
 
 #if defined(_OPENMP)
-	libsais64_plcp_omp((const uint8_t *)&string, (const int64_t *)&sa, (int64_t *)&plcp, n, 0);
+	libsais64_plcp_omp((const uint8_t *)string.data(), (const int64_t *)&sa, (int64_t *)&plcp, n, 0);
 	libsais64_lcp_omp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n, 0);
 #else
-	libsais64_plcp((const uint8_t *)&string, (const int64_t *)&sa, (int64_t *)&plcp, n);
+	libsais64_plcp((const uint8_t *)string.data(), (const int64_t *)&sa, (int64_t *)&plcp, n);
 	libsais64_lcp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n);
 #endif
 
 	lcp[0] = lcp[n] = -1;
 	return lcp;
 }
-
-#ifdef NO_AVX_MEMCMP
-__attribute__((optimize("no-tree-vectorize"))) int memcmp(const void *a, const void *b, size_t length) {
-	size_t pos = 0;
-
-	const uint64_t *a8 = reinterpret_cast<const uint64_t *>(a);
-	const uint64_t *b8 = reinterpret_cast<const uint64_t *>(b);
-	for (; pos + 8 < length; pos += 8) {
-		if (a8[pos >> 3] != b8[pos >> 3]) return 1;
-	}
-
-	const uint32_t *a4 = reinterpret_cast<const uint32_t *>(a);
-	const uint32_t *b4 = reinterpret_cast<const uint32_t *>(b);
-	for (; pos + 4 < length; pos += 4) {
-		if (a4[pos >> 2] != b4[pos >> 2]) return 1;
-	}
-
-	const uint16_t *a2 = reinterpret_cast<const uint16_t *>(a);
-	const uint16_t *b2 = reinterpret_cast<const uint16_t *>(b);
-	for (; pos + 2 < length; pos += 2) {
-		if (a2[pos >> 1] != b2[pos >> 1]) return 1;
-	}
-
-	const uint8_t *a1 = reinterpret_cast<const uint8_t *>(a);
-	const uint8_t *b1 = reinterpret_cast<const uint8_t *>(b);
-	for (; pos < length; pos++) {
-		if (a1[pos] != b1[pos]) return 1;
-	}
-
-	return 0;
-}
-#endif
 
 } // namespace zarr

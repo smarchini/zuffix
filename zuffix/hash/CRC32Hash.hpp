@@ -22,7 +22,7 @@ template <typename T> class CRC32Hash {
 	const uint8_t *l, *r;
 
   public:
-	CRC32Hash(T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
+	CRC32Hash(const T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
 
 	uint64_t operator()(size_t to) { return (*this)(0, to); }
 

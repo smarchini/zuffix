@@ -14,7 +14,7 @@ template <typename T, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
     uint64_t state = 0;
 
   public:
-    CRC32Plus32CFollyHash(T *string) : string(string), statetable(1) { statetable[0] = 0; }
+    CRC32Plus32CFollyHash(const T *string) : string(string), statetable(1) { statetable[0] = 0; }
 
     uint64_t operator()(size_t to) {
         const uint8_t *s = reinterpret_cast<const uint8_t *>(string);

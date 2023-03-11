@@ -1,9 +1,12 @@
+// TODO: remove me
 #include <benchmark/benchmark.h>
 
 #include "common.hpp"
 
 using namespace zarr;
 using namespace sux::util;
+
+std::mt19937 rng(2023);
 
 constexpr uint8_t charset[] = {0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
 							   32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
@@ -24,8 +27,6 @@ static void args(benchmark::internal::Benchmark *b) {
 		size_t n = state.range(0), m = state.range(1);                                                                                                                                                 \
 		auto t = random(n, charset, SIGMA_T);                                                                                                                                                            \
 		DS ds(t.substring(0, n));                                                                                                                                                                      \
-		static std::random_device rd;                                                                                                                                                                  \
-		static zarr::xoroshiro128plus_engine rng(rd());                                                                                                                                                \
 		std::uniform_int_distribution<uint64_t> dist(0, n - m);                                                                                                                                        \
 		int64_t nonempty = 0;                                                                                                                                                                          \
 		for (auto _ : state) {                                                                                                                                                                         \

@@ -7,6 +7,8 @@
 #include <sstream>
 #include <string>
 
+#include <sux/util/Vector.hpp>
+
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 
 #include <zuffix/util/common.hpp>
@@ -34,8 +36,7 @@ template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;
 
 zarr::String<uint8_t> random(size_t n, const uint8_t *charset, size_t sigma) {
 	zarr::String<uint8_t> result(n);
-	static std::random_device rd;
-	static zarr::xoroshiro128plus_engine rng(rd());
+	std::mt19937 rng(2023);
 	std::uniform_int_distribution<uint64_t> dist(0, sigma - 1);
 	for (size_t i = 0; i < n; i++) result[i] = charset[dist(rng)];
 	return result;

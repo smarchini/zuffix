@@ -12,27 +12,27 @@ using ::sux::util::Vector;
 
 template <typename T> class SimpleSuffixArray {
   private:
-	String<T> text;
+	std::span<const T> text;
 	Vector<size_t> sa;
 
   public:
 	SimpleSuffixArray() {}
 
-	SimpleSuffixArray(String<T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)) {}
+	SimpleSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByDivSufSort(text)) {}
 
-	LInterval<size_t> find(const String<T> &pattern) const { return acceleratedBinarySearch(pattern, 0, text.length(), 0, 0); }
+	LInterval<size_t> find(std::span<const T> pattern) const { return acceleratedBinarySearch(pattern, 0, text.size(), 0, 0); }
 
-	const String<T> &getText() const { return text; }
+	std::span<const T> getText() const { return text; }
 
 	const Vector<size_t> &getSA() const { return sa; }
 
   private:
-	LInterval<size_t> acceleratedBinarySearch(const String<T> &pattern, size_t l, size_t r, size_t llcp, size_t rlcp) const {
+	LInterval<size_t> acceleratedBinarySearch(std::span<const T> pattern, size_t l, size_t r, size_t llcp, size_t rlcp) const {
 		if (r <= l) return {l, r};
 		size_t c = l + (r - l) / 2;
 
 		size_t i = min(llcp, rlcp);
-		for (; i < pattern.length() && sa[c] + i < text.length(); i++) {
+		for (; i < pattern.size() && sa[c] + i < text.size(); i++) {
 			if (pattern[i] < text[sa[c] + i]) return acceleratedBinarySearch(pattern, l, c, llcp, i);
 			if (pattern[i] > text[sa[c] + i]) return acceleratedBinarySearch(pattern, c + 1, r, i, rlcp);
 		}
