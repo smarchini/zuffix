@@ -61,3 +61,11 @@ git apply "$SCRIPTPATH"/sux_vector_gcc_cpp20.patch
 # mv /tmp/
 # cd "$SCRIPTPATH"/folly/build || exit
 # cmake -DCMAKE_CXX_FLAGS="-march=native -O3" ../
+
+# pizza&chili
+cd "$SCRIPTPATH" || exit
+wget -P "$SCRIPTPATH" "http://pizzachili.dcc.uchile.cl/utils/utils.tar.gz"
+tar –xzvf utils.tar.gz
+rm utils.tar.gz
+mv utils pizzachili
+cd "$SCRIPTPATH"/pizzachili || exit
