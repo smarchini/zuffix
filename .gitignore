@@ -2,6 +2,7 @@ bin/
 dataset/
 pattern/
 results/
+dependencies/
 compile_commands.*
 .envrc
 .direnv/
