@@ -5,7 +5,7 @@
 
 int main(int argc, char const *argv[]) {
     std::random_device rd;
-    std::mt19937 rng(dev());
+    std::mt19937 rng(rd());
 
     if (argc < 2) {
         std::cerr << "Not enough parameters: <length> <sigma>\n";

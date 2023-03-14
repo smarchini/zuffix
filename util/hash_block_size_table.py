@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pandas as pd
 
-file = '/tmp/dev/python/hash_block_size.20230307.csv'
+file = '~/blew_results/hash_block_size.20230307.csv'
 table = pd.read_csv(file).sort_values(by=['cpu_time'], ascending=False)
 
 output = [ [], [], [], [], [], [] ]
