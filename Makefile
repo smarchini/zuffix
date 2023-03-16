@@ -1,11 +1,12 @@
 EXTERNAL_INCLUDES = -I ./dependencies/folly \
-					-I ./dependencies/folly/installed/include \
+					-I ./dependencies/folly/installed/folly/include \
 					-I ./dependencies/sux \
 					-I ./dependencies/wyhash \
 					-I ./dependencies/libdivsufsort/build/include \
 					-I ./dependencies/libsais/build/include \
 					-I ./dependencies/xxHash/build/include \
-					-I ./dependencies/zlib/build/include
+					-I ./dependencies/zlib/build/include \
+					-I ./dependencies/benchmark/installed/include
 
 # TODO: compile folly statically (remember to test if CRCs run in hardware) then remove this
 EXTERNAL_SOURCES = ./dependencies/folly/folly/hash/Checksum.cpp \
@@ -18,20 +19,20 @@ EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivs
 					   $(shell pwd)/dependencies/zlib/build/lib/libz.a \
 					   $(shell pwd)/dependencies/xxHash/build/lib/libxxhash.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais64.a \
-					   $(shell pwd)/dependencies/libsais/build/lib/libsais.a
-					   #$(shell pwd)/dependencies/folly/build/libfolly.a
+					   $(shell pwd)/dependencies/libsais/build/lib/libsais.a \
+					   #$(shell pwd)/dependencies/benchmark/installed/lib64/libbenchmark.a
 
 
-CXXFLAGS += -std=c++20 -fno-omit-frame-pointer -march=native -mtune=native -fopenmp -Wall -Wextra -I ./ $(EXTERNAL_INCLUDES) $(EXTERNAL_SOURCES)
+# NOTE: When using perf, remember to: -fno-omit-frame-pointer
+CXXFLAGS += -std=c++20 -march=native -mtune=native -fomit-frame-pointer -flto -fopenmp -Wall -Wextra -I ./ $(EXTERNAL_INCLUDES) $(EXTERNAL_SOURCES)
 ifeq ($(CXX), clang++)
 	# NOTE: https://clang.llvm.org/cxx_status.html#p0522
 	CXXFLAGS += -frelaxed-template-template-args
 endif
-#LDLIBS += -lgtest -lbenchmark -lpthread -ldivsufsort64 -lsais64 -lxxhash -lz -lfolly -l:libsais.a
-LDLIBS += -Bstatic -lgtest -lbenchmark -lpthread $(EXTERNAL_STATIC_LIBS)
+LDLIBS += -Bstatic -lgtest -lpthread $(EXTERNAL_STATIC_LIBS) -lbenchmark
 DEPENDENCIES = $(shell find . -name "*.[ch]pp")
-DEBUG := -g3 -O0
-RELEASE := -O3 -DNDEBUG -g3
+DEBUG := -g3 -O3 # -DDEBUG
+RELEASE := -O3 -DNDEBUG
 
 all: test benchmark util
 
@@ -50,7 +51,8 @@ BENCHMARKS = bin/benchmark/lambda          \
 			 bin/benchmark/findfile        \
 			 bin/benchmark/build           \
 
-UTILS = bin/util/generate_random_string
+UTILS = bin/util/generate_random_string \
+		bin/util/generate_fibonacci_string
 
 # TEST
 test: $(TESTS)
@@ -79,6 +81,10 @@ bin/test/zuffix: test/zuffix/test.cpp $(DEPENDENCIES)
 util: $(UTILS)
 
 bin/util/generate_random_string: util/generate_random_string.cpp $(DEPENDENCIES)
+	@mkdir -p bin/util
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
+
+bin/util/generate_fibonacci_string: util/generate_fibonacci_string.cpp $(DEPENDENCIES)
 	@mkdir -p bin/util
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 

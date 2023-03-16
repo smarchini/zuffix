@@ -6,20 +6,22 @@ using namespace zarr;
 using namespace sux::util;
 
 std::span<char> text;
+constexpr size_t N = 40; // ~256MB
 
 std::string fibostring(size_t n) {
-	std::string prec = "a", curr = "ab";
-	for (size_t i = 0; i < n; i++) {
-		std::string tmp = prec;
-		prec = curr;
-		curr += tmp;
-	}
-	return curr;
+    std::string prec = "a", curr = "ab";
+    if (n == 0) return prec;
+    for (size_t i = 1; i < n; i++) {
+        std::string tmp = prec;
+        prec = curr;
+        curr += tmp;
+    }
+    return curr;
 }
 
 static void args(benchmark::internal::Benchmark *b) {
-	// pattern_length i-th fibonacci word
-	for (long i = 20; i <= 24; i++) b->Arg(i);
+	// pattern_length: i-th fibonacci word
+	for (long i = 0; i < N; i++) b->Arg(i);
 }
 
 static void BM_run(benchmark::State &state) {
@@ -35,7 +37,7 @@ static void BM_run(benchmark::State &state) {
 BENCHMARK(BM_run)->Apply(args);
 
 int main(int argc, char **argv) {
-    auto string = fibostring(25);
+    auto string = fibostring(N);
     string.push_back(std::numeric_limits<char>::max());
     text = std::span<char>(string); // global variable
 
