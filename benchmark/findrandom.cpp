@@ -8,7 +8,6 @@ std::mt19937 rng(2023);
 std::span<const SIGMA_T> text;
 
 static void args(benchmark::internal::Benchmark *b) {
-    std::cout << "args text size = " << text.size() << std::endl;
     for (size_t k = 1; k * 10 < 10 * 1000 * 1000; k *= 10)
         for (size_t i = k; i < k * 10; i += k)
             b->Arg(i);
@@ -18,7 +17,6 @@ static void BM_run(benchmark::State &state) {
     static STRUCTURE_T ds(text);
     static EnhancedSuffixArray<SIGMA_T> reference(text);
     size_t m = state.range(0);
-    std::cout << "run text size = " << text.size() << std::endl;
     std::uniform_int_distribution<uint64_t> dist(0, text.size() - m - 1);
     int64_t empty = 0, errors = 0, occurrences = 0;
     for (auto _ : state) {
@@ -48,7 +46,6 @@ int main(int argc, char **argv) {
     file.read((char *)buffer.get(), filesize);
     buffer[filesize] = std::numeric_limits<SIGMA_T>::max();
     text = std::span<const SIGMA_T>(buffer.get(), filesize + 1);
-    std::cout << "main text size = " << text.size() << std::endl;
 
     // Google Benchmark's stuff
     char arg0_default[] = "benchmark";

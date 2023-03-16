@@ -281,6 +281,7 @@ template <typename T, template <typename U> class RH> class MemcmpZuffixArray {
 	}
 
 	void growZTable() {
+		DEBUGDO(z.reset_stats());
 		DEBUGDO(_growZTable++);
 		size_t n = z.size();
 		auto table = z.getTable();
