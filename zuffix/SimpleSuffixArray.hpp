@@ -18,7 +18,9 @@ template <typename T> class SimpleSuffixArray {
   public:
 	SimpleSuffixArray() {}
 
-	SimpleSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByDivSufSort(text)) {}
+	SimpleSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByDivSufSort(text)) {
+		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
+	}
 
 	LInterval<size_t> find(std::span<const T> pattern) const { return acceleratedBinarySearch(pattern, 0, text.size(), 0, 0); }
 

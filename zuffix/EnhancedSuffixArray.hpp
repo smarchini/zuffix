@@ -20,7 +20,9 @@ template <typename T> class EnhancedSuffixArray {
   public:
 	EnhancedSuffixArray() {}
 
-	EnhancedSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {}
+	EnhancedSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
+	}
 
 	LInterval<size_t> getChild(size_t i, size_t j, const T &c) const {
 		size_t l = i;

@@ -26,10 +26,11 @@ template <typename T, template <typename U> class RH> class SignatureZuffixArray
 	SignatureZuffixArray() {}
 
 	SignatureZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)), hash(text.data()) {
+		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 		// z.resize(ceil_pow2(text.size()) << 1); // TODO: tweak me to improve construction performance
-		hash(text.size() - 1); // TODO: try me to improve construction performance preload
+		hash(text.size() - 1); // preload
 		ZFillByDFS(0, text.size(), 0, hash);
-		// ZFillByBottomUp();       // TODO: test if it is faster or slower than ZFillByDFS
+		// ZFillByBottomUp();  // alternative z-map construction
 		DEBUGDO(print_stats("Construction"));
 	}
 

@@ -33,7 +33,7 @@ DEPENDENCIES = $(shell find . -name "*.[ch]pp")
 DEBUG := -g3 -O0
 RELEASE := -O3 -DNDEBUG -g3
 
-all: test benchmark
+all: test benchmark util
 
 TESTS = bin/test/random \
 		bin/test/hash   \
@@ -188,7 +188,7 @@ bin/benchmark/findrandom: benchmark/findrandom.cpp $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/nothing-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=NothingZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash\>
 
 # TODO Test operator<< and operator>> they are likely wrong.
-# For now this is only useful to benchmark construction time, not to dump/load the structure into/from a file.
+# For now this is only (slightly) useful to benchmark construction time, not to dump/load the structure into/from a file.
 bin/benchmark/build: benchmark/build.cpp $(DEPENDENCIES)
 	@mkdir -p $@
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                         $< $(LDLIBS) -DSIGMA_T=uint8_t -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T\>
