@@ -6,7 +6,7 @@ EXTERNAL_INCLUDES = -I ./dependencies/folly \
 					-I ./dependencies/libsais/build/include \
 					-I ./dependencies/xxHash/build/include \
 					-I ./dependencies/zlib/build/include \
-					-I ./dependencies/benchmark/installed/include
+					#-I ./dependencies/benchmark/installed/include
 
 # TODO: compile folly statically (remember to test if CRCs run in hardware) then remove this
 EXTERNAL_SOURCES = ./dependencies/folly/folly/hash/Checksum.cpp \
@@ -29,7 +29,7 @@ ifeq ($(CXX), clang++)
 	# NOTE: https://clang.llvm.org/cxx_status.html#p0522
 	CXXFLAGS += -frelaxed-template-template-args
 endif
-LDLIBS += -Bstatic -lgtest -lpthread $(EXTERNAL_STATIC_LIBS) -lbenchmark
+LDLIBS += -flto -Bstatic -lgtest -lpthread $(EXTERNAL_STATIC_LIBS) -lbenchmark
 DEPENDENCIES = $(shell find . -name "*.[ch]pp")
 DEBUG := -g3 -O3 # -DDEBUG
 RELEASE := -O3 -DNDEBUG

@@ -9,7 +9,7 @@ git clone git@github.com:y-256/libdivsufsort.git
 mkdir -p "$DESTPATH"/libdivsufsort/build
 cd "$DESTPATH"/libdivsufsort/build || exit
 cmake -DBUILD_DIVSUFSORT64=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_EXAMPLES=OFF -DUSE_OPENMP=ON ..
-make CFLAGS="-march=native -O3 "
+make CFLAGS="-march=native -flto -O3"
 
 # zlib
 cd "$DESTPATH" || exit
@@ -17,7 +17,7 @@ git clone git@github.com:madler/zlib.git
 mkdir -p "$DESTPATH"/zlib/build
 cd "$DESTPATH"/zlib || exit
 ./configure
-prefix="$DESTPATH"/zlib/build CFLAGS="-march=native -O3" ./configure --static
+prefix="$DESTPATH"/zlib/build CFLAGS="-march=native -flto -O3" ./configure --static
 make install
 
 # wyhash
@@ -29,7 +29,7 @@ cd "$DESTPATH" || exit
 git clone git@github.com:Cyan4973/xxHash.git
 mkdir -p "$DESTPATH"/xxHash/build
 cd "$DESTPATH"/xxHash || exit
-prefix="$DESTPATH"/xxHash/build CFLAGS="-march=native -O3" make install
+prefix="$DESTPATH"/xxHash/build CFLAGS="-march=native -flto -O3" make install
 
 # libsais
 cd "$DESTPATH" || exit
@@ -37,10 +37,10 @@ git clone git@github.com:IlyaGrebnov/libsais.git
 mkdir -p "$DESTPATH"/libsais/build
 cd "$DESTPATH"/libsais || exit
 sed -i "s/PROJECT=sais/PROJECT?=sais/" Makefile
-PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -O3 -fopenmp -fPIC" PROJECT=sais64 make -B all
-PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -O3 -fopenmp -fPIC" PROJECT=sais64 make -B install
-PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -O3 -fopenmp -fPIC" PROJECT=sais make -B all
-PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -O3 -fopenmp -fPIC" PROJECT=sais make -B install
+PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -flto -O3 -fopenmp -fPIC" PROJECT=sais64 make -B all
+PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -flto -O3 -fopenmp -fPIC" PROJECT=sais64 make -B install
+PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -flto -O3 -fopenmp -fPIC" PROJECT=sais make -B all
+PREFIX="$DESTPATH"/libsais/build CFLAGS="-march=native -flto -O3 -fopenmp -fPIC" PROJECT=sais make -B install
 
 # benchmark
 cd "$DESTPATH" || exit
@@ -57,6 +57,7 @@ git clone git@github.com:vigna/sux.git
 cd "$DESTPATH"/sux || exit
 git apply "$DESTPATH"/sux_vector_gcc_cpp20.patch
 
+# TODO: Currently broken. It compiles only without --extra-cmake-defines, but then there is no -march=native
 # # folly
 # cd "$DESTPATH" || exit
 # git clone git@github.com:facebook/folly.git
