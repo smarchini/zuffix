@@ -77,8 +77,8 @@
               # (nativePkgs.callPackage ./nix/libsais.nix { })
               # (nativePkgs.callPackage ./nix/wyhash.nix { })
 
-              (pkgs.callPackage ./nix/pizzachili.nix { })
-              (pkgs.callPackage ./nix/r-index.nix { })
+              #(pkgs.callPackage ./nix/pizzachili.nix { })
+              #(pkgs.callPackage ./nix/r-index.nix { })
             ];
           };
         });
