@@ -49,7 +49,10 @@ template <typename T, template <typename U> class RH> class NothingZuffixArray {
 
 	LInterval<size_t> exit(std::span<const T> pattern, size_t i, size_t j) { // const {
 		DEBUGDO(_exit++);
+		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
+		size_t end = min(min(elen, pattern.size()), maxhlen) - nlen;
+		if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.size()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
@@ -84,6 +87,12 @@ template <typename T, template <typename U> class RH> class NothingZuffixArray {
 				l = elen - 1;
 				alpha = beta;
 			}
+		}
+		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		size_t end = min(nlen, pattern.size());
+		if (memcmp(pattern.data(), text.data() + sa[alpha.from], end * sizeof(T))) {
+			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
+			return {0, text.size()};
 		}
 		return alpha;
 	}

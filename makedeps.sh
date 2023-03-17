@@ -76,7 +76,8 @@ git apply "$DESTPATH"/sux_vector_gcc_cpp20.patch
 # pizza&chili
 cd "$DESTPATH" || exit
 wget -P "$DESTPATH" "http://pizzachili.dcc.uchile.cl/utils/utils.tar.gz"
-tar –xzvf utils.tar.gz
+tar -xzvf utils.tar.gz
 rm utils.tar.gz
 mv utils pizzachili
 cd "$DESTPATH"/pizzachili || exit
+make
