@@ -2,6 +2,7 @@ bin/
 dataset/
 pattern/
 results/
+texts/
 dependencies/
 compile_commands.*
 .envrc

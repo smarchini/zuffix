@@ -45,3 +45,8 @@ download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.gz"
 download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.50MB.gz"
 download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.100MB.gz"
 download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.200MB.gz"
+
+# random
+mkdir -p "$DESTPATH"
+"$SCRIPTPATH"/bin/util/generate_random_string  $((200 << 20)) "ACGT" > "$DESTPATH/random-ACGT-200MB.txt"
+"$SCRIPTPATH"/bin/util/generate_random_string  $((200 << 20)) "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" > "$DESTPATH/random-azAZ09-200MB.txt"
