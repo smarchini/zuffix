@@ -9,18 +9,19 @@
 
 namespace zarr {
 using ::sux::util::Vector;
+using ::sux::util::AllocType;
 
-template <typename T> class EnhancedSuffixArray {
+template <typename T, AllocType AT = MALLOC> class EnhancedSuffixArray {
   private:
 	std::span<const T> text;
-	Vector<size_t> sa;
-	Vector<ssize_t> lcp;
-	Vector<size_t> ct;
+	Vector<size_t, AT> sa;
+	Vector<ssize_t, AT> lcp;
+	Vector<size_t, AT> ct;
 
   public:
 	EnhancedSuffixArray() {}
 
-	EnhancedSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	EnhancedSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)), lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)), ct(CTConstructByAbouelhoda<AT>(lcp)) {
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 	}
 

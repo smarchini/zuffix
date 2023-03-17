@@ -42,10 +42,12 @@ int main(int argc, char **argv) {
     size_t filesize = file.tellg();
     file.seekg(0, file.beg);
     assert(filesize % sizeof(SIGMA_T) == 0 && "Bad file size.");
-    std::unique_ptr<SIGMA_T[]> buffer(new SIGMA_T[(filesize + 1) / sizeof(SIGMA_T)]);
-    file.read((char *)buffer.get(), filesize);
-    buffer[filesize] = std::numeric_limits<SIGMA_T>::max();
-    text = std::span<const SIGMA_T>(buffer.get(), filesize + 1);
+
+    size_t length = filesize / sizeof(SIGMA_T) + 1;
+    sux::util::Vector<SIGMA_T, ALLOC_TYPE> buffer(length);
+    file.read((char *)&buffer, filesize);
+    buffer[length - 1] = std::numeric_limits<SIGMA_T>::max();
+    text = std::span<const SIGMA_T>(&buffer, length); // global variable
 
     // Google Benchmark's stuff
     char arg0_default[] = "benchmark";

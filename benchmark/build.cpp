@@ -14,11 +14,13 @@ int main(int argc, char **argv) {
 	size_t filesize = file.tellg();
 	file.seekg(0, file.beg);
 	assert(filesize % sizeof(SIGMA_T) == 0 && "Bad file size.");
-	unique_ptr<SIGMA_T[]> text(new SIGMA_T[(filesize + 1) / sizeof(SIGMA_T)]);
-	file.read((char *)text.get(), filesize);
-	text[filesize] = numeric_limits<SIGMA_T>::max();
 
-	STRUCTURE_T ds(span<SIGMA_T>(text.get(), filesize + 1));
+    size_t length = filesize / sizeof(SIGMA_T) + 1;
+    sux::util::Vector<SIGMA_T, ALLOC_TYPE> buffer(length);
+    file.read((char *)&buffer, filesize);
+    buffer[length - 1] = std::numeric_limits<SIGMA_T>::max();
+
+	STRUCTURE_T ds(span<SIGMA_T>(&buffer, length));
 	// cout << ds; // TODO: Do it properly
 
 	return 0;

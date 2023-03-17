@@ -7,16 +7,17 @@ using namespace sux::util;
 
 std::span<char> text;
 constexpr size_t N = 40; // ~256MB
+const std::string a = "a", ab = "ab";
 
-std::string fibostring(size_t n) {
-    std::string prec = "a", curr = "ab";
-    if (n == 0) return prec;
+sux::util::Vector<uint8_t, ALLOC_TYPE> fibostring(size_t n) {
+    std::string prec = a, curr = ab;
+    if (n == 0) return sux::util::Vector<uint8_t, ALLOC_TYPE>(a.c_str(), a.length());
     for (size_t i = 1; i < n; i++) {
         std::string tmp = prec;
         prec = curr;
         curr += tmp;
     }
-    return curr;
+    return sux::util::Vector<uint8_t, ALLOC_TYPE>(curr.c_str(), curr.length());
 }
 
 static void args(benchmark::internal::Benchmark *b) {

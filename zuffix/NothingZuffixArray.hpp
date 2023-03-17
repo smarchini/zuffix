@@ -10,20 +10,21 @@
 
 namespace zarr {
 using ::sux::util::Vector;
+using ::sux::util::AllocType;
 
-template <typename T, template <typename U> class RH> class NothingZuffixArray {
+template <typename T, template <typename U> class RH, AllocType AT = MALLOC> class NothingZuffixArray {
   private:
 	std::span<const T> text;
-	Vector<size_t> sa;
-	Vector<ssize_t> lcp;
-	Vector<size_t> ct;
-	LinearProber<uint64_t> z;
+	Vector<size_t, AT> sa;
+	Vector<ssize_t, AT> lcp;
+	Vector<size_t, AT> ct;
+	LinearProber<uint64_t, AT> z;
 	size_t maxhlen = 0;
 
   public:
 	NothingZuffixArray() {}
 
-	NothingZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS(text)), lcp(LCPConstructByKarkkainenPsi(text, sa)), ct(CTConstructByAbouelhoda(lcp)) {
+	NothingZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)), lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)), ct(CTConstructByAbouelhoda<AT>(lcp)) {
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 		// z.resize(ceil_pow2(text.size()) << 1); // TODO: tweak me to improve construction performance
 		RH<T> hash(text.data());

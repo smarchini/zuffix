@@ -9,16 +9,17 @@
 
 namespace zarr {
 using ::sux::util::Vector;
+using ::sux::util::AllocType;
 
-template <typename T> class SimpleSuffixArray {
+template <typename T, AllocType AT = MALLOC> class SimpleSuffixArray {
   private:
 	std::span<const T> text;
-	Vector<size_t> sa;
+	Vector<size_t, AT> sa;
 
   public:
 	SimpleSuffixArray() {}
 
-	SimpleSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByDivSufSort(text)) {
+	SimpleSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)) {
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 	}
 

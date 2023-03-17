@@ -6,10 +6,12 @@
 #include <sux/util/Vector.hpp>
 
 namespace zarr {
+using ::sux::util::Vector;
+using ::sux::util::AllocType;
 
-template <typename T, sux::util::AllocType AT = sux::util::MALLOC> class LinearProber {
+template <typename T, AllocType AT = MALLOC> class LinearProber {
   private:
-	sux::util::Vector<std::tuple<uint64_t, T>> table;
+	Vector<std::tuple<uint64_t, T>, AT> table;
 	size_t mask, count = 0;
 
   public:
