@@ -5,19 +5,19 @@
 using namespace zarr;
 using namespace sux::util;
 
-std::span<char> text;
+std::span<const char> text;
 constexpr size_t N = 40; // ~256MB
 const std::string a = "a", ab = "ab";
 
-sux::util::Vector<uint8_t, ALLOC_TYPE> fibostring(size_t n) {
+sux::util::Vector<char, ALLOC_TYPE> fibostring(size_t n) {
     std::string prec = a, curr = ab;
-    if (n == 0) return sux::util::Vector<uint8_t, ALLOC_TYPE>(a.c_str(), a.length());
+    if (n == 0) return sux::util::Vector<char, ALLOC_TYPE>(a.c_str(), a.length());
     for (size_t i = 1; i < n; i++) {
         std::string tmp = prec;
         prec = curr;
         curr += tmp;
     }
-    return sux::util::Vector<uint8_t, ALLOC_TYPE>(curr.c_str(), curr.length());
+    return sux::util::Vector<char, ALLOC_TYPE>(curr.c_str(), curr.length());
 }
 
 static void args(benchmark::internal::Benchmark *b) {
@@ -31,7 +31,7 @@ static void BM_run(benchmark::State &state) {
 	auto pattern = fibostring(m);
 	for (auto _ : state) {
 		benchmark::DoNotOptimize(pattern);
-		auto result = ds.find(pattern);
+		auto result = ds.find(std::span<const char>(&pattern, pattern.size()));
 		benchmark::DoNotOptimize(result);
 	}
 }
@@ -39,8 +39,8 @@ BENCHMARK(BM_run)->Apply(args);
 
 int main(int argc, char **argv) {
     auto string = fibostring(N);
-    string.push_back(std::numeric_limits<char>::max());
-    text = std::span<char>(string); // global variable
+    string.pushBack(std::numeric_limits<char>::max());
+    text = std::span<const char>(&string, string.size()); // global variable
 
     // Google Benchmark's stuff
     char arg0_default[] = "benchmark";

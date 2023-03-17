@@ -56,7 +56,7 @@ inline int64_t twoFattestLR(size_t a, size_t b) { return (1L << 63) >> __builtin
  *
  * @return The array SA
  */
-template <typename T, AllocType AT> inline Vector<size_t, AT> SAConstructBySort(std::span<const T> string) {
+template <typename T, AllocType AT = MALLOC> inline Vector<size_t, AT> SAConstructBySort(std::span<const T> string) {
 	size_t n = string.size();
 	Vector<size_t, AT> result(n);
 	for (size_t i = 0; i < n; i++) result[i] = i;
@@ -72,7 +72,7 @@ template <typename T, AllocType AT> inline Vector<size_t, AT> SAConstructBySort(
  *
  * @return The array SA
  */
-template <typename T, AllocType AT> inline Vector<size_t, AT> SAConstructByDivSufSort(std::span<const T> string) {
+template <typename T, AllocType AT = MALLOC> inline Vector<size_t, AT> SAConstructByDivSufSort(std::span<const T> string) {
 	size_t n = string.size();
 	Vector<size_t, AT> result(n);
 	divsufsort64((const unsigned char *)string.data(), (long int *)&result, n);
@@ -83,7 +83,7 @@ template <typename T, AllocType AT> inline Vector<size_t, AT> SAConstructByDivSu
  *
  * @return The array SA
  */
-template <typename T, AllocType AT> inline Vector<size_t, AT> SAConstructByGrebnovSAIS(std::span<const T> string) {
+template <typename T, AllocType AT = MALLOC> inline Vector<size_t, AT> SAConstructByGrebnovSAIS(std::span<const T> string) {
 	size_t n = string.size();
 	Vector<size_t, AT> result(n);
 #if defined(_OPENMP)
@@ -98,7 +98,7 @@ template <typename T, AllocType AT> inline Vector<size_t, AT> SAConstructByGrebn
  *
  * @return The array LCP
  */
-template <typename T, AllocType AT> inline Vector<ssize_t, AT> LCPConstructByStrcmp(std::span<const T> string, const Vector<size_t> &sa) {
+template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConstructByStrcmp(std::span<const T> string, const Vector<size_t> &sa) {
 	size_t n = sa.size();
 	Vector<ssize_t, AT> result(n + 1);
 
@@ -117,7 +117,7 @@ template <typename T, AllocType AT> inline Vector<ssize_t, AT> LCPConstructByStr
  *
  * @return The array CT
  */
-template <AllocType AT> inline Vector<size_t, AT> CTConstructByAbouelhoda(const Vector<ssize_t> &lcp) {
+template <AllocType AT = MALLOC> inline Vector<size_t, AT> CTConstructByAbouelhoda(const Vector<ssize_t> &lcp) {
 	size_t n = lcp.size() - 1;
 	Vector<size_t, AT> result(n);
 	std::stack<size_t> stack;
@@ -141,7 +141,7 @@ template <AllocType AT> inline Vector<size_t, AT> CTConstructByAbouelhoda(const 
 	return result;
 }
 
-template <typename T, AllocType AT> inline Vector<ssize_t, AT> LCPConstructByKarkkainenPsi(std::span<const T> string, const Vector<size_t> &sa) {
+template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConstructByKarkkainenPsi(std::span<const T> string, const Vector<size_t> &sa) {
 	// using namespace std;
 	size_t n = sa.size();
 	Vector<size_t, AT> plcp(n + 1);
@@ -164,7 +164,7 @@ template <typename T, AllocType AT> inline Vector<ssize_t, AT> LCPConstructByKar
 	return lcp;
 }
 
-template <typename T, AllocType AT> inline Vector<ssize_t, AT> LCPConstructByGrebnovSAIS(std::span<const T> string, const Vector<size_t> &sa) {
+template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConstructByGrebnovSAIS(std::span<const T> string, const Vector<size_t> &sa) {
 	size_t n = sa.size();
 	Vector<int64_t, AT> plcp(n);
 	Vector<ssize_t, AT> lcp(n + 1);
