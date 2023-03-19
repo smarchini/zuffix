@@ -27,18 +27,19 @@ static void args(benchmark::internal::Benchmark *b) {
 
 static void BM_run(benchmark::State &state) {
     static STRUCTURE_T ds(text);
-    static EnhancedSuffixArray<SIGMA_T> reference(text);
+    static EnhancedSuffixArray<char> reference(text);
     size_t m = state.range(0);
     auto p = fibostring(m);
     int64_t empty = 0, errors = 0, occurrences = 0;
     for (auto _ : state) {
         state.PauseTiming();
-        auto expected = reference.find(p);
+        auto pattern = std::span<const char>(&p, p.size());
+        auto expected = reference.find(pattern);
         empty += expected.isEmpty();
         occurrences += expected.length();
-        benchmark::DoNotOptimize(p);
+        benchmark::DoNotOptimize(pattern);
         state.ResumeTiming();
-        auto result = ds.find(std::span<const char>(&p, p.size()));
+        auto result = ds.find(pattern);
         benchmark::DoNotOptimize(result);
     }
     state.counters["empty"] = empty;
