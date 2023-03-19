@@ -6,9 +6,10 @@ using namespace sux::util;
 
 std::mt19937 rng(2023);
 std::span<const SIGMA_T> text;
+static constexpr size_t textsize = 200ULL << 20; // TODO: trovare un modo di prenderlo da text (all'interno di args)
 
 static void args(benchmark::internal::Benchmark *b) {
-    for (size_t k = 1; k * 10 < 10 * 1000 * 1000; k *= 10)
+    for (size_t k = 1; k * 10 < textsize; k *= 10)
         for (size_t i = k; i < k * 10; i += k)
             b->Arg(i);
 }
@@ -33,6 +34,7 @@ static void BM_run(benchmark::State &state) {
     state.counters["empty"] = empty;
     state.counters["errors"] = errors;
     state.counters["occurrences"] = occurrences;
+    state.counters["length"] = m;
 }
 BENCHMARK(BM_run)->Apply(args)->Iterations(10000);
 

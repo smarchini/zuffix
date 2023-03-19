@@ -102,6 +102,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 	LInterval<size_t> find(std::span<const T> pattern) {
 		DEBUGDO(_find++);
 		RH<T> h(pattern.data());
+		h(pattern.size() - 1); // preload
 		auto [i, j] = fatBinarySearch(pattern, h);
 		return exit(pattern, i, j, h);
 	}

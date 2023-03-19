@@ -21,19 +21,30 @@ sux::util::Vector<char, ALLOC_TYPE> fibostring(size_t n) {
 }
 
 static void args(benchmark::internal::Benchmark *b) {
-	// pattern_length: i-th fibonacci word
-	for (long i = 0; i < N; i++) b->Arg(i);
+    // pattern_length: i-th fibonacci word
+    for (long i = 0; i < N; i++) b->Arg(i);
 }
 
 static void BM_run(benchmark::State &state) {
-	static STRUCTURE_T ds(text);
-	size_t m = state.range(0);
-	auto pattern = fibostring(m);
-	for (auto _ : state) {
-		benchmark::DoNotOptimize(pattern);
-		auto result = ds.find(std::span<const char>(&pattern, pattern.size()));
-		benchmark::DoNotOptimize(result);
-	}
+    static STRUCTURE_T ds(text);
+    static EnhancedSuffixArray<SIGMA_T> reference(text);
+    size_t m = state.range(0);
+    auto p = fibostring(m);
+    int64_t empty = 0, errors = 0, occurrences = 0;
+    for (auto _ : state) {
+        state.PauseTiming();
+        auto expected = reference.find(p);
+        empty += expected.isEmpty();
+        occurrences += expected.length();
+        benchmark::DoNotOptimize(p);
+        state.ResumeTiming();
+        auto result = ds.find(std::span<const char>(&p, p.size()));
+        benchmark::DoNotOptimize(result);
+    }
+    state.counters["empty"] = empty;
+    state.counters["errors"] = errors;
+    state.counters["occurrences"] = occurrences;
+    state.counters["length"] = p.size();
 }
 BENCHMARK(BM_run)->Apply(args);
 
