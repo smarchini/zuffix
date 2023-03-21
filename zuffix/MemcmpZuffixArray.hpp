@@ -286,7 +286,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 		DEBUGDO(_growZTable++);
 		size_t n = z.size();
 		auto table = z.getTable();
-		LinearProber<uint64_t> zlarge(n * 2);
+		LinearProber<uint64_t, AT> zlarge(n * 2);
 		for (size_t i = 0; i < n; i++) {
 			auto [signature, value] = table[i];
 			if (signature) zlarge.store(signature, value);
@@ -297,8 +297,8 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	friend std::ostream &operator<<(std::ostream &os, const MemcmpZuffixArray<T, RH> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
-	friend std::istream &operator>>(std::istream &is, MemcmpZuffixArray<T, RH> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
+	friend std::ostream &operator<<(std::ostream &os, const MemcmpZuffixArray<T, RH, AT> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
+	friend std::istream &operator>>(std::istream &is, MemcmpZuffixArray<T, RH, AT> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
 
 #ifdef DEBUG
   public:

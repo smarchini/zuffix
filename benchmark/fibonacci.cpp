@@ -54,6 +54,10 @@ int main(int argc, char **argv) {
     string.pushBack(std::numeric_limits<char>::max());
     text = std::span<const char>(&string, string.size()); // global variable
 
+    char x = 0;
+    for (auto c: text) x ^= c;
+    benchmark::DoNotOptimize(x);
+
     // Google Benchmark's stuff
     char arg0_default[] = "benchmark";
     char *args_default = arg0_default;

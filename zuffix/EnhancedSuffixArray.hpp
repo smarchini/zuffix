@@ -68,8 +68,8 @@ template <typename T, AllocType AT = MALLOC> class EnhancedSuffixArray {
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	friend std::ostream &operator<<(std::ostream &os, const EnhancedSuffixArray<T> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct; }
-	friend std::istream &operator>>(std::istream &is, EnhancedSuffixArray<T> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct; }
+	friend std::ostream &operator<<(std::ostream &os, const EnhancedSuffixArray<T, AT> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct; }
+	friend std::istream &operator>>(std::istream &is, EnhancedSuffixArray<T, AT> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct; }
 
 #ifdef DEBUG
   public:

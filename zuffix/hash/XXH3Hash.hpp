@@ -6,7 +6,6 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-// WARNING: https://github.com/Cyan4973/xxHash/issues/816
 template <typename T, size_t C = 1 << 16> class XXH3Hash {
   private:
 	const T *string;

@@ -45,8 +45,8 @@ template <typename T, AllocType AT = MALLOC> class SimpleSuffixArray {
 		return {min(c, left.from), max(c, right.to)};
 	}
 
-	friend std::ostream &operator<<(std::ostream &os, const SimpleSuffixArray<T> &ds) { return os << ds.text << ds.sa; }
-	friend std::istream &operator>>(std::istream &is, SimpleSuffixArray<T> &ds) { return is >> ds.text >> ds.sa; }
+	friend std::ostream &operator<<(std::ostream &os, const SimpleSuffixArray<T, AT> &ds) { return os << ds.text << ds.sa; }
+	friend std::istream &operator>>(std::istream &is, SimpleSuffixArray<T, AT> &ds) { return is >> ds.text >> ds.sa; }
 
 #ifdef DEBUG
   public:
