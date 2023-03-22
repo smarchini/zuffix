@@ -5,10 +5,11 @@
 
 namespace zarr {
 using ::sux::util::Vector;
+using ::sux::util::AllocType;
 
-template <typename T, size_t C = 48 * 10> class WyHash {
+template <typename T, AllocType AT = MALLOC, size_t C = 48 * 10> class WyHash {
   public:
-	using signature_t = uint64_t;
+    using signature_t = uint64_t;
     static_assert(C % 48 == 0, "C should be a multiple of 48");
 
   private:
@@ -17,7 +18,7 @@ template <typename T, size_t C = 48 * 10> class WyHash {
     };
 
     const T *string;
-    Vector<WyHashState> statetable;
+    Vector<WyHashState, AT> statetable;
 
   public:
     WyHash(const T *string) : string(string), statetable(1) {
@@ -25,7 +26,7 @@ template <typename T, size_t C = 48 * 10> class WyHash {
         statetable[0] = (WyHashState){zero, zero, zero};
     }
 
-    uint64_t operator()(size_t to) {
+    signature_t operator()(size_t to) {
         const uint8_t *str = reinterpret_cast<const uint8_t *>(string);
         const size_t length = to * sizeof(T);
 
@@ -81,14 +82,14 @@ template <typename T, size_t C = 48 * 10> class WyHash {
         return _wymix(a ^ _wyp[0] ^ length, b ^ _wyp[1]);
     }
 
-    uint64_t operator()(size_t from, size_t length) { return immediate(from, length); }
+    signature_t operator()(size_t from, size_t length) { return immediate(from, length); }
 
-    uint64_t immediate(size_t from, size_t length) { return wyhash(string + from, length * sizeof(T), 0, _wyp); }
+    signature_t immediate(size_t from, size_t length) { return wyhash(string + from, length * sizeof(T), 0, _wyp); }
 
     size_t bitCount() const { return sizeof(*this) * 8 + statetable.bitCount() - sizeof(statetable) * 8; }
 
   private:
-	static inline uint64_t wyhash16(const void *key, size_t len, uint64_t seed, const uint64_t *secret) {
+    static inline signature_t wyhash16(const void *key, size_t len, uint64_t seed, const uint64_t *secret) {
         const uint8_t *p = (const uint8_t *)key;
         uint64_t a, b;
         if (_likely_(len >= 4)) {

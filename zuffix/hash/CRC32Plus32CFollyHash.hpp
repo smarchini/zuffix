@@ -6,27 +6,28 @@
 
 namespace zarr {
 using ::sux::util::Vector;
+using ::sux::util::AllocType;
 
-template <typename T, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
+template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
   public:
 	using signature_t = uint64_t;
 
   private:
     const T *string;
-    Vector<uint64_t> statetable;
-    uint64_t state = 0;
+    Vector<signature_t, AT> statetable;
+    signature_t state = 0;
 
   public:
     CRC32Plus32CFollyHash(const T *string) : string(string), statetable(1) { statetable[0] = 0; }
 
-    uint64_t operator()(size_t to) {
+    signature_t operator()(size_t to) {
         const uint8_t *s = reinterpret_cast<const uint8_t *>(string);
         const size_t length = to * sizeof(T);
 
         size_t tpos = length / C;
         if (statetable.size() <= tpos) {
             const size_t last = statetable.size() - 1;
-            uint64_t hash = statetable[last];
+            signature_t hash = statetable[last];
             statetable.resize(tpos + 1);
             for (size_t i = last + 1; i <= tpos; i++) {
                 uint32_t low = folly::crc32c(s + (i - 1) * C, C, hash & 0xFFFFFFFF);
@@ -35,13 +36,13 @@ template <typename T, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
             }
         }
 
-        uint64_t hash = statetable[tpos];
+        signature_t hash = statetable[tpos];
         uint32_t low = folly::crc32c(s + tpos * C, length - tpos * C, hash & 0xFFFFFFFF);
         uint64_t hi = folly::crc32(s + tpos * C, length - tpos * C, (hash & 0xFFFFFFFF00000000ULL) >> 32);
         return (hi << 32) | low;
     }
 
-    uint64_t operator()(size_t from, size_t length) {
+    signature_t operator()(size_t from, size_t length) {
         const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
         const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
         uint64_t left = (*this)(from);
@@ -51,7 +52,7 @@ template <typename T, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
         return (hi << 32) | low;
     }
 
-    uint64_t immediate(size_t from, size_t length) const {
+    signature_t immediate(size_t from, size_t length) const {
         const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
         const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
         uint32_t low = folly::crc32c(b, e - b, 0);

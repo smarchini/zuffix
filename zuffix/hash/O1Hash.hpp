@@ -4,8 +4,9 @@
 #include <sux/util/Vector.hpp>
 
 namespace zarr {
+using ::sux::util::AllocType;
 
-template <typename T> class O1Hash {
+template <typename T, AllocType AT = MALLOC> class O1Hash {
   public:
 	using signature_t = uint64_t;
 
@@ -14,9 +15,9 @@ template <typename T> class O1Hash {
 
   public:
 	O1Hash(const T *string) : string(string) {}
-	uint64_t operator()(size_t to) { return (*this)(0, to); }
-	uint64_t operator()(size_t from, size_t length) { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }
-	uint64_t immediate(size_t from, size_t length) const { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }
+	signature_t operator()(size_t to) { return (*this)(0, to); }
+	signature_t operator()(size_t from, size_t length) { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }
+	signature_t immediate(size_t from, size_t length) const { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }
 
   private:
 	static inline unsigned o1r4(const uint8_t *p) {
@@ -25,7 +26,7 @@ template <typename T> class O1Hash {
 		return __builtin_bswap32(v);
 	}
 
-	static inline uint64_t o1hash(const void *key, size_t len) {
+	static inline signature_t o1hash(const void *key, size_t len) {
 		const uint8_t *p = (const uint8_t *)key;
 		if (len >= 4) {
 			unsigned first = o1r4(p), middle = o1r4(p + (len >> 1) - 2), last = o1r4(p + len - 4);

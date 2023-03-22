@@ -21,7 +21,7 @@
 
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 
-template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;
+template <typename T, sux::util::AllocType AT> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128, AT>;
 
 // TODO: remove me
 std::string fibonacci(size_t n) {
@@ -44,22 +44,25 @@ std::string random(std::string charset, size_t length) {
 	return result;
 }
 
-template <typename T> class BadHash {
+template <typename T, sux::util::AllocType AT> class BadHash {
+  public:
+	using signature_t = uint64_t;
+
   private:
 	const T *string;
-	uint64_t state = 0;
+	signature_t state = 0;
 	size_t l = 0, r = 0;
 
   public:
 	BadHash(const T *string) : string(string) {}
 
-	uint64_t operator()(size_t to) {
+	signature_t operator()(size_t to) {
 		for (; r < to; r++) state ^= string[r] & 0b11;
 		for (; r > to; r--) state ^= string[r - 1] & 0b11;
 		return state;
 	}
 
-	uint64_t operator()(size_t from, size_t length) {
+	signature_t operator()(size_t from, size_t length) {
 		for (; l < from; l++) state ^= string[l] & 0b11;
 		for (; l > from; l--) state ^= string[l - 1] & 0b11;
 		for (; r < from + length; r++) state ^= string[r] & 0b11;
@@ -67,8 +70,8 @@ template <typename T> class BadHash {
 		return state;
 	}
 
-	uint64_t immediate(size_t from, size_t length) const {
-		uint64_t result = 0;
+	signature_t immediate(size_t from, size_t length) const {
+		signature_t result = 0;
 		for (size_t i = 0; i < length; i++) result ^= string[from + i] & 0b11;
 		return result;
 	}

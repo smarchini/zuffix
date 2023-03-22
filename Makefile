@@ -108,7 +108,7 @@ bin/benchmark/lambda: benchmark/lambda.cpp $(DEPENDENCIES)
 
 bin/benchmark/hash_block_size: benchmark/hash_block_size.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS) -DALLOC_TYPE=$(ALLOC_TYPE)
 
 bin/benchmark/hash: benchmark/hash.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark

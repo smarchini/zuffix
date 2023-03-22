@@ -13,23 +13,24 @@
 
 namespace zarr {
 using ::sux::util::Vector;
+using ::sux::util::AllocType;
 
-template <typename T> class CRC32Hash {
+template <typename T, AllocType AT = MALLOC, size_t C = 1> class CRC32Hash {
   public:
 	using signature_t = uint32_t;
 
   private:
 	const T *string;
-	Vector<uint64_t> statetable;
-	uint64_t state = 0;
+	Vector<signature_t> statetable;
+	signature_t state = 0;
 	const uint8_t *l, *r;
 
   public:
 	CRC32Hash(const T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
 
-	uint64_t operator()(size_t to) { return (*this)(0, to); }
+	signature_t operator()(size_t to) { return (*this)(0, to); }
 
-	uint64_t operator()(size_t from, size_t length) {
+	signature_t operator()(size_t from, size_t length) {
 		state = 0;
 		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
@@ -51,8 +52,8 @@ template <typename T> class CRC32Hash {
 		return state;
 	}
 
-	uint64_t immediate(size_t from, size_t length) const {
-		uint64_t result = 0;
+	signature_t immediate(size_t from, size_t length) const {
+		signature_t result = 0;
 		const uint8_t *b = reinterpret_cast<const uint8_t *>(string + from);
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
 

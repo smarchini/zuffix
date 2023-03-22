@@ -2,7 +2,7 @@
 
 #include "../common.hpp"
 
-template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;
+template <typename T, sux::util::AllocType AT = sux::util::AllocType::MALLOC> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128, AT>;
 
 template <typename T> inline void battery(T h, int n, int skip = 1) {
 	EXPECT_EQ(h(0, n), h.immediate(0, n)) << "first";
