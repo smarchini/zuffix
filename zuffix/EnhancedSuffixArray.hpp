@@ -59,11 +59,11 @@ template <typename T, AllocType AT = MALLOC> class EnhancedSuffixArray {
 
 	std::span<const T> getText() const { return text; }
 
-	const Vector<size_t> &getSA() const { return sa; }
+	const Vector<size_t, AT> &getSA() const { return sa; }
 
-	const Vector<ssize_t> &getLCP() const { return lcp; }
+	const Vector<ssize_t, AT> &getLCP() const { return lcp; }
 
-	const Vector<size_t> &getCT() const { return ct; }
+	const Vector<size_t, AT> &getCT() const { return ct; }
 
 	size_t bitCount() const {
 		return sizeof(*this) * 8

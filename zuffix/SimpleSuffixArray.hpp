@@ -27,7 +27,7 @@ template <typename T, AllocType AT = MALLOC> class SimpleSuffixArray {
 
 	std::span<const T> getText() const { return text; }
 
-	const Vector<size_t> &getSA() const { return sa; }
+	const Vector<size_t, AT> &getSA() const { return sa; }
 
 	size_t bitCount() const {
 		return sizeof(*this) * 8

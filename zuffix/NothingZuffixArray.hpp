@@ -106,11 +106,11 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 
 	std::span<const T> getText() const { return text; }
 
-	const Vector<size_t> &getSA() const { return sa; }
+	const Vector<size_t, AT> &getSA() const { return sa; }
 
-	const Vector<ssize_t> &getLCP() const { return lcp; }
+	const Vector<ssize_t, AT> &getLCP() const { return lcp; }
 
-	const Vector<size_t> &getCT() const { return ct; }
+	const Vector<size_t, AT> &getCT() const { return ct; }
 
 	size_t bitCount() const {
 		return sizeof(*this) * 8
@@ -150,9 +150,9 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	// TODO clean me
 	void ZFillByBottomUp() {
 		RH<T, AT> h(text.data());
-		Vector<ssize_t> stackl(0);
-		Vector<ssize_t> stacki(0);
-		Vector<ssize_t> stackj(0);
+		Vector<ssize_t, AT> stackl(0);
+		Vector<ssize_t, AT> stacki(0);
+		Vector<ssize_t, AT> stackj(0);
 		stackl.reserve(text.size());
 		stacki.reserve(text.size());
 		stackj.reserve(text.size());

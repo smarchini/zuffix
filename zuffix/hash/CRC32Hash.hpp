@@ -21,7 +21,7 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1> class CRC32Hash {
 
   private:
 	const T *string;
-	Vector<signature_t> statetable;
+	Vector<signature_t, AT> statetable;
 	signature_t state = 0;
 	const uint8_t *l, *r;
 
