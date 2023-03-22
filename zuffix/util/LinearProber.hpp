@@ -9,14 +9,38 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename T, AllocType AT = MALLOC> class LinearProber {
+template <typename S, typename T, AllocType AT = MALLOC> class LinearProber {
   private:
-	Vector<std::tuple<uint64_t, T>, AT> table;
+	Vector<std::tuple<S, T>, AT> table;
 	size_t mask, count = 0;
 
   public:
 	LinearProber() : LinearProber(32) {}
+
 	LinearProber(size_t size) : table(round_pow2(size)), mask(round_pow2(size) - 1) {}
+
+	LinearProber(LinearProber<S, T, AT> &old, size_t size) : table(round_pow2(size)), mask(round_pow2(size) - 1) {
+		size_t oldsize = old.size();
+		for (size_t i = 0; i < oldsize; i++) {
+			auto [signature, value] = old.table[i];
+			if (signature) store(signature, value);
+		}
+	}
+
+	// Delete copy operators
+	LinearProber(const LinearProber &) = delete;
+	LinearProber &operator=(const LinearProber &) = delete;
+
+	// Define move operators
+	LinearProber(LinearProber<S, T, AT> &&oth)
+		: table(std::exchange(oth.table, Vector<T, AT>())),
+		  mask(std::exchange(oth.mask, 0)),
+		  count(std::exchange(oth.count, 0)) {}
+
+	LinearProber<S, T, AT> &operator=(LinearProber<S, T, AT> &&oth) {
+		swap(*this, oth);
+		return *this;
+	}
 
 	void store(uint64_t signature, T value) {
 		DEBUGDO(_store++);
@@ -48,11 +72,16 @@ template <typename T, AllocType AT = MALLOC> class LinearProber {
 	size_t bitCount() const { return sizeof(*this) * 8 + table.bitCount() - sizeof(table) * 8; }
 
 	size_t elements() { return count; }
-	std::tuple<uint64_t, T> *getTable() { return &table; }
+
+	friend void swap(LinearProber<S, T, AT> &first, LinearProber<S, T, AT> &second) noexcept {
+		std::swap(first.table, second.table);
+		std::swap(first.mask, second.mask);
+		std::swap(first.count, second.count);
+	}
 
   private:
-	friend std::ostream &operator<<(std::ostream &os, const LinearProber<T, AT> &ds) { return os << ds.table << ds.mask << ds.count; }
-	friend std::istream &operator>>(std::istream &is, LinearProber<T, AT> &ds) { return is >> ds.table >> ds.mask >> ds.count; }
+	friend std::ostream &operator<<(std::ostream &os, const LinearProber<S, T, AT> &ds) { return os << ds.table << ds.mask << ds.count; }
+	friend std::istream &operator>>(std::istream &is, LinearProber<S, T, AT> &ds) { return is >> ds.table >> ds.mask >> ds.count; }
 
 #ifdef DEBUG
   public:

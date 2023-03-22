@@ -7,6 +7,8 @@ namespace zarr {
 using ::sux::util::Vector;
 
 template <typename T, size_t C = 48 * 10> class WyHash {
+  public:
+	using signature_t = uint64_t;
     static_assert(C % 48 == 0, "C should be a multiple of 48");
 
   private:

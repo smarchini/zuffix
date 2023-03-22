@@ -21,6 +21,9 @@ template <class T> class LInterval {
 	LInterval<T> &operator=(LInterval<T> &&) = default;
 	LInterval<T> &operator=(const LInterval<T> &) = default;
 
+	/** Return the empty interval */
+	static LInterval<T> empty() { return LInterval<T>(1, 0); }
+
 	/** Length of the interval */
 	T length() const { return isEmpty() ? 0 : to - from; }
 

@@ -4,9 +4,11 @@
 #include <sux/util/Vector.hpp>
 
 namespace zarr {
-using ::sux::util::Vector;
 
 template <typename T> class O1Hash {
+  public:
+	using signature_t = uint64_t;
+
   private:
 	const T *string;
 
@@ -36,7 +38,7 @@ template <typename T> class O1Hash {
 		return 0;
 	}
 
-    size_t bitCount() const { return sizeof(*this) * 8; }
+	size_t bitCount() const { return sizeof(*this) * 8; }
 };
 
 } // namespace zarr

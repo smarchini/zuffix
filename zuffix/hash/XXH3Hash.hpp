@@ -7,6 +7,9 @@ namespace zarr {
 using ::sux::util::Vector;
 
 template <typename T, size_t C = 1 << 16> class XXH3Hash {
+  public:
+	using signature_t = uint64_t;
+
   private:
 	const T *string;
 	Vector<XXH3_state_t *> statetable;

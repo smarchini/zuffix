@@ -7,17 +7,10 @@
 namespace zarr {
 using ::sux::util::Vector;
 
-// https://stackoverflow.com/questions/26429360/crc32-vs-crc32c
-//
-// The CRC32 found in zip and a lot of other places uses the polynomial
-// 0x04C11DB7; its reversed form 0xEDB88320. CRC32C uses a different polynomial
-// (0x1EDC6F41, reversed 0x82F63B78) but otherwise the computation is the same.
-// The results are different, naturally. This is known as the Castagnoli
-// variant. It allows advanced implementations that effectively process one
-// 32-bit word per cycle despite the three-cycle latency (by processing 3
-// streams of data in parallel and using linear algebra to combine the results).
-
 template <typename T, size_t C = 1 << 14> class CRC32CFollyHash {
+  public:
+	using signature_t = uint32_t;
+
   private:
 	const T *string;
 	Vector<uint64_t> statetable;

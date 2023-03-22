@@ -7,6 +7,9 @@ namespace zarr {
 using ::sux::util::Vector;
 
 template <typename T, size_t sigma, size_t C = 1 << 12> class CyclicPolyHash {
+  public:
+	using signature_t = uint64_t;
+
   private:
 	const T *string;
 	Vector<uint64_t> statetable;

@@ -12,16 +12,16 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename T, template <typename U> class RH, AllocType AT = MALLOC> class SignatureZuffixArray {
+template <typename T, template <typename U, AllocType AT> class RH, AllocType AT = MALLOC> class SignatureZuffixArray {
   private:
 	std::span<const T> text;
 	Vector<size_t, AT> sa;
 	Vector<ssize_t, AT> lcp;
 	Vector<size_t, AT> ct;
-	LinearProber<uint64_t, AT> z;
+	LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT> z;
 	size_t maxhlen = 0;
 
-	RH<T> hash;
+	RH<T, AT> hash;
 
   public:
 	SignatureZuffixArray() {}
@@ -50,7 +50,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 		return {l, r};
 	}
 
-	LInterval<size_t> exit(std::span<const T> pattern, size_t i, size_t j, RH<T> &h) { // const {
+	LInterval<size_t> exit(std::span<const T> pattern, size_t i, size_t j, RH<T, AT> &h) { // const {
 		DEBUGDO(_exit++);
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
@@ -64,7 +64,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 		return {i, j};
 	}
 
-	LInterval<size_t> fatBinarySearch(std::span<const T> pattern, RH<T> &h) {
+	LInterval<size_t> fatBinarySearch(std::span<const T> pattern, RH<T, AT> &h) {
 		DEBUGDO(_fatBinarySearch++);
 		LInterval<size_t> alpha = {0, text.size()};
 		size_t l = 0, r = min(pattern.size(), maxhlen);
@@ -74,7 +74,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 			while ((m & l) == (m & r)) m >>= 1;
 			size_t f = m & r;
 			assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
-			LInterval<size_t> beta = unpack(z[h(f)].value_or(0x100000000));
+			LInterval<size_t> beta = z[h(f)].value_or(LInterval<size_t>::empty());
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			size_t nlen = 1 + max(lcp[beta.from], lcp[beta.to]);
 			size_t hlen = twoFattestLR(nlen, elen);
@@ -101,7 +101,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 
 	LInterval<size_t> find(std::span<const T> pattern) {
 		DEBUGDO(_find++);
-		RH<T> h(pattern.data());
+		RH<T, AT> h(pattern.data());
 		h(pattern.size() - 1); // preload
 		auto [i, j] = fatBinarySearch(pattern, h);
 		return exit(pattern, i, j, h);
@@ -127,7 +127,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T> &h, size_t depth = 0) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T, AT> &h, size_t depth = 0) {
 		DEBUGDO(if (_construction_depth < depth) _construction_depth = depth);
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
@@ -137,8 +137,11 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 		if (maxhlen <= hlen) maxhlen = hlen;
 		assert(depth <= hlen);
 
-		z.store(h(sa[i], hlen), pack({i, j}));
-		if (z.elements() * 3 / 2 > z.size()) growZTable(); // TODO tweak this constant?
+		z.store(h(sa[i], hlen), LInterval(i, j));
+		if (z.elements() * 3 / 2 > z.size()) {
+			DEBUGDO(_growZTable++);
+			z = LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT>(z, z.size() * 2);
+		}
 
 		do {
 			ZFillByDFS(l, r, elen + 1, h, depth + 1);
@@ -150,7 +153,7 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 
 	// TODO clean me
 	void ZFillByBottomUp() {
-		RH<T> h(text.data());
+		RH<T, AT> h(text.data());
 		Vector<ssize_t> stackl(0);
 		Vector<ssize_t> stacki(0);
 		Vector<ssize_t> stackj(0);
@@ -174,8 +177,11 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 				size_t hlen = twoFattestLR(nlen, elen);
 				if (maxhlen <= hlen) maxhlen = hlen;
 
-				z.store(h(sa[intervali], hlen), pack({intervali, intervalj}));
-				if (z.elements() * 3 / 2 > z.size()) growZTable(); // TODO tweak this constnat?
+				z.store(h(sa[intervali], hlen), LInterval(intervali, intervalj));
+				if (z.elements() * 3 / 2 > z.size()) {
+					DEBUGDO(_growZTable++);
+					z = LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT>(z, z.size() * 2);
+				}
 
 				lb = intervali;
 			}
@@ -185,19 +191,6 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 				stackj.pushBack(i);
 			}
 		}
-	}
-
-	void growZTable() {
-		DEBUGDO(z.reset_stats());
-		DEBUGDO(_growZTable++);
-		size_t n = z.size();
-		auto table = z.getTable();
-		LinearProber<uint64_t, AT> zlarge(n * 2);
-		for (size_t i = 0; i < n; i++) {
-			auto [signature, value] = table[i];
-			if (signature) zlarge.store(signature, value);
-		}
-		std::swap(z, zlarge);
 	}
 
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }

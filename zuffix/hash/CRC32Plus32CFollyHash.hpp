@@ -8,6 +8,9 @@ namespace zarr {
 using ::sux::util::Vector;
 
 template <typename T, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
+  public:
+	using signature_t = uint64_t;
+
   private:
     const T *string;
     Vector<uint64_t> statetable;

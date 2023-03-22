@@ -8,6 +8,7 @@ using ::sux::util::Vector;
 
 template <typename T, size_t C = 1 << 8> class RabinKarpHash {
   public:
+	using signature_t = uint64_t;
 	const uint64_t m = 0x100000001b3;      // FNV prime
 	const uint64_t d = 0xce965057aff6957b; // md = 1 mod 2^64
 
