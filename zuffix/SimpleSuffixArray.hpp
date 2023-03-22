@@ -29,6 +29,11 @@ template <typename T, AllocType AT = MALLOC> class SimpleSuffixArray {
 
 	const Vector<size_t> &getSA() const { return sa; }
 
+	size_t bitCount() const {
+		return sizeof(*this) * 8
+			+ sa.bitCount() - sizeof(sa) * 8;
+	}
+
   private:
 	LInterval<size_t> acceleratedBinarySearch(std::span<const T> pattern, size_t l, size_t r, size_t llcp, size_t rlcp) const {
 		if (r <= l) return {l, r};

@@ -64,6 +64,8 @@ template <typename T, size_t C = 1 << 8> class RabinKarpHash {
 		for (; b < e; b++) result = result * m + (*b);
 		return result ^ fmix64(length);
 	}
+
+    size_t bitCount() const { return sizeof(*this) * 8 + statetable.bitCount() - sizeof(statetable) * 8; }
 };
 
 } // namespace zarr

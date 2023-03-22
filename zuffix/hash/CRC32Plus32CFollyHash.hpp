@@ -57,6 +57,8 @@ template <typename T, size_t C = 1 << 16> class CRC32Plus32CFollyHash {
     }
 
     bool is_hw_supported() { return folly::detail::crc32_hw_supported() && folly::detail::crc32c_hw_supported(); }
+
+    size_t bitCount() const { return sizeof(*this) * 8 + statetable.bitCount() - sizeof(statetable) * 8; }
 };
 
 } // namespace zarr

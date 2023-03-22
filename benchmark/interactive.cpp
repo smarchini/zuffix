@@ -48,7 +48,14 @@ int main(int argc, char **argv) {
 	std::stringstream buffer;
 	buffer << file.rdbuf() << std::numeric_limits<char>::max();
 	std::string text = buffer.str();
+
+	auto begin = chrono::high_resolution_clock::now();
 	STRUCTURE_T ds(text);
+	auto end = chrono::high_resolution_clock::now();
+	auto time = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
+
+	cout << "Data structure size: " << ds.bitCount() << " bits" << endl;
+	cout << "Data structure construction time: " << time << " ns" << endl;
 
 	while (true) {
 		string pattern;

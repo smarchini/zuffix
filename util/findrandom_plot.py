@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import sys
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 
 def to_si(n):
@@ -8,23 +10,26 @@ def to_si(n):
         if base <= n:
             return f'{n/base:.2f}'.rstrip('0').rstrip('.') + sym
 
-title = 'gutenberg-200MB'
-date = '20230313'
+date = sys.argv[1]  # '20230317'
+title = sys.argv[2] # 'gutenberg-200MB'
+prefixdir = './' # '~/blew_results'
 
 benchmarks = [
-    (f'~/blew_results/findrandom.{title}.simple.{date}.csv', '-', 'grey'),
-    (f'~/blew_results/findrandom.{title}.enhanced.{date}.csv', '-', 'black'),
-    (f'~/blew_results/findrandom.{title}.memcmp-zuffix-wyhash.{date}.csv', '-', 'red'),
-    (f'~/blew_results/findrandom.{title}.memcmp-zuffix-xxh3.{date}.csv', '-', 'purple'),
-    (f'~/blew_results/findrandom.{title}.memcmp-zuffix-crc32cfolly.{date}.csv', '-', 'blue'),
-    (f'~/blew_results/findrandom.{title}.memcmp-zuffix-crc32zlib.{date}.csv', '-', 'green'),
-    (f'~/blew_results/findrandom.{title}.memcmp-zuffix-crc32+crc32c.{date}.csv', '-', 'brown'),
-    (f'~/blew_results/findrandom.{title}.signature-zuffix-wyhash.{date}.csv', '-.', 'red'),
-    (f'~/blew_results/findrandom.{title}.signature-zuffix-crc32cfolly.{date}.csv', '-.', 'blue'),
-    (f'~/blew_results/findrandom.{title}.signature-zuffix-crc32zlib.{date}.csv', '-.', 'green'),
-    (f'~/blew_results/findrandom.{title}.signature-zuffix-crc32+crc32c.{date}.csv', '-.', 'brown'),
-    (f'~/blew_results/findrandom.{title}.nothing-zuffix-wyhash.{date}.csv', ':', 'red'),
-    (f'~/blew_results/findrandom.{title}.nothing-zuffix-crc32cfolly.{date}.csv', ':', 'blue'),
+    (f'{prefixdir}/{date}/findrandom.{title}.simple.{date}.csv', '-', 'grey'),
+    (f'{prefixdir}/{date}/findrandom.{title}.enhanced.{date}.csv', '-', 'black'),
+    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-wyhash.{date}.csv', '-', 'red'),
+    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-xxh3.{date}.csv', '-', 'purple'),
+    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-crc32cfolly.{date}.csv', '-', 'blue'),
+    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-crc32zlib.{date}.csv', '-', 'green'),
+    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-crc32+crc32c.{date}.csv', '-', 'brown'),
+    (f'{prefixdir}/{date}/findrandom.{title}.signature-zuffix-crc32cfolly.{date}.csv', '-.', 'blue'),
+    (f'{prefixdir}/{date}/findrandom.{title}.signature-zuffix-crc32zlib.{date}.csv', '-.', 'green'),
+    (f'{prefixdir}/{date}/findrandom.{title}.signature-zuffix-crc32+crc32c.{date}.csv', '-.', 'brown'),
+    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-wyhash.{date}.csv', ':', 'red'),
+    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-xxh3.{date}.csv', ':', 'purple'),
+    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-crc32zlib.{date}.csv', ':', 'green'),
+    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-crc32+crc32c.{date}.csv', ':', 'brown'),
+    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-crc32cfolly.{date}.csv', ':', 'blue'),
 ]
 
 fig = plt.figure(figsize=(16,9))
@@ -37,7 +42,7 @@ ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
 for (file, line, color) in benchmarks:
     name = file.split('/')[-1].split('.')[2]
     table = pd.read_csv(file)
-    x = [ int(value.split('/')[1]) for value in table['name'] ]
+    x = table['length']  # [ int(value.split('/')[1]) for value in table['name'] ]
     y = list(table['cpu_time'])
     lbl = list(table['errors'])
     iterations = int(table['iterations'][0])
@@ -45,8 +50,9 @@ for (file, line, color) in benchmarks:
     if name == 'simple':
         topax = ax.secondary_xaxis('top')
         topax.tick_params(axis='x', direction='inout')
-        topax.set_ticks(x, [ to_si(int(o)) for o in table['occurrences'] ], ha='left', rotation=45)
-        topax.set_xlabel('Occurrences')
+        avg_occurrences = map(lambda x: x[0]/x[1], zip(table['occurrences'], table['iterations']))
+        topax.set_ticks(x, [ to_si(o) for o in avg_occurrences ], ha='left', rotation=45)
+        topax.set_xlabel('Average occurrences per iteration')
     for (xval, yval, lblval) in zip(x, y, lbl):
         if lblval != 0: ax.annotate(lblval, xy=(xval, yval), ha='left', rotation=60)
 
@@ -58,5 +64,6 @@ plt.title(f'{title} (10000 iterations)', fontsize='xx-large')
 plt.xlabel("Pattern length (Bytes)", fontsize='large')
 plt.ylabel("Time (ns)", fontsize='large')
 
-plt.savefig(f'{title}.{date}.png', dpi=1200)
+plt.savefig(f'{title}.{date}.pdf')
+#plt.savefig(f'{title}.{date}.png', dpi=1200)
 #fig.show()

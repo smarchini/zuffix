@@ -67,6 +67,8 @@ template <typename T, size_t sigma, size_t C = 1 << 12> class CyclicPolyHash {
 		return result ^ fmix64(length);
 	}
 
+    size_t bitCount() const { return sizeof(*this) * 8 + statetable.bitCount() - sizeof(statetable) * 8; }
+
   private:
 	static inline uint64_t rotate(uint64_t x, int k) { return (x << k) | (x >> (64 - k)); }
 };

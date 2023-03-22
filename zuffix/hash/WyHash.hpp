@@ -83,8 +83,10 @@ template <typename T, size_t C = 48 * 10> class WyHash {
 
     uint64_t immediate(size_t from, size_t length) { return wyhash(string + from, length * sizeof(T), 0, _wyp); }
 
+    size_t bitCount() const { return sizeof(*this) * 8 + statetable.bitCount() - sizeof(statetable) * 8; }
+
   private:
-    static inline uint64_t wyhash16(const void *key, size_t len, uint64_t seed, const uint64_t *secret) {
+	static inline uint64_t wyhash16(const void *key, size_t len, uint64_t seed, const uint64_t *secret) {
         const uint8_t *p = (const uint8_t *)key;
         uint64_t a, b;
         if (_likely_(len >= 4)) {

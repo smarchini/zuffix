@@ -218,6 +218,14 @@ template <typename T, template <typename U> class RH, AllocType AT = MALLOC> cla
 
 	const Vector<size_t> &getCT() const { return ct; }
 
+	size_t bitCount() const {
+		return sizeof(*this) * 8
+			+ sa.bitCount() - sizeof(sa) * 8
+			+ lcp.bitCount() - sizeof(lcp) * 8
+			+ ct.bitCount() - sizeof(ct) * 8
+			+ z.bitCount() - sizeof(z) * 8;
+	}
+
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 

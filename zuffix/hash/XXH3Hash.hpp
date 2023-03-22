@@ -48,6 +48,12 @@ template <typename T, size_t C = 1 << 16> class XXH3Hash {
 	uint64_t operator()(size_t from, size_t length) { return immediate(from, length); }
 
 	uint64_t immediate(size_t from, size_t length) { return XXH3_64bits(string + from, length * sizeof(T)); }
+
+	size_t bitCount() const {
+		return sizeof(*this) * 8
+			+ statetable.bitCount() - sizeof(statetable) * 8
+			+ statetable.size() * 4608; // 4608 = sizeof(XXH3_state_t) * 8
+	}
 };
 
 } // namespace zarr

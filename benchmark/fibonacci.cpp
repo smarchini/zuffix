@@ -6,7 +6,7 @@ using namespace zarr;
 using namespace sux::util;
 
 std::span<const char> text;
-constexpr size_t N = 40; // ~256MB
+constexpr size_t N = 40; // ~256MB // TODO bisogna fare tentativi per capire una dimensione fattible visti i tempi di costruizione
 const std::string a = "a", ab = "ab";
 
 sux::util::Vector<char, ALLOC_TYPE> fibostring(size_t n) {
@@ -36,7 +36,7 @@ static void BM_run(benchmark::State &state) {
         auto pattern = std::span<const char>(&p, p.size());
         auto expected = reference.find(pattern);
         empty += expected.isEmpty();
-        occurrences += expected.length();
+        occurrences = expected.length(); // fixed pattern, so `=` makes more sense than `=`
         benchmark::DoNotOptimize(pattern);
         state.ResumeTiming();
         auto result = ds.find(pattern);

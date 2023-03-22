@@ -45,6 +45,8 @@ template <typename T, AllocType AT = MALLOC> class LinearProber {
 		mask = size - 1;
 	}
 
+	size_t bitCount() const { return sizeof(*this) * 8 + table.bitCount() - sizeof(table) * 8; }
+
 	size_t elements() { return count; }
 	std::tuple<uint64_t, T> *getTable() { return &table; }
 

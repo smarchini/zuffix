@@ -47,6 +47,8 @@ template <typename T, size_t C = 1 << 13> class CRC32ZlibHash {
 		const uint8_t *e = reinterpret_cast<const uint8_t *>(string + from + length);
 		return crc32_z(0, b, e - b);
 	}
+
+    size_t bitCount() const { return sizeof(*this) * 8 + statetable.bitCount() - sizeof(statetable) * 8; }
 };
 
 } // namespace zarr

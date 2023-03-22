@@ -35,6 +35,8 @@ template <typename T> class O1Hash {
 		}
 		return 0;
 	}
+
+    size_t bitCount() const { return sizeof(*this) * 8; }
 };
 
 } // namespace zarr
