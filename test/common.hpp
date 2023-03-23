@@ -21,7 +21,7 @@
 
 #include <zuffix/random/xoroshiro128plus_engine.hpp>
 
-template <typename T, sux::util::AllocType AT> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128, AT>;
+template <typename T, sux::util::AllocType AT = sux::util::AllocType::MALLOC> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128, AT>;
 
 // TODO: remove me
 std::string fibonacci(size_t n) {
