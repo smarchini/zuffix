@@ -23,11 +23,18 @@ int main(int argc, char **argv) {
 	size_t filesize = file.tellg();
 	file.seekg(0, file.beg);
 	assert(filesize % sizeof(SIGMA_T) == 0 && "Bad file size.");
-	unique_ptr<SIGMA_T[]> text(new SIGMA_T[(filesize + 1) / sizeof(SIGMA_T)]);
-	file.read((char *)text.get(), filesize);
-	text[filesize] = numeric_limits<SIGMA_T>::max();
 
-	STRUCTURE_T ds(span<SIGMA_T>(text.get(), filesize + 1));
+	size_t size = filesize / sizeof(SIGMA_T) + 1;
+    sux::util::Vector<SIGMA_T, ALLOC_TYPE> buffer(size);
+	file.read((char *)&buffer, filesize);
+	buffer[size - 1] = numeric_limits<SIGMA_T>::max();
+	auto text = std::span<const SIGMA_T>(&buffer, size);
+
+    SIGMA_T x = 0;
+	for (size_t i = 0; i < buffer.size(); i++) x ^= buffer[i] ;
+    benchmark::DoNotOptimize(x);
+
+	STRUCTURE_T ds(text);
 	cout << STRINGIFY(STRUCTURE_T) << ": " << argv[1] << "\n" << endl;
 
 	for (int i = 2; i < argc; i++) {
@@ -46,8 +53,12 @@ int main(int argc, char **argv) {
 		auto number = atoi(get("number").c_str());
 		auto length = atoi(get("length").c_str());
 
-		unique_ptr<SIGMA_T[]> patterns(new SIGMA_T[length * number / sizeof(SIGMA_T)]);
-		file.read((char *)patterns.get(), length * number);
+		sux::util::Vector<SIGMA_T, ALLOC_TYPE> patterns(length * number / sizeof(SIGMA_T));
+		//unique_ptr<SIGMA_T[]> patterns(new SIGMA_T[length * number / sizeof(SIGMA_T)]);
+		file.read((char *)&patterns, length * number);
+
+		for (size_t i = 0; i < patterns.size(); i++) x ^= patterns[i] ;
+		benchmark::DoNotOptimize(x);
 
 		uint64_t sum = 0;
 		LInterval<size_t> result;
@@ -60,7 +71,7 @@ int main(int argc, char **argv) {
 		for (size_t i = 0; i < number; i++) {
 			auto begin = chrono::high_resolution_clock::now();
 			for (size_t reps = 0; reps < (1 << 7); reps++) {
-				span<SIGMA_T> p(patterns.get() + length * i, length);
+				span<SIGMA_T> p(&patterns + length * i, length);
 				benchmark::DoNotOptimize(p);
 				result = ds.find(p);
 				benchmark::DoNotOptimize(result);

@@ -16,7 +16,7 @@ static void args(benchmark::internal::Benchmark *b) {
 
 static void BM_run(benchmark::State &state) {
     static STRUCTURE_T ds(text);
-    static EnhancedSuffixArray<SIGMA_T> reference(text);
+    static EnhancedSuffixArray<SIGMA_T, ALLOC_TYPE> reference(text);
     size_t m = state.range(0);
     std::uniform_int_distribution<uint64_t> dist(0, text.size() - m - 1);
     int64_t empty = 0, errors = 0, occurrences = 0;
