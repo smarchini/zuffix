@@ -18,7 +18,19 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class CRC32Plus
     signature_t state = 0;
 
   public:
-    CRC32Plus32CFollyHash(const T *string) : string(string), statetable(1) { statetable[0] = 0; }
+    CRC32Plus32CFollyHash() : string(nullptr), statetable(1) { statetable[0] = 0; }
+
+    CRC32Plus32CFollyHash(const T *string, size_t size) : string(string) {
+        statetable.reserve(size / C);
+        statetable.pushBack(0);
+    }
+
+    void setString(const T *s) {
+        string = s;
+        statetable.resize(1);
+    }
+
+    void reserve(size_t size) { statetable.reserve(size / C); }
 
     signature_t operator()(size_t to) {
         const uint8_t *s = reinterpret_cast<const uint8_t *>(string);

@@ -21,17 +21,18 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT> z;
 	size_t maxhlen = 0;
 
-	RH<T, AT> hash;
+	RH<T, AT> htext, hpattern;
 
   public:
 	SignatureZuffixArray() {}
 
-	SignatureZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)), lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)), ct(CTConstructByAbouelhoda<AT>(lcp)), hash(text.data()) {
+	SignatureZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)), lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)), ct(CTConstructByAbouelhoda<AT>(lcp)), htext(text.data(), text.size()) {
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 		// z.resize(ceil_pow2(text.size()) << 1); // TODO: tweak me to improve construction performance
-		hash(text.size() - 1); // preload
-		ZFillByDFS(0, text.size(), 0, hash);
+		htext(text.size() - 1); // preload
+		ZFillByDFS(0, text.size(), 0);
 		// ZFillByBottomUp();  // alternative z-map construction
+		hpattern.reserve(text.size());
 		DEBUGDO(print_stats("Construction"));
 	}
 
@@ -50,21 +51,21 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		return {l, r};
 	}
 
-	LInterval<size_t> exit(std::span<const T> pattern, size_t i, size_t j, RH<T, AT> &h) { // const {
+	LInterval<size_t> exit(std::span<const T> pattern, size_t i, size_t j) { // const {
 		DEBUGDO(_exit++);
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.size()) - nlen;
-		if (h(nlen, end) != hash(sa[i] + nlen, end)) return {1, 0};
+		if (hpattern(nlen, end) != htext(sa[i] + nlen, end)) return {1, 0};
 		if (elen < pattern.size()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
-			return exit(pattern, l, r, h);
+			return exit(pattern, l, r);
 		}
 		return {i, j};
 	}
 
-	LInterval<size_t> fatBinarySearch(std::span<const T> pattern, RH<T, AT> &h) {
+	LInterval<size_t> fatBinarySearch(std::span<const T> pattern) {
 		DEBUGDO(_fatBinarySearch++);
 		LInterval<size_t> alpha = {0, text.size()};
 		size_t l = 0, r = min(pattern.size(), maxhlen);
@@ -74,7 +75,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 			while ((m & l) == (m & r)) m >>= 1;
 			size_t f = m & r;
 			assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
-			LInterval<size_t> beta = z[h(f)].value_or(LInterval<size_t>::empty());
+			LInterval<size_t> beta = z[hpattern(f)].value_or(LInterval<size_t>::empty());
 			size_t elen = getlcp(beta.from, beta.to) + 1;
 			size_t nlen = 1 + max(lcp[beta.from], lcp[beta.to]);
 			size_t hlen = twoFattestLR(nlen, elen);
@@ -92,7 +93,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		}
 		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
 		size_t end = min(nlen, pattern.size());
-		if (h(end) != hash(sa[alpha.from], end)) {
+		if (hpattern(end) != htext(sa[alpha.from], end)) {
 			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
 			return {0, text.size()};
 		}
@@ -101,10 +102,10 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 
 	LInterval<size_t> find(std::span<const T> pattern) {
 		DEBUGDO(_find++);
-		RH<T, AT> h(pattern.data());
-		h(pattern.size() - 1); // preload
-		auto [i, j] = fatBinarySearch(pattern, h);
-		return exit(pattern, i, j, h);
+		hpattern.setString(pattern.data());
+		hpattern(pattern.size() - 1); // preload
+		auto [i, j] = fatBinarySearch(pattern);
+		return exit(pattern, i, j);
 	}
 
 	std::span<const T> getText() const { return text; }
@@ -121,13 +122,14 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 			+ lcp.bitCount() - sizeof(lcp) * 8
 			+ ct.bitCount() - sizeof(ct) * 8
 			+ z.bitCount() - sizeof(z) * 8
-			+ hash.bitCount() - sizeof(hash) * 8;
+			+ htext.bitCount() - sizeof(htext) * 8;
+			+ hpattern.bitCount() - sizeof(hpattern) * 8;
 	}
 
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
-	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T, AT> &h, size_t depth = 0) {
+	void ZFillByDFS(size_t i, size_t j, size_t nlen, size_t depth = 0) {
 		DEBUGDO(if (_construction_depth < depth) _construction_depth = depth);
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
@@ -137,23 +139,22 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		if (maxhlen <= hlen) maxhlen = hlen;
 		assert(depth <= hlen);
 
-		z.store(h(sa[i], hlen), LInterval(i, j));
+		z.store(htext(sa[i], hlen), LInterval(i, j));
 		if (z.elements() * 3 / 2 > z.size()) {
 			DEBUGDO(_growZTable++);
 			z = LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT>(z, z.size() * 2);
 		}
 
 		do {
-			ZFillByDFS(l, r, elen + 1, h, depth + 1);
+			ZFillByDFS(l, r, elen + 1, depth + 1);
 			l = r;
 			r = ct[r];
 		} while (lcp[l] == lcp[ct[l]] && lcp[l] <= lcp[l + 1]);
-		ZFillByDFS(l, j, elen + 1, h, depth + 1);
+		ZFillByDFS(l, j, elen + 1, depth + 1);
 	}
 
 	// TODO clean me
 	void ZFillByBottomUp() {
-		RH<T, AT> h(text.data());
 		Vector<ssize_t, AT> stackl(0);
 		Vector<ssize_t, AT> stacki(0);
 		Vector<ssize_t, AT> stackj(0);
@@ -177,7 +178,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 				size_t hlen = twoFattestLR(nlen, elen);
 				if (maxhlen <= hlen) maxhlen = hlen;
 
-				z.store(h(sa[intervali], hlen), LInterval(intervali, intervalj));
+				z.store(htext(sa[intervali], hlen), LInterval(intervali, intervalj));
 				if (z.elements() * 3 / 2 > z.size()) {
 					DEBUGDO(_growZTable++);
 					z = LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT>(z, z.size() * 2);

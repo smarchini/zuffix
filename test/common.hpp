@@ -54,7 +54,10 @@ template <typename T, sux::util::AllocType AT> class BadHash {
 	size_t l = 0, r = 0;
 
   public:
-	BadHash(const T *string) : string(string) {}
+	BadHash() : string(nullptr) {}
+	BadHash(const T *string, size_t size) : string(string) {}
+    void setString(const T *s) { string = s; }
+    void reserve(size_t size) { }
 
 	signature_t operator()(size_t to) {
 		for (; r < to; r++) state ^= string[r] & 0b11;

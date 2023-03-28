@@ -21,12 +21,28 @@ template <typename T, size_t sigma, AllocType AT = MALLOC, size_t C = 1 << 12> c
   public:
 	// TODO kinda bad doing this thing at runtime
 	// when it will be fixed, recompute the best value of C
-	CyclicPolyHash(const T *string) : string(string), statetable(1) {
+	CyclicPolyHash() : string(nullptr), statetable(1) {
 		std::mt19937 rng(2023); // fixed seed
 		std::uniform_int_distribution<signature_t> dist(0, std::numeric_limits<signature_t>::max());
 		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
 		statetable[0] = 0;
 	}
+
+	CyclicPolyHash(const T *string, size_t size) : string(string) {
+		std::mt19937 rng(2023); // fixed seed
+		std::uniform_int_distribution<signature_t> dist(0, std::numeric_limits<signature_t>::max());
+		for (size_t i = 0; i < sigma; i++) h[i] = dist(rng);
+        statetable.reserve(size / C);
+        statetable.pushBack(0);
+	}
+
+	void setString(const T *s) {
+		l = r = 0;
+		string = s;
+		statetable.resize(1);
+	}
+
+    void reserve(size_t size) { statetable.reserve(size / C); }
 
 	signature_t operator()(size_t to) {
 		const uint8_t *str = reinterpret_cast<const uint8_t *>(string);

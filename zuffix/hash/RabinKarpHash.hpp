@@ -21,7 +21,20 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 8> class RabinKarpH
 	uint64_t pow = 1;
 
   public:
-	RabinKarpHash(const T *string) : string(string), statetable(1), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) { statetable[0] = 0; }
+	RabinKarpHash() : string(nullptr), statetable(1), l(nullptr), r(nullptr) { statetable[0] = 0; }
+
+	RabinKarpHash(const T *string, size_t size) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {
+        statetable.reserve(size / C);
+        statetable.pushBack(0);
+	}
+
+    void setString(const T *s) {
+        string = s;
+		l = r = reinterpret_cast<const uint8_t *>(s);
+        statetable.resize(1);
+    }
+
+    void reserve(size_t size) { statetable.reserve(size / C); }
 
 	signature_t operator()(size_t to) {
 		const uint8_t *b = reinterpret_cast<const uint8_t *>(string);

@@ -17,9 +17,17 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class XXH3Hash 
 	XXH3_state_t *state = XXH3_createState();
 
   public:
-	XXH3Hash(const T *string) : string(string), statetable(1) {
+
+	XXH3Hash() : string(nullptr), statetable(1) {
 		XXH3_64bits_reset(state);
 		statetable[0] = XXH3_createState();
+		XXH3_copyState(statetable[0], state);
+	}
+
+	XXH3Hash(const T *string, size_t size) : string(string) {
+		XXH3_64bits_reset(state);
+        statetable.reserve(size / C);
+        statetable.pushBack(XXH3_createState());
 		XXH3_copyState(statetable[0], state);
 	}
 
@@ -27,6 +35,13 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class XXH3Hash 
 		XXH3_freeState(state);
 		for (size_t i = 0; i < statetable.size(); i++) XXH3_freeState(statetable[i]);
 	}
+
+    void setString(const T *s) {
+        string = s;
+        statetable.resize(1);
+    }
+
+    void reserve(size_t size) { statetable.reserve(size / C); }
 
 	signature_t operator()(size_t to) {
 		const uint8_t *str = reinterpret_cast<const uint8_t *>(string);

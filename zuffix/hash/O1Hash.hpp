@@ -14,7 +14,10 @@ template <typename T, AllocType AT = MALLOC> class O1Hash {
 	const T *string;
 
   public:
-	O1Hash(const T *string) : string(string) {}
+	O1Hash() : string(nullptr) {}
+	O1Hash(const T *string, size_t size) : string(string) {}
+    void setString(const T *s) { string = s; }
+    void reserve(size_t size) { }
 	signature_t operator()(size_t to) { return (*this)(0, to); }
 	signature_t operator()(size_t from, size_t length) { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }
 	signature_t immediate(size_t from, size_t length) const { return o1hash(string + from, length * sizeof(T)) ^ fmix64(length); }

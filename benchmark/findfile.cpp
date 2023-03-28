@@ -70,12 +70,12 @@ int main(int argc, char **argv) {
 
 		for (size_t i = 0; i < number; i++) {
 			auto begin = chrono::high_resolution_clock::now();
-			for (size_t reps = 0; reps < (1 << 7); reps++) {
+			//for (size_t reps = 0; reps < (1 << 7); reps++) {
 				span<SIGMA_T> p(&patterns + length * i, length);
 				benchmark::DoNotOptimize(p);
 				result = ds.find(p);
 				benchmark::DoNotOptimize(result);
-			}
+			//}
 			auto end = chrono::high_resolution_clock::now();
 			sum += result.length();
 			// cout << result << endl; // TODO remove me

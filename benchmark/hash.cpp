@@ -18,7 +18,7 @@ static void args(benchmark::internal::Benchmark *b) {
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
-		DS h(&string);                                                                                                                                                                                 \
+		DS h(&string, string.length());                                                                                                                                                                \
 		h(n - 1); /* preloading */                                                                                                                                                                     \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng);                                                                                                                                                                      \
@@ -33,7 +33,7 @@ static void args(benchmark::internal::Benchmark *b) {
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
-		DS h(&string);                                                                                                                                                                                 \
+		DS h(&string, string.length());                                                                                                                                                                \
 		h(n - 1); /* preloading */                                                                                                                                                                     \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng), b = dist(rng);                                                                                                                                                       \
@@ -49,7 +49,7 @@ static void args(benchmark::internal::Benchmark *b) {
 		std::uniform_int_distribution<size_t> dist(0, n - 1);                                                                                                                                          \
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
-		DS h(&string);                                                                                                                                                                                 \
+		DS h(&string, string.length());                                                                                                                                                                \
 		h(n - 1); /* preloading: not needed */                                                                                                                                                         \
 		for (auto _ : state) {                                                                                                                                                                         \
 			size_t a = dist(rng), b = dist(rng);                                                                                                                                                       \

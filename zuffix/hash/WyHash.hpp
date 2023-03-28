@@ -21,10 +21,25 @@ template <typename T, AllocType AT = MALLOC, size_t C = 48 * 10> class WyHash {
     Vector<WyHashState, AT> statetable;
 
   public:
-    WyHash(const T *string) : string(string), statetable(1) {
+
+    WyHash() : string(nullptr), statetable(1) {
         uint64_t zero = _wymix(_wyp[0], _wyp[1]);
         statetable[0] = (WyHashState){zero, zero, zero};
     }
+
+    WyHash(const T *string, size_t size) : string(string) {
+        uint64_t zero = _wymix(_wyp[0], _wyp[1]);
+        statetable.reserve(size / C);
+        statetable.pushBack((WyHashState){zero, zero, zero});
+    }
+
+    void setString(const T *s) {
+        string = s;
+        statetable.resize(1);
+    }
+
+    // TODO probabilmente manca un sizeof(T) da qualche parte
+    void reserve(size_t size) { statetable.reserve(size / C); }
 
     signature_t operator()(size_t to) {
         const uint8_t *str = reinterpret_cast<const uint8_t *>(string);

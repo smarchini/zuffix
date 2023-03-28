@@ -27,8 +27,8 @@
           pkgs = pkgsFor system;
           nativePkgs = nativePkgsFor system;
           mkShellNative = with pkgs; mkShell.override {
-            #stdenv = stdenvAdapters.impureUseNativeOptimizations fastStdenv;
-            stdenv = stdenvAdapters.impureUseNativeOptimizations llvmPackages_latest.stdenv;
+            stdenv = stdenvAdapters.impureUseNativeOptimizations fastStdenv;
+            #stdenv = stdenvAdapters.impureUseNativeOptimizations llvmPackages_latest.stdenv;
           };
           mkShellMcc = with pkgs; mkShell.override {
             # Usage: mini_compile_commands_server.py compile_commands.json
@@ -77,7 +77,7 @@
               # (nativePkgs.callPackage ./nix/libsais.nix { })
               # (nativePkgs.callPackage ./nix/wyhash.nix { })
 
-              #(pkgs.callPackage ./nix/pizzachili.nix { })
+              (pkgs.callPackage ./nix/pizzachili.nix { })
               #(pkgs.callPackage ./nix/r-index.nix { })
             ];
           };

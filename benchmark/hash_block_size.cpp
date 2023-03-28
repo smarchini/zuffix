@@ -38,8 +38,8 @@ static void args(benchmark::internal::Benchmark *b) {
 		constexpr uint8_t charset[] = "abcdefghijklmnopqrstuvwxyz";                                                                                                                                    \
 		auto string = random(n, charset, 26);                                                                                                                                                          \
 		for (auto _ : state) {                                                                                                                                                                         \
-			DS h(&string);                                                                                                                                                                             \
-			benchmark::DoNotOptimize(simulation(h, n));                                                                                                                                           \
+			DS h(&string, string.length());                                                                                                                                                            \
+			benchmark::DoNotOptimize(simulation(h, n));                                                                                                                                                \
 		}                                                                                                                                                                                              \
 	}                                                                                                                                                                                                  \
 	BENCHMARK(BM_##NAME)->Apply(args);

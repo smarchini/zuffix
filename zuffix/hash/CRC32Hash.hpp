@@ -26,7 +26,19 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1> class CRC32Hash {
 	const uint8_t *l, *r;
 
   public:
-	CRC32Hash(const T *string) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {}
+	CRC32Hash() : string(nullptr), l(nullptr), r(nullptr) {}
+
+	CRC32Hash(const T *string, size_t size) : string(string), l(reinterpret_cast<const uint8_t *>(string)), r(reinterpret_cast<const uint8_t *>(string)) {
+        statetable.reserve(size / C);
+        statetable.pushBack(0);
+	}
+
+    void setString(const T *s) {
+        string = s;
+        statetable.resize(1);
+    }
+
+    void reserve(size_t size) { statetable.reserve(size / C); }
 
 	signature_t operator()(size_t to) { return (*this)(0, to); }
 
