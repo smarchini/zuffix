@@ -1,8 +1,8 @@
 diff --git a/sux/util/Vector.hpp b/sux/util/Vector.hpp
-index 53b350e..e944e27 100644
+index 53b350e..9718fc5 100644
 --- a/sux/util/Vector.hpp
 +++ b/sux/util/Vector.hpp
-@@ -93,13 +93,13 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
+@@ -93,18 +93,18 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
  	T *data = nullptr;
  
    public:
@@ -20,3 +20,21 @@ index 53b350e..e944e27 100644
  		if (data) {
  			if (AT == MALLOC) {
  				free(data);
+ 			} else {
+-				int result = munmap(data, _capacity);
++				int result = munmap(data, page_aligned(_capacity));
+ 				assert(result == 0 && "mmunmap failed");
+ 			}
+ 		}
+@@ -257,8 +257,10 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
+ #ifndef MREMAP_MAYMOVE
+ 				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
+ 				memcpy(mem, data, page_aligned(_capacity));
++				int resunmap = munmap(data, page_aligned(_capacity));
++				assert(resunmap == 0 && "mmunmap (remapping) failed");
+ #else
+-				mem = mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE, -1, 0);
++				mem = mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE); //, -1, 0);
+ #endif
+ 			}
+ 			assert(mem != MAP_FAILED && "mmap failed");
