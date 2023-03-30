@@ -15,7 +15,13 @@ static void args(benchmark::internal::Benchmark *b) {
 }
 
 static void BM_run(benchmark::State &state) {
+    static bool is_built = false;
+	static auto begin = std::chrono::high_resolution_clock::now();
     static STRUCTURE_T ds(text);
+	static auto end = std::chrono::high_resolution_clock::now();
+	static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
+	if (!is_built) std::cout << "Data structure size: " << ds.bitCount() << " bits " << ", construction time: " << time << " ns" << std::endl;
+    is_built = true;
     static EnhancedSuffixArray<SIGMA_T, ALLOC_TYPE> reference(text);
     size_t m = state.range(0);
     std::uniform_int_distribution<uint64_t> dist(0, text.size() - m - 1);

@@ -67,17 +67,18 @@
               pkgs.ninja
               pkgs.snappy
               pkgs.xz
-              pkgs.openssl # this needs to be installed on blew
+              pkgs.openssl 
 
               # nativePkgs.folly
               # nativePkgs.zlib
               # nativePkgs.xxHash
-              # nativePkgs.libdivsufsort64
+              nativePkgs.libdivsufsort64
               # (nativePkgs.callPackage ./nix/sux.nix { })
               # (nativePkgs.callPackage ./nix/libsais.nix { })
               # (nativePkgs.callPackage ./nix/wyhash.nix { })
 
               (pkgs.callPackage ./nix/pizzachili.nix { })
+              (pkgs.callPackage ./nix/sdsl-lite.nix { })
               #(pkgs.callPackage ./nix/r-index.nix { })
             ];
           };

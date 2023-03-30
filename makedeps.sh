@@ -57,21 +57,16 @@ git clone git@github.com:vigna/sux.git
 cd "$DESTPATH"/sux || exit
 git apply "$DESTPATH"/sux_vector_gcc_cpp20.patch
 
-# TODO: Currently broken. It compiles only without --extra-cmake-defines, but then there is no -march=native
-# # folly
-# cd "$DESTPATH" || exit
-# git clone git@github.com:facebook/folly.git
-# mkdir -p "$DESTPATH"/folly/installed
-# cd "$DESTPATH"/folly || exit
-# python3 ./build/fbcode_builder/getdeps.py --allow-system-packages build --extra-cmake-defines '{"CMAKE_CXX_FLAGS": "-march=native", "CMAKE_C_FLAGS": "-march=native"}'
-# cp -r /tmp/fbcode_builder_getdep*/installed/fmt-* "$DESTPATH"/folly/installed/fmt
-# cp -r /tmp/fbcode_builder_getdep*/installed/googletest-* "$DESTPATH"/folly/installed/googletest
-# mkdir -p "$DESTPATH"/folly/installed/folly/lib
-# mkdir -p "$DESTPATH"/folly/installed/folly/include
-# cp /tmp/fbcode_builder_getdep*/build/folly/*.a "$DESTPATH"/folly/installed/folly/lib/
-# mv /tmp/
-# cd "$DESTPATH"/folly/build || exit
-# cmake -DCMAKE_CXX_FLAGS="-march=native -O3" ../
+# folly
+cd "$DESTPATH" || exit
+git clone git@github.com:facebook/folly.git
+mkdir -p "$DESTPATH"/folly/installed
+cd "$DESTPATH"/folly || exit
+python3 ./build/fbcode_builder/getdeps.py build --allow-system-packages --extra-cmake-defines '{"CMAKE_CXX_FLAGS": " -O3 -march=native -flto ", "BUILD_TESTS": "off"}'
+cp -r /tmp/fbcode_builder_getdep*/installed/fmt-* "$DESTPATH"/folly/installed/fmt
+cp -r /tmp/fbcode_builder_getdep*/installed/googletest-* "$DESTPATH"/folly/installed/googletest
+cp -r /tmp/fbcode_builder_getdep*/installed/folly "$DESTPATH"/folly/installed/folly
+rm -rf /tmp/fbcode_builder_getdeps-*
 
 # pizza&chili
 cd "$DESTPATH" || exit
@@ -81,3 +76,5 @@ rm utils.tar.gz
 mv utils pizzachili
 cd "$DESTPATH"/pizzachili || exit
 make
+
+# TODO sdsl-lite

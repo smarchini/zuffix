@@ -1,5 +1,5 @@
-EXTERNAL_INCLUDES = -I ./dependencies/folly \
-					-I ./dependencies/folly/installed/folly/include \
+EXTERNAL_INCLUDES = -I ./dependencies/folly/installed/folly/include \
+					-I ./dependencies/folly/installed/fmt/include \
 					-I ./dependencies/sux \
 					-I ./dependencies/wyhash \
 					-I ./dependencies/libdivsufsort/build/include \
@@ -8,14 +8,10 @@ EXTERNAL_INCLUDES = -I ./dependencies/folly \
 					-I ./dependencies/zlib/build/include \
 					#-I ./dependencies/benchmark/installed/include
 
-# TODO: compile folly statically (remember to test if CRCs run in hardware) then remove this
-EXTERNAL_SOURCES = ./dependencies/folly/folly/hash/Checksum.cpp \
-				   ./dependencies/folly/folly/hash/detail/ChecksumDetail.cpp \
-				   ./dependencies/folly/folly/hash/detail/Crc32CombineDetail.cpp \
-				   ./dependencies/folly/folly/hash/detail/Crc32cDetail.cpp
-
 EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivsufsort.a \
 					   $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivsufsort64.a \
+					   $(shell pwd)/dependencies/folly/installed/folly/lib/libfolly.a \
+					   $(shell pwd)/dependencies/folly/installed/fmt/lib64/libfmt.a \
 					   $(shell pwd)/dependencies/zlib/build/lib/libz.a \
 					   $(shell pwd)/dependencies/xxHash/build/lib/libxxhash.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais64.a \
