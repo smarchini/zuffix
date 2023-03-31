@@ -6,13 +6,13 @@ using namespace zarr;
 using namespace sux::util;
 
 std::span<const char> text;
-constexpr size_t N = 40; // ~256MB // TODO bisogna fare tentativi per capire una dimensione fattible visti i tempi di costruizione
+constexpr size_t N = 35; // fib(35) = 14930352 ~ 14.2MiB
 const std::string a = "a", ab = "ab";
 
 sux::util::Vector<char, ALLOC_TYPE> fibostring(size_t n) {
     std::string prec = a, curr = ab;
     if (n == 0) return sux::util::Vector<char, ALLOC_TYPE>(a.c_str(), a.length());
-    for (size_t i = 1; i < n; i++) {
+    for (size_t i = 1; i <= n; i++) {
         std::string tmp = prec;
         prec = curr;
         curr += tmp;
@@ -22,11 +22,17 @@ sux::util::Vector<char, ALLOC_TYPE> fibostring(size_t n) {
 
 static void args(benchmark::internal::Benchmark *b) {
     // pattern_length: i-th fibonacci word
-    for (long i = 0; i < N; i++) b->Arg(i);
+    for (long i = 1; i < N; i++) b->Arg(i);
 }
 
 static void BM_run(benchmark::State &state) {
+    static bool is_built = false;
+	static auto begin = std::chrono::high_resolution_clock::now();
     static STRUCTURE_T ds(text);
+	static auto end = std::chrono::high_resolution_clock::now();
+	static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
+	if (!is_built) std::cout << "Data structure size: " << ds.bitCount() << " bits " << ", construction time: " << time << " ns" << std::endl;
+    is_built = true;
     static EnhancedSuffixArray<char> reference(text);
     size_t m = state.range(0);
     auto p = fibostring(m);
@@ -36,7 +42,7 @@ static void BM_run(benchmark::State &state) {
         auto pattern = std::span<const char>(&p, p.size());
         auto expected = reference.find(pattern);
         empty += expected.isEmpty();
-        occurrences = expected.length(); // fixed pattern, so `=` makes more sense than `=`
+        occurrences += expected.length();
         benchmark::DoNotOptimize(pattern);
         state.ResumeTiming();
         auto result = ds.find(pattern);
