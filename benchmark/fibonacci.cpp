@@ -6,13 +6,13 @@ using namespace zarr;
 using namespace sux::util;
 
 std::span<const char> text;
-constexpr size_t N = 35; // fib(35) = 14930352 ~ 14.2MiB
-const std::string a = "a", ab = "ab";
+constexpr size_t N = 34; // fib(35) = 14930352 ~ 14.2MiB
+const std::string a = "a", b = "b";
 
 sux::util::Vector<char, ALLOC_TYPE> fibostring(size_t n) {
-    std::string prec = a, curr = ab;
+    std::string prec = a, curr = b;
     if (n == 0) return sux::util::Vector<char, ALLOC_TYPE>(a.c_str(), a.length());
-    for (size_t i = 1; i <= n; i++) {
+    for (size_t i = 1; i < n; i++) {
         std::string tmp = prec;
         prec = curr;
         curr += tmp;
@@ -45,8 +45,7 @@ static void BM_run(benchmark::State &state) {
         occurrences += expected.length();
         benchmark::DoNotOptimize(pattern);
         state.ResumeTiming();
-        auto result = ds.find(pattern);
-        benchmark::DoNotOptimize(result);
+        benchmark::DoNotOptimize(errors += ds.find(pattern) != expected);
     }
     state.counters["empty"] = empty;
     state.counters["errors"] = errors;
