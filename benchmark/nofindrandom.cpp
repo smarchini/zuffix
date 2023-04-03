@@ -10,17 +10,18 @@ static constexpr size_t textsize = 200ULL << 20; // TODO: trovare un modo di pre
 
 static void args(benchmark::internal::Benchmark *b) {
     for (size_t k = 1; k * 10 < textsize; k *= 10)
-        for (size_t i = k; i < k * 10; i += k)
-            b->Arg(i);
+        for (size_t i = k; i < k * 10; i += k) b->Arg(i);
 }
 
 static void BM_run(benchmark::State &state) {
     static bool is_built = false;
-	static auto begin = std::chrono::high_resolution_clock::now();
+    static auto begin = std::chrono::high_resolution_clock::now();
     static STRUCTURE_T ds(text);
-	static auto end = std::chrono::high_resolution_clock::now();
-	static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
-	if (!is_built) std::cout << "Data structure size: " << ds.bitCount() << " bits " << ", construction time: " << time << " ns" << std::endl;
+    static auto end = std::chrono::high_resolution_clock::now();
+    static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
+    if (!is_built)
+        std::cout << "Data structure size: " << ds.bitCount() << " bits"
+                  << ", construction time: " << time << " ns" << std::endl;
     is_built = true;
     static EnhancedSuffixArray<SIGMA_T, ALLOC_TYPE> reference(text);
     size_t m = state.range(0);
@@ -31,7 +32,7 @@ static void BM_run(benchmark::State &state) {
         state.PauseTiming();
         size_t from = dist(rng);
         sux::util::Vector<SIGMA_T, ALLOC_TYPE> buffer(text.data() + from, m);
-        buffer[mdist(rng)] = std::numeric_limits<SIGMA_T>::max();
+        buffer[mdist(rng)] = std::numeric_limits<SIGMA_T>::max() - 1;
         auto p = std::span<const SIGMA_T>(&buffer, m);
         benchmark::DoNotOptimize(p);
         state.ResumeTiming();
@@ -56,7 +57,7 @@ int main(int argc, char **argv) {
     text = std::span<const SIGMA_T>(&buffer, length); // global variable
 
     SIGMA_T x = 0;
-    for (auto c: text) x ^= c;
+    for (auto c : text) x ^= c;
     benchmark::DoNotOptimize(x);
 
     // Google Benchmark's stuff

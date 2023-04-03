@@ -27,11 +27,13 @@ static void args(benchmark::internal::Benchmark *b) {
 
 static void BM_run(benchmark::State &state) {
     static bool is_built = false;
-	static auto begin = std::chrono::high_resolution_clock::now();
+    static auto begin = std::chrono::high_resolution_clock::now();
     static STRUCTURE_T ds(text);
-	static auto end = std::chrono::high_resolution_clock::now();
-	static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
-	if (!is_built) std::cout << "Data structure size: " << ds.bitCount() << " bits " << ", construction time: " << time << " ns" << std::endl;
+    static auto end = std::chrono::high_resolution_clock::now();
+    static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
+    if (!is_built)
+        std::cout << "Data structure size: " << ds.bitCount() << " bits "
+                  << ", construction time: " << time << " ns" << std::endl;
     is_built = true;
     static EnhancedSuffixArray<char> reference(text);
     size_t m = state.range(0);
@@ -60,7 +62,7 @@ int main(int argc, char **argv) {
     text = std::span<const char>(&string, string.size()); // global variable
 
     char x = 0;
-    for (auto c: text) x ^= c;
+    for (auto c : text) x ^= c;
     benchmark::DoNotOptimize(x);
 
     // Google Benchmark's stuff
