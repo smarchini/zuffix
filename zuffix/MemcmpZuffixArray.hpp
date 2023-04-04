@@ -256,45 +256,33 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		ZFillByDFS(l, j, elen + 1, htext, depth + 1);
 	}
 
-	// TODO clean me
 	void ZFillByBottomUp() {
+		struct Node { ssize_t l, i, j; };
 		RH<T, AT> htext(text.data(), text.size());
-		Vector<ssize_t, AT> stackl(0);
-		Vector<ssize_t, AT> stacki(0);
-		Vector<ssize_t, AT> stackj(0);
-		stackl.reserve(text.size());
-		stacki.reserve(text.size());
-		stackj.reserve(text.size());
-		stackl.pushBack(0);
-		stacki.pushBack(0);
-		stackj.pushBack(text.size());
+		Vector<Node, AT> stack;
+		stack.reserve(text.size());
+		stack.pushBack(Node{0, 0, 0});
 
 		for (size_t i = 1; i < text.size(); i++) {
 			size_t lb = i - 1;
-			while (lcp[i] < stackl[stackl.size() - 1]) {
-				size_t intervall = stackl.popBack();
-				size_t intervali = stacki.popBack();
-				size_t intervalj = stackj.popBack();
-				intervalj = i;
+			while (lcp[i] < stack[stack.size() - 1].l) {
+				Node node = stack.popBack();
+				node.j = i;
 
-				ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
-				ssize_t elen = getlcp(intervali, intervalj);
+				ssize_t nlen = 1 + max(lcp[node.i], lcp[node.j]);
+				ssize_t elen = getlcp(node.i, node.j);
 				size_t hlen = twoFattestLR(nlen, elen);
 				if (maxhlen <= hlen) maxhlen = hlen;
 
-				z.store(htext(sa[intervali], hlen), LInterval(intervali, intervalj));
+				z.store(htext(sa[node.i], hlen), LInterval(node.i, node.j));
 				if (z.elements() * 3 / 2 > z.size()) {
 					DEBUGDO(_growZTable++);
 					z = LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT>(z, z.size() * 2);
 				}
 
-				lb = intervali;
+				lb = node.i;
 			}
-			if (lcp[i] > stackl[stackl.size() - 1]) {
-				stackl.pushBack(lcp[i]);
-				stacki.pushBack(lb);
-				stackj.pushBack(i);
-			}
+			if (lcp[i] > stack[stack.size() - 1].l) stack.pushBack(Node{lcp[i], lb, i});
 		}
 	}
 

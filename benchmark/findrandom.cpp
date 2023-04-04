@@ -58,10 +58,6 @@ int main(int argc, char **argv) {
     buffer[length - 1] = std::numeric_limits<SIGMA_T>::max();
     text = std::span<const SIGMA_T>(&buffer, length); // global variable
 
-    SIGMA_T x = 0;
-    for (auto c : text) x ^= c;
-    benchmark::DoNotOptimize(x);
-
     // Google Benchmark's stuff
     char arg0_default[] = "benchmark";
     char *args_default = arg0_default;

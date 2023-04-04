@@ -19,7 +19,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	Vector<ssize_t, AT> lcp;
 	Vector<size_t, AT> ct;
 	LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT> z;
-	size_t maxhlen = 0;
+	size_t maxhlen = 0, maxnlen = 0;
 
 	RH<T, AT> hpattern;
 
@@ -55,7 +55,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		DEBUGDO(_exit++);
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
-		size_t end = min(min(elen, pattern.size()), maxhlen) - nlen;
+		size_t end = min(min(elen, pattern.size()), maxnlen) - nlen;
 		if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.size()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
@@ -134,6 +134,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
+		if (maxnlen <= hlen) maxnlen = nlen;
 		if (maxhlen <= hlen) maxhlen = hlen;
 		assert(depth <= hlen);
 
@@ -175,6 +176,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 				ssize_t nlen = 1 + max(lcp[intervali], lcp[intervalj]);
 				ssize_t elen = getlcp(intervali, intervalj);
 				size_t hlen = twoFattestLR(nlen, elen);
+				if (maxnlen <= hlen) maxnlen = nlen;
 				if (maxhlen <= hlen) maxhlen = hlen;
 
 				z.store(htext(sa[intervali], hlen), LInterval(intervali, intervalj));
@@ -196,8 +198,8 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
 	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
 
-	friend std::ostream &operator<<(std::ostream &os, const NothingZuffixArray<T, RH, AT> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
-	friend std::istream &operator>>(std::istream &is, NothingZuffixArray<T, RH, AT> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
+	friend std::ostream &operator<<(std::ostream &os, const NothingZuffixArray<T, RH, AT> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen << ds.maxnlen; }
+	friend std::istream &operator>>(std::istream &is, NothingZuffixArray<T, RH, AT> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen >> ds.maxnlen; }
 
 #ifdef DEBUG
   public:

@@ -32,7 +32,7 @@ static void BM_run(benchmark::State &state) {
         state.PauseTiming();
         size_t from = dist(rng);
         sux::util::Vector<SIGMA_T, ALLOC_TYPE> buffer(text.data() + from, m);
-        buffer[mdist(rng)] = std::numeric_limits<SIGMA_T>::max() - 1;
+        buffer[mdist(rng)] = 0;
         auto p = std::span<const SIGMA_T>(&buffer, m);
         benchmark::DoNotOptimize(p);
         state.ResumeTiming();
