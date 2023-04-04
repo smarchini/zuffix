@@ -80,7 +80,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 			if (elen < pattern.size()) {
 				auto [l, r] = getChild(i, j, pattern[elen]);
 				if (r < l) return {1, 0};
-				return exit(pattern, l, r);
+				return exit_prefix(pattern, l, r);
 			}
 		}
 		return {i, j};
@@ -112,12 +112,12 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 				alpha = beta;
 			}
 		}
-		size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
-		size_t end = min(nlen, pattern.size());
-		if (hpattern(end) != htext(sa[alpha.from], end)) {
-			DEBUGDO(_fatBinarySearch_mischivious_collisions++);
-			return {0, text.size()};
-		}
+		// size_t nlen = 1 + max(lcp[alpha.from], lcp[alpha.to]);
+		// size_t end = min(nlen, pattern.size());
+		// if (hpattern(end) != htext(sa[alpha.from], end)) {
+		// 	DEBUGDO(_fatBinarySearch_mischivious_collisions++);
+		// 	return {0, text.size()};
+		// }
 		return alpha;
 	}
 
@@ -133,7 +133,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		DEBUGDO(_find++);
 		hpattern.setString(pattern.data());
 		auto [i, j] = fatBinarySearch(pattern);
-		return exit(pattern, i, j);
+		return exit_prefix(pattern, i, j);
 	}
 
 	std::span<const T> getText() const { return text; }

@@ -36,7 +36,7 @@ static void BM_run(benchmark::State &state) {
         occurrences += expected.length();
         benchmark::DoNotOptimize(p);
         state.ResumeTiming();
-        benchmark::DoNotOptimize(errors += ds.find(p) != expected);
+        benchmark::DoNotOptimize(errors += ds.find_prefix(p) != expected);
     }
     state.counters["empty"] = empty;
     state.counters["errors"] = errors;

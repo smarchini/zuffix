@@ -85,7 +85,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 			if (elen < pattern.size()) {
 				auto [l, r] = getChild(i, j, pattern[elen]);
 				if (r < l) return {1, 0};
-				return exit(pattern, l, r);
+				return exit_prefix(pattern, l, r);
 			}
 		}
 		return {i, j};
