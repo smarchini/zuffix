@@ -8,8 +8,8 @@
 #include "util/common.hpp"
 
 namespace zarr {
-using ::sux::util::Vector;
 using ::sux::util::AllocType;
+using ::sux::util::Vector;
 
 template <typename T, AllocType AT = MALLOC> class EnhancedSuffixArray {
   private:
@@ -21,7 +21,11 @@ template <typename T, AllocType AT = MALLOC> class EnhancedSuffixArray {
   public:
 	EnhancedSuffixArray() {}
 
-	EnhancedSuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)), lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)), ct(CTConstructByAbouelhoda<AT>(lcp)) {
+	EnhancedSuffixArray(std::span<const T> string)
+		: text(std::move(string)),
+		  sa(SAConstructByGrebnovSAIS<T, AT>(text)),
+		  lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)),
+		  ct(CTConstructByAbouelhoda<AT>(lcp)) {
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 	}
 
@@ -47,6 +51,24 @@ template <typename T, AllocType AT = MALLOC> class EnhancedSuffixArray {
 
 			if (j - i == 1) {
 				if (memcmp(pattern.data() + c, text.data() + sa[i] + c, (pattern.size() - c) * sizeof(T))) return {1, 0};
+				break;
+			}
+
+			ssize_t d = min(getlcp(i, j), static_cast<ssize_t>(pattern.size()));
+			if (memcmp(pattern.data() + c, text.data() + sa[i] + c, (d - c) * sizeof(T))) return {1, 0};
+			c = d;
+		}
+		return {i, j};
+	}
+
+	LInterval<size_t> find_prefix(std::span<const T> pattern) const {
+		size_t c = 0;
+		size_t i = 0, j = text.size();
+		while (c < pattern.size() && i < j) {
+			std::tie(i, j) = getChild(i, j, pattern[c]);
+
+			if (j - i == 1) {
+				if (memcmp(pattern.data() + c, text.data() + sa[i] + c, sizeof(T))) return {1, 0};
 				break;
 			}
 

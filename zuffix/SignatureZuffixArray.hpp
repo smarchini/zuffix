@@ -9,8 +9,8 @@
 #include "util/common.hpp"
 
 namespace zarr {
-using ::sux::util::Vector;
 using ::sux::util::AllocType;
+using ::sux::util::Vector;
 
 template <typename T, template <typename U, AllocType AT> class RH, AllocType AT = MALLOC> class SignatureZuffixArray {
   private:
@@ -26,13 +26,17 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
   public:
 	SignatureZuffixArray() {}
 
-	SignatureZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)), lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)), ct(CTConstructByAbouelhoda<AT>(lcp)), htext(text.data(), text.size()) {
+	SignatureZuffixArray(std::span<const T> string)
+		: text(std::move(string)),
+		  sa(SAConstructByGrebnovSAIS<T, AT>(text)),
+		  lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)),
+		  ct(CTConstructByAbouelhoda<AT>(lcp)),
+		  htext(text.data(), text.size()) {
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 		// z.resize(ceil_pow2(text.size()) << 1); // TODO: tweak me to improve construction performance
 		htext(text.size() - 1); // preload
-		ZFillByDFS(0, text.size(), 0);
-		// ZFillByBottomUp();  // alternative z-map construction
-		hpattern.reserve(text.size());
+		ZFillByDFS(0, text.size(), 0); // Alternatively: ZFillByBottomUp();
+		hpattern.reserve(text.size()); // prealloc
 		DEBUGDO(print_stats("Construction"));
 	}
 
@@ -53,14 +57,31 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 
 	LInterval<size_t> exit(std::span<const T> pattern, size_t i, size_t j) { // const {
 		DEBUGDO(_exit++);
-		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
-		size_t end = min(elen, pattern.size()) - nlen;
-		if (hpattern(nlen, end) != htext(sa[i] + nlen, end)) return {1, 0};
+		size_t end = min(elen, pattern.size());
+		if (hpattern(end) != htext(sa[i], end)) return {1, 0};
 		if (elen < pattern.size()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
 			return exit(pattern, l, r);
+		}
+		return {i, j};
+	}
+
+	LInterval<size_t> exit_prefix(std::span<const T> pattern, size_t i, size_t j) { // const {
+		DEBUGDO(_exit++);
+		size_t nlen = 1 + max(lcp[i], lcp[j]);
+		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
+		if (j - i == 1) {
+			if (hpattern(nlen) != htext(sa[i], nlen)) return {1, 0};
+		} else {
+			size_t end = min(elen, pattern.size());
+			if (hpattern(end) != htext(sa[i], end)) return {1, 0};
+			if (elen < pattern.size()) {
+				auto [l, r] = getChild(i, j, pattern[elen]);
+				if (r < l) return {1, 0};
+				return exit(pattern, l, r);
+			}
 		}
 		return {i, j};
 	}
@@ -108,6 +129,13 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		return exit(pattern, i, j);
 	}
 
+	LInterval<size_t> find_prefix(std::span<const T> pattern) {
+		DEBUGDO(_find++);
+		hpattern.setString(pattern.data());
+		auto [i, j] = fatBinarySearch(pattern);
+		return exit(pattern, i, j);
+	}
+
 	std::span<const T> getText() const { return text; }
 
 	const Vector<size_t, AT> &getSA() const { return sa; }
@@ -117,13 +145,9 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	const Vector<size_t, AT> &getCT() const { return ct; }
 
 	size_t bitCount() const {
-		return sizeof(*this) * 8
-			+ sa.bitCount() - sizeof(sa) * 8
-			+ lcp.bitCount() - sizeof(lcp) * 8
-			+ ct.bitCount() - sizeof(ct) * 8
-			+ z.bitCount() - sizeof(z) * 8
-			+ htext.bitCount() - sizeof(htext) * 8;
-			+ hpattern.bitCount() - sizeof(hpattern) * 8;
+		return sizeof(*this) * 8 + sa.bitCount() - sizeof(sa) * 8 + lcp.bitCount() - sizeof(lcp) * 8 + ct.bitCount() - sizeof(ct) * 8 + z.bitCount() - sizeof(z) * 8 + htext.bitCount() -
+			   sizeof(htext) * 8;
+		+hpattern.bitCount() - sizeof(hpattern) * 8;
 	}
 
   private:

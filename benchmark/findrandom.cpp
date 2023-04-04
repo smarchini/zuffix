@@ -31,7 +31,7 @@ static void BM_run(benchmark::State &state) {
         state.PauseTiming();
         size_t from = dist(rng);
         auto p = text.subspan(from, m);
-        auto expected = reference.find(p);
+        auto expected = reference.find_prefix(p);
         empty += expected.isEmpty();
         occurrences += expected.length();
         benchmark::DoNotOptimize(p);

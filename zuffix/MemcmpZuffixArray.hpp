@@ -11,8 +11,8 @@
 #include <chrono>
 
 namespace zarr {
-using ::sux::util::Vector;
 using ::sux::util::AllocType;
+using ::sux::util::Vector;
 
 template <typename T, template <typename U, AllocType AT> class RH, AllocType AT = MALLOC> class MemcmpZuffixArray {
   private:
@@ -28,12 +28,15 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
   public:
 	MemcmpZuffixArray() {}
 
-	MemcmpZuffixArray(std::span<const T> string) : text(std::move(string)), sa(SAConstructByGrebnovSAIS<T, AT>(text)), lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)), ct(CTConstructByAbouelhoda<AT>(lcp)) {
+	MemcmpZuffixArray(std::span<const T> string)
+		: text(std::move(string)),
+		  sa(SAConstructByGrebnovSAIS<T, AT>(text)),
+		  lcp(LCPConstructByKarkkainenPsi<T, AT>(text, sa)),
+		  ct(CTConstructByAbouelhoda<AT>(lcp)) {
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 		// z.resize(ceil_pow2(text.size()) << 1); // TODO: tweak me to improve construction performance
 		RH<T, AT> htext(text.data(), text.size());
-		ZFillByDFS(0, text.size(), 0, htext);
-		// ZFillByBottomUp();  // alternative z-map construction
+		ZFillByDFS(0, text.size(), 0, htext); // Alternatively: ZFillByBottomUp();
 		hpattern.reserve(text.size());
 		DEBUGDO(print_stats("Construction"));
 	}
@@ -66,6 +69,24 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 			auto [l, r] = getChild(i, j, pattern[elen]);
 			if (r < l) return {1, 0};
 			return exit(pattern, l, r);
+		}
+		return {i, j};
+	}
+
+	LInterval<size_t> exit_prefix(std::span<const T> pattern, size_t i, size_t j) { // const {
+		DEBUGDO(_exit++);
+		size_t nlen = 1 + max(lcp[i], lcp[j]);
+		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
+		if (j - i == 1) {
+			if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, sizeof(T))) return {1, 0};
+		} else {
+			size_t end = min(elen, pattern.size()) - nlen;
+			if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, end * sizeof(T))) return {1, 0};
+			if (elen < pattern.size()) {
+				auto [l, r] = getChild(i, j, pattern[elen]);
+				if (r < l) return {1, 0};
+				return exit(pattern, l, r);
+			}
 		}
 		return {i, j};
 	}
@@ -114,7 +135,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 			assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
 			LInterval<size_t> beta = z[hpattern(f)].value_or(LInterval<size_t>::empty());
 			size_t elen = getlcp(beta.from, beta.to) + 1;
-			if (beta.isEmpty()) {  // NOTE: `|| hlen != f` requries lambda
+			if (beta.isEmpty()) { // NOTE: `|| hlen != f` requries lambda
 				DEBUGDO(_fatBinarySearch_beta_empty++);
 				r = f - 1;
 			} else if (!alpha.contains(beta)) {
@@ -212,6 +233,13 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		return exit(pattern, i, j);
 	}
 
+	LInterval<size_t> find_prefix(std::span<const T> pattern) {
+		DEBUGDO(_find++);
+		hpattern.setString(pattern.data());
+		auto [i, j] = fatBinarySearch(pattern);
+		return exit_prefix(pattern, i, j);
+	}
+
 	std::span<const T> getText() const { return text; }
 
 	const Vector<size_t, AT> &getSA() const { return sa; }
@@ -221,12 +249,8 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	const Vector<size_t, AT> &getCT() const { return ct; }
 
 	size_t bitCount() const {
-		return sizeof(*this) * 8
-			+ sa.bitCount() - sizeof(sa) * 8
-			+ lcp.bitCount() - sizeof(lcp) * 8
-			+ ct.bitCount() - sizeof(ct) * 8
-			+ z.bitCount() - sizeof(z) * 8
-			+ hpattern.bitCount() - sizeof(hpattern) * 8;
+		return sizeof(*this) * 8 + sa.bitCount() - sizeof(sa) * 8 + lcp.bitCount() - sizeof(lcp) * 8 + ct.bitCount() - sizeof(ct) * 8 + z.bitCount() - sizeof(z) * 8 + hpattern.bitCount() -
+			   sizeof(hpattern) * 8;
 	}
 
   private:
@@ -257,7 +281,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	}
 
 	void ZFillByBottomUp() {
-		struct Node { ssize_t l, i, j; };
+		struct Node { size_t l, i, j; };
 		RH<T, AT> htext(text.data(), text.size());
 		Vector<Node, AT> stack;
 		stack.reserve(text.size());

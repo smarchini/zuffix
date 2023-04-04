@@ -10,9 +10,9 @@ def to_si(n):
         if base <= n:
             return f'{n/base:.2f}'.rstrip('0').rstrip('.') + sym
 
-date = sys.argv[1]  # '20230317'
-title = sys.argv[2] # 'gutenberg-200MB'
-prefixdir = './' # '~/blew_results'
+date = sys.argv[1]
+title = sys.argv[2]
+prefixdir = '.'
 
 benchmarks = [
     (f'{prefixdir}/{date}/findrandom.{title}.simple.{date}.csv', '-', 'grey'),
@@ -41,8 +41,8 @@ ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
 
 for (file, line, color) in benchmarks:
     name = file.split('/')[-1].split('.')[2]
-    table = pd.read_csv(file)
-    x = table['length']  # [ int(value.split('/')[1]) for value in table['name'] ]
+    table = pd.read_csv(file, skiprows=1)
+    x = table['length']
     y = list(table['cpu_time'])
     lbl = list(table['errors'])
     iterations = int(table['iterations'][0])
@@ -60,10 +60,9 @@ plt.xlim([1, 100 * (1 << 20)])
 ax.xaxis.get_major_locator().set_params(numticks=99)
 ax.xaxis.get_minor_locator().set_params(numticks=99, subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9])
 plt.legend(loc="lower right", ncols=2)
-plt.title(f'{title} (10000 iterations)', fontsize='xx-large')
+plt.title(f'{title} ({iterations} iterations)', fontsize='xx-large')
 plt.xlabel("Pattern length (Bytes)", fontsize='large')
 plt.ylabel("Time (ns)", fontsize='large')
 
 plt.savefig(f'{title}.{date}.pdf')
-#plt.savefig(f'{title}.{date}.png', dpi=1200)
 #fig.show()

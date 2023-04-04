@@ -128,13 +128,13 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
 	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T, AT> &htext, size_t depth = 0) {
+		if (maxnlen <= nlen) maxnlen = nlen;
 		DEBUGDO(if (_construction_depth < depth) _construction_depth = depth);
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
-		if (maxnlen <= hlen) maxnlen = nlen;
 		if (maxhlen <= hlen) maxhlen = hlen;
 		assert(depth <= hlen);
 

@@ -37,7 +37,7 @@ ax = fig.add_subplot(1,1,1)
 
 for (file, line, color) in benchmarks:
     name = file.split('/')[-1].split('.')[1]
-    table = pd.read_csv(file)
+    table = pd.read_csv(file, skiprows=1)
     x = table['length']
     y = list(table['cpu_time'])
     lbl = list(table['errors'])

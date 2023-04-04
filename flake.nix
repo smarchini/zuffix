@@ -37,10 +37,13 @@
               stdenvAdapters.impureUseNativeOptimizations llvmPackages_latest.stdenv
             );
           };
+          pythonEnv = pkgs.python3.withPackages(ps: with ps; [ matplotlib pandas ]);
         in
         {
           default = mkShellNative {
             packages = [
+              pythonEnv
+              pkgs.pdftk
               pkgs.pkg-config
               pkgs.clang-tools
 
@@ -48,31 +51,10 @@
               pkgs.gbenchmark
               pkgs.llvmPackages_latest.openmp
 
-              pkgs.folly # this needs to be removed
-              # folly stuff
-              pkgs.autoconf
-              pkgs.automake
-              pkgs.autoconf
-              pkgs.automake
-              pkgs.boost178
-              pkgs.cmake
-              pkgs.double-conversion
-              pkgs.gflags
-              pkgs.glog
-              pkgs.libevent
-              pkgs.libsodium
-              pkgs.libtool
-              pkgs.zstd
-              pkgs.lz4
-              pkgs.ninja
-              pkgs.snappy
-              pkgs.xz
-              pkgs.openssl 
-
-              # nativePkgs.folly
+              nativePkgs.folly
               # nativePkgs.zlib
               # nativePkgs.xxHash
-              nativePkgs.libdivsufsort64
+              # nativePkgs.libdivsufsort64
               # (nativePkgs.callPackage ./nix/sux.nix { })
               # (nativePkgs.callPackage ./nix/libsais.nix { })
               # (nativePkgs.callPackage ./nix/wyhash.nix { })
