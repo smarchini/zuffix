@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import math
+import os.path
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -11,8 +12,8 @@ def to_si(n):
         if base <= n:
             return f'{n/base:.2f}'.rstrip('0').rstrip('.') + sym
 
-date = sys.argv[1]  # '20230317'
-prefixdir = '~/blew_results'
+date = sys.argv[1]
+prefixdir = '.'
 
 benchmarks = [
     (f'{prefixdir}/{date}/fibonacci.simple.{date}.csv', '-', 'grey'),
@@ -36,6 +37,7 @@ fig = plt.figure(figsize=(16,9))
 ax = fig.add_subplot(1,1,1)
 
 for (file, line, color) in benchmarks:
+    if not os.path.exists(file): continue
     name = file.split('/')[-1].split('.')[1]
     table = pd.read_csv(file, skiprows=1)
     x = table['length']
@@ -43,7 +45,7 @@ for (file, line, color) in benchmarks:
     lbl = list(table['errors'])
     iterations = int(table['iterations'][0])
     ax.loglog(x, y, label=name, linestyle=line, color=color)
-    if name == 'simple':
+    if name == 'enhanced':
         topax = ax.secondary_xaxis('top')
         topax.tick_params(axis='x', direction='inout')
         avg_occurrences = map(lambda x: x[0]/x[1], zip(table['occurrences'], table['iterations']))

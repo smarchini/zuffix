@@ -63,11 +63,11 @@ int main(int argc, char **argv) {
 		getline(cin, pattern);
 		LInterval<size_t> result;
 		auto begin = chrono::high_resolution_clock::now();
-		for (size_t reps = 0; reps < 1000000; reps++) {
+		// for (size_t reps = 0; reps < 1000000; reps++) {
 			benchmark::DoNotOptimize(pattern);
-			result = ds.find(pattern);
+			result = ds.FIND_OP(pattern);
 			benchmark::DoNotOptimize(result);
-		}
+		// }
 		auto end = chrono::high_resolution_clock::now();
 		auto time = chrono::duration_cast<chrono::nanoseconds>(end - begin).count();
 		cout << "Result: " << result << " found " << result.length() << " occurrences in " << time << " ns" << endl;

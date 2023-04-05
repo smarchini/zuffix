@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import os.path
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -40,6 +41,7 @@ ax.xaxis.set_minor_locator(locmin)
 ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
 
 for (file, line, color) in benchmarks:
+    if not os.path.exists(file): continue
     name = file.split('/')[-1].split('.')[2]
     table = pd.read_csv(file, skiprows=1)
     x = table['length']
@@ -47,7 +49,7 @@ for (file, line, color) in benchmarks:
     lbl = list(table['errors'])
     iterations = int(table['iterations'][0])
     ax.loglog(x, y, label=name, linestyle=line, color=color)
-    if name == 'simple':
+    if name == 'enhanced':
         topax = ax.secondary_xaxis('top')
         topax.tick_params(axis='x', direction='inout')
         avg_occurrences = map(lambda x: x[0]/x[1], zip(table['occurrences'], table['iterations']))

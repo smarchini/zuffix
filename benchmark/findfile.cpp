@@ -54,10 +54,9 @@ int main(int argc, char **argv) {
 		auto length = atoi(get("length").c_str());
 
 		sux::util::Vector<SIGMA_T, ALLOC_TYPE> patterns(length * number / sizeof(SIGMA_T));
-		//unique_ptr<SIGMA_T[]> patterns(new SIGMA_T[length * number / sizeof(SIGMA_T)]);
 		file.read((char *)&patterns, length * number);
 
-		for (size_t i = 0; i < patterns.size(); i++) x ^= patterns[i] ;
+		for (size_t i = 0; i < patterns.size(); i++) x ^= patterns[i];
 		benchmark::DoNotOptimize(x);
 
 		uint64_t sum = 0;
@@ -73,7 +72,7 @@ int main(int argc, char **argv) {
 			//for (size_t reps = 0; reps < (1 << 7); reps++) {
 				span<SIGMA_T> p(&patterns + length * i, length);
 				benchmark::DoNotOptimize(p);
-				result = ds.find(p);
+				result = ds.FIND_OP(p);
 				benchmark::DoNotOptimize(result);
 			//}
 			auto end = chrono::high_resolution_clock::now();

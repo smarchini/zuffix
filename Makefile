@@ -4,6 +4,7 @@ EXTERNAL_INCLUDES = -I ./dependencies/sux \
 					-I ./dependencies/libsais/build/include \
 					-I ./dependencies/xxHash/build/include \
 					-I ./dependencies/zlib/build/include \
+					#-I ./dependencies/benchmark/installed/include \
 					#-I ./dependencies/folly/installed/folly/include \
 					#-I ./dependencies/folly/installed/fmt/include
 
@@ -13,8 +14,9 @@ EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivs
 					   $(shell pwd)/dependencies/xxHash/build/lib/libxxhash.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais64.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais.a \
- 					   #$(shell pwd)/dependencies/folly/installed/folly/lib/libfolly.a \
- 					   #$(shell pwd)/dependencies/folly/installed/fmt/lib64/libfmt.a
+					   #$(shell pwd)/dependencies/benchmark/installed/lib64/libbenchmark.a \
+					   #$(shell pwd)/dependencies/folly/installed/folly/lib/libfolly.a \
+					   #$(shell pwd)/dependencies/folly/installed/fmt/lib64/libfmt.a
 
 CXXFLAGS += -std=c++20 -march=native -mtune=native -fomit-frame-pointer -flto -fopenmp -Wall -Wextra -I ./ $(EXTERNAL_INCLUDES) $(EXTERNAL_SOURCES)
 ifeq ($(CXX), clang++)
@@ -41,10 +43,10 @@ BENCHMARKS = bin/benchmark/lambda          \
 			 bin/benchmark/saca            \
 			 bin/benchmark/hash_block_size \
 			 bin/benchmark/hash            \
-			 bin/benchmark/findrandom      \
-			 bin/benchmark/nofindrandom      \
-			 bin/benchmark/fibonacci       \
 			 bin/benchmark/interactive     \
+			 bin/benchmark/fibonacci       \
+			 bin/benchmark/findrandom      \
+			 bin/benchmark/nofindrandom    \
 			 bin/benchmark/findfile        \
 			 bin/benchmark/build           \
 
@@ -109,6 +111,21 @@ bin/benchmark/hash: benchmark/hash.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
+bin/benchmark/interactive: benchmark/interactive.cpp $(DEPENDENCIES)
+	@mkdir -p $@
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DFIND_OP=find       -DSTRUCTURE_T=SimpleSuffixArray\<char\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=EnhancedSuffixArray\<char\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,CRC32Plus32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32ZlibHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32Plus32CFollyHash\>
+
 bin/benchmark/fibonacci: benchmark/fibonacci.cpp $(DEPENDENCIES)
 	@mkdir -p $@
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=find       -DSTRUCTURE_T=SimpleSuffixArray\<char,ALLOC_TYPE\>
@@ -124,36 +141,21 @@ bin/benchmark/fibonacci: benchmark/fibonacci.cpp $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32CFollyHash,ALLOC_TYPE\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
 
-bin/benchmark/interactive: benchmark/interactive.cpp $(DEPENDENCIES)
-	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSTRUCTURE_T=SimpleSuffixArray\<char\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSTRUCTURE_T=EnhancedSuffixArray\<char\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,WyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,CRC32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSTRUCTURE_T=MemcmpZuffixArray\<char\,CRC32Plus32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DSTRUCTURE_T=SignatureZuffixArray\<char\,XXH3Hash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DSTRUCTURE_T=SignatureZuffixArray\<char\,WyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32ZlibHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32CFollyHash\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32Plus32CFollyHash\>
-
 bin/benchmark/findfile: benchmark/findfile.cpp benchmark/findfile_errors.cpp $(DEPENDENCIES)
 	@mkdir -p $@
 	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/errors benchmark/findfile_errors.cpp $(LDLIBS) -DSIGMA_T=SIGMA_T
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=find       -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
 
 bin/benchmark/findrandom: benchmark/findrandom.cpp $(DEPENDENCIES)
 	@mkdir -p $@
@@ -187,20 +189,20 @@ bin/benchmark/nofindrandom: benchmark/nofindrandom.cpp $(DEPENDENCIES)
 
 # TODO Test operator<< and operator>> they are likely wrong.
 # For now this is only (slightly) useful to benchmark construction time, not to dump/load the structure into/from a file.
-bin/benchmark/build: benchmark/build.cpp $(DEPENDENCIES)
-	@mkdir -p $@
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
+# bin/benchmark/build: benchmark/build.cpp $(DEPENDENCIES)
+# 	@mkdir -p $@
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=MemcmpZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-xxh3         $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,XXH3Hash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-wyhash       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,WyHash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32ZlibHash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32CFollyHash,ALLOC_TYPE\>
+# 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32+crc32c $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DSTRUCTURE_T=SignatureZuffixArray\<SIGMA_T\,CRC32Plus32CFollyHash,ALLOC_TYPE\>
 
 .PHONY: clean
 
