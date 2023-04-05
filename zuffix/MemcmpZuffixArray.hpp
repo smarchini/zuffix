@@ -21,7 +21,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	Vector<ssize_t, AT> lcp;
 	Vector<size_t, AT> ct;
 	LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT> z;
-	size_t maxhlen = 0;
+	size_t maxnlen = 0, maxhlen = 0;
 
 	RH<T, AT> hpattern;
 
@@ -61,9 +61,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.size()) - nlen;
-		// NOTE: The following comparison is expensive on the leaves because
-		// most of the text falls into there: eg., in a book, you rarely read
-		// the same sentence twice.
+		// NOTE: The following comparison can be quite expensive
 		if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.size()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
@@ -76,10 +74,10 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	LInterval<size_t> exit_prefix(std::span<const T> pattern, size_t i, size_t j) { // const {
 		DEBUGDO(_exit++);
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
-		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
 		if (j - i == 1) {
 			if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, sizeof(T))) return {1, 0};
 		} else {
+			size_t elen = getlcp(i, j);
 			size_t end = min(elen, pattern.size()) - nlen;
 			if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 			if (elen < pattern.size()) {
@@ -94,7 +92,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	LInterval<size_t> fatBinarySearch_lambdabased(std::span<const T> pattern) {
 		DEBUGDO(_fatBinarySearch++);
 		LInterval<size_t> alpha = {0, text.size()};
-		size_t l = 0, r = min(pattern.size(), maxhlen);
+		size_t l = 0, r = min(pattern.size(), maxnlen); // maxhlen
 		while (l < r) {
 			DEBUGDO(_fatBinarySearch_while_reps++);
 			size_t f = twoFattestR(l, r);
@@ -126,7 +124,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	LInterval<size_t> fatBinarySearch_lambdaless(std::span<const T> pattern) {
 		DEBUGDO(_fatBinarySearch++);
 		LInterval<size_t> alpha = {0, text.size()};
-		size_t l = 0, r = min(pattern.size(), maxhlen);
+		size_t l = 0, r = min(pattern.size(), maxnlen); // maxhlen
 		int64_t m = -1ULL << 63;
 		while (l < r) {
 			DEBUGDO(_fatBinarySearch_while_reps++);
@@ -159,7 +157,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	LInterval<size_t> fatBinarySearch_quasilambdaless(std::span<const T> pattern) {
 		DEBUGDO(_fatBinarySearch++);
 		LInterval<size_t> alpha = {0, text.size()};
-		size_t l = 0, r = min(pattern.size(), maxhlen);
+		size_t l = 0, r = min(pattern.size(), maxnlen); // maxhlen
 		int64_t m = -1ULL << 63;
 		while (l < r) {
 			DEBUGDO(_fatBinarySearch_while_reps++);
@@ -194,7 +192,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	LInterval<size_t> fatBinarySearch(std::span<const T> pattern) {
 		DEBUGDO(_fatBinarySearch++);
 		LInterval<size_t> alpha = {0, text.size()};
-		size_t l = 0, r = min(pattern.size(), maxhlen);
+		size_t l = 0, r = min(pattern.size(), maxnlen); // maxhlen
 		int64_t m = -1ULL << (lambda(l ^ r) + 1);
 		while (l < r) {
 			DEBUGDO(_fatBinarySearch_while_reps++);
@@ -249,14 +247,19 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	const Vector<size_t, AT> &getCT() const { return ct; }
 
 	size_t bitCount() const {
-		return sizeof(*this) * 8 + sa.bitCount() - sizeof(sa) * 8 + lcp.bitCount() - sizeof(lcp) * 8 + ct.bitCount() - sizeof(ct) * 8 + z.bitCount() - sizeof(z) * 8 + hpattern.bitCount() -
-			   sizeof(hpattern) * 8;
+		return sizeof(*this) * 8
+			+ sa.bitCount() - sizeof(sa) * 8
+			+ lcp.bitCount() - sizeof(lcp) * 8
+			+ ct.bitCount() - sizeof(ct) * 8
+			+ z.bitCount() - sizeof(z) * 8
+			+ hpattern.bitCount() - sizeof(hpattern) * 8;
 	}
 
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
 	void ZFillByDFS(size_t i, size_t j, size_t nlen, RH<T, AT> &htext, size_t depth = 0) {
+		if (maxnlen <= nlen) maxnlen = nlen;
 		DEBUGDO(if (_construction_depth < depth) _construction_depth = depth);
 		if (j - i <= 1) return; // leaves are not in the z-map
 		size_t l = i;
@@ -294,6 +297,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 				node.j = i;
 
 				ssize_t nlen = 1 + max(lcp[node.i], lcp[node.j]);
+				if (maxnlen <= nlen) maxnlen = nlen;
 				ssize_t elen = getlcp(node.i, node.j);
 				size_t hlen = twoFattestLR(nlen, elen);
 				if (maxhlen <= hlen) maxhlen = hlen;
@@ -310,11 +314,8 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		}
 	}
 
-	uint64_t pack(LInterval<size_t> x) const { return x.from << 32 | x.to; }
-	LInterval<size_t> unpack(uint64_t x) const { return {x >> 32, x & 0xffffffff}; }
-
-	friend std::ostream &operator<<(std::ostream &os, const MemcmpZuffixArray<T, RH, AT> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxhlen; }
-	friend std::istream &operator>>(std::istream &is, MemcmpZuffixArray<T, RH, AT> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z >> ds.maxhlen; }
+	friend std::ostream &operator<<(std::ostream &os, const MemcmpZuffixArray<T, RH, AT> &ds) { return os << ds.text << ds.sa << ds.lcp << ds.ct << ds.z << ds.maxnlen << ds.maxhlen; }
+	friend std::istream &operator>>(std::istream &is, MemcmpZuffixArray<T, RH, AT> &ds) { return is >> ds.text >> ds.sa >> ds.lcp >> ds.ct >> ds.z>> ds.maxnlen >> ds.maxhlen; }
 
 #ifdef DEBUG
   public:
@@ -355,6 +356,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		std::cerr << "--------------------------------------------------------------------------------" << std::endl;
 		std::cerr << "MemcmpZuffixArray.hpp: " << msg << std::endl;
 		std::cerr << "- construction_depth: " << _construction_depth << std::endl;
+		std::cerr << "- construction_maxnlen: " << maxnlen << std::endl;
 		std::cerr << "- construction_maxhlen: " << maxhlen << std::endl;
 		std::cerr << "- getChild: " << _getChild << std::endl;
 		std::cerr << "- exit: " << _exit << std::endl;

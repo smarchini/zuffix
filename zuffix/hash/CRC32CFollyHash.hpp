@@ -8,7 +8,7 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename T, AllocType AT = MALLOC, size_t C = 1 << 10> class CRC32CFollyHash {
+template <typename T, AllocType AT = MALLOC, size_t C = 1 << 9> class CRC32CFollyHash {
   public:
 	using signature_t = uint32_t;
 

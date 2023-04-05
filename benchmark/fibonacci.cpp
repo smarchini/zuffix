@@ -32,7 +32,7 @@ static void BM_run(benchmark::State &state) {
     static auto end = std::chrono::high_resolution_clock::now();
     static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
     if (!is_built)
-        std::cout << "Data structure size: " << ds.bitCount() << " bits "
+        std::cout << "Data structure size: " << ds.bitCount() << " bits"
                   << ", construction time: " << time << " ns" << std::endl;
     is_built = true;
     static EnhancedSuffixArray<char> reference(text);
@@ -42,12 +42,12 @@ static void BM_run(benchmark::State &state) {
     for (auto _ : state) {
         state.PauseTiming();
         auto pattern = std::span<const char>(&p, p.size());
-        auto expected = reference.find(pattern);
+        auto expected = reference.FIND_OP(pattern);
         empty += expected.isEmpty();
         occurrences += expected.length();
         benchmark::DoNotOptimize(pattern);
         state.ResumeTiming();
-        benchmark::DoNotOptimize(errors += ds.find(pattern) != expected);
+        benchmark::DoNotOptimize(errors += ds.FIND_OP(pattern) != expected);
     }
     state.counters["empty"] = empty;
     state.counters["errors"] = errors;

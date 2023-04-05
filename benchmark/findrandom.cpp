@@ -31,12 +31,12 @@ static void BM_run(benchmark::State &state) {
         state.PauseTiming();
         size_t from = dist(rng);
         auto p = text.subspan(from, m);
-        auto expected = reference.find_prefix(p);
+        auto expected = reference.FIND_OP(p);
         empty += expected.isEmpty();
         occurrences += expected.length();
         benchmark::DoNotOptimize(p);
         state.ResumeTiming();
-        benchmark::DoNotOptimize(errors += ds.find_prefix(p) != expected);
+        benchmark::DoNotOptimize(errors += ds.FIND_OP(p) != expected);
     }
     state.counters["empty"] = empty;
     state.counters["errors"] = errors;
