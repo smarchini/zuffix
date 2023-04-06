@@ -3,13 +3,21 @@
 #include <sux/util/Vector.hpp>
 #include <xxhash.h>
 
+bool operator==(const XXH128_hash_t& lhs, const XXH128_hash_t& rhs) {
+	return XXH128_isEqual(lhs, rhs);
+}
+
+bool operator!=(const XXH128_hash_t& lhs, const XXH128_hash_t& rhs) {
+	return !XXH128_isEqual(lhs, rhs);
+}
+
 namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
 template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class XXH3Hash {
   public:
-	using signature_t = uint64_t;
+	using signature_t =  XXH128_hash_t;
 
   private:
 	const T *string;
@@ -19,13 +27,13 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class XXH3Hash 
   public:
 
 	XXH3Hash() : string(nullptr), statetable(1) {
-		XXH3_64bits_reset(state);
+		XXH3_128bits_reset(state);
 		statetable[0] = XXH3_createState();
 		XXH3_copyState(statetable[0], state);
 	}
 
 	XXH3Hash(const T *string, size_t size) : string(string) {
-		XXH3_64bits_reset(state);
+		XXH3_128bits_reset(state);
         statetable.reserve(size / C);
         statetable.pushBack(XXH3_createState());
 		XXH3_copyState(statetable[0], state);
@@ -53,20 +61,20 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class XXH3Hash 
 			XXH3_copyState(state, statetable[last]);
 			statetable.resize(tpos + 1);
 			for (size_t i = last + 1; i <= tpos; i++) {
-				XXH3_64bits_update(state, str + (i - 1) * C, C);
+				XXH3_128bits_update(state, str + (i - 1) * C, C);
 				statetable[i] = XXH3_createState();
 				XXH3_copyState(statetable[i], state);
 			}
 		}
 
 		XXH3_copyState(state, statetable[tpos]);
-		if (length % C) XXH3_64bits_update(state, str + tpos * C, length % C);
-		return XXH3_64bits_digest(state);
+		if (length % C) XXH3_128bits_update(state, str + tpos * C, length % C);
+		return XXH3_128bits_digest(state);
 	}
 
 	signature_t operator()(size_t from, size_t length) { return immediate(from, length); }
 
-	signature_t immediate(size_t from, size_t length) { return XXH3_64bits(string + from, length * sizeof(T)); }
+	signature_t immediate(size_t from, size_t length) { return XXH3_128bits(string + from, length * sizeof(T)); }
 
 	size_t bitCount() const {
 		return sizeof(*this) * 8

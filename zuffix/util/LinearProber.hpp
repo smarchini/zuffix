@@ -3,6 +3,7 @@
 #include <optional>
 #include <tuple>
 
+#include "../hash/XXH3Hash.hpp"
 #include <sux/util/Vector.hpp>
 
 namespace zarr {
@@ -23,7 +24,7 @@ template <typename S, typename T, AllocType AT = MALLOC> class LinearProber {
 		size_t oldsize = old.size();
 		for (size_t i = 0; i < oldsize; i++) {
 			auto [signature, value] = old.table[i];
-			if (signature) store(signature, value);
+			if (!isEmpty(signature)) store(signature, value);
 		}
 	}
 
@@ -42,20 +43,20 @@ template <typename S, typename T, AllocType AT = MALLOC> class LinearProber {
 		return *this;
 	}
 
-	void store(uint64_t signature, T value) {
+	void store(S signature, T value) {
 		DEBUGDO(_store++);
 		count++;
-		size_t pos = signature & mask;
-		DEBUGDO(for (size_t _i = 0; std::get<0>(table[(pos + _i) & mask]) != signature && std::get<0>(table[(pos + _i) & mask]) != 0; _i++) if (_i > _store_maxstride) _store_maxstride = _i);
-		while (std::get<0>(table[pos]) != signature && std::get<0>(table[pos]) != 0) pos = (pos + 1) & mask;
+		size_t pos = position(signature);
+		DEBUGDO(for (size_t _i = 0; std::get<0>(table[(pos + _i)]) != signature && !isEmpty(std::get<0>(table[(pos + _i)])); _i++) if (_i > _store_maxstride) _store_maxstride = _i);
+		while (std::get<0>(table[pos]) != signature && !isEmpty(std::get<0>(table[pos]))) pos = (pos + 1) & mask;
 		DEBUGDO(if (std::get<0>(table[pos]) == signature) _store_collisions++);
 		table[pos] = {signature, value};
 	}
 
-	std::optional<T> operator[](uint64_t signature) {
+	std::optional<T> operator[](S signature) {
 		DEBUGDO(_get++);
-		size_t pos = signature & mask;
-		while (std::get<0>(table[pos]) != signature && std::get<0>(table[pos]) != 0) pos = (pos + 1) & mask;
+		size_t pos = position(signature);
+		while (std::get<0>(table[pos]) != signature && !isEmpty(std::get<0>(table[pos]))) pos = (pos + 1) & mask;
 		DEBUGDO(if (std::get<0>(table[pos]) == signature) _get_found++; else _get_notfound++);
 		return std::get<0>(table[pos]) == signature ? std::optional(std::get<1>(table[pos])) : std::nullopt;
 	};
@@ -80,6 +81,23 @@ template <typename S, typename T, AllocType AT = MALLOC> class LinearProber {
 	}
 
   private:
+	// TODO: This is ugly, LinearProber shouldn't know aobut XXH128_hash_t
+	size_t position(S signature) {
+		if constexpr (std::is_same<S, XXH128_hash_t>::value) {
+			return signature.low64 & mask;
+		} else {
+			return signature & mask;
+		}
+	}
+
+	bool isEmpty(S signature) {
+		if constexpr (std::is_same<S, XXH128_hash_t>::value) {
+			return signature.low64 == 0 && signature.high64 == 0;
+		} else {
+			return signature == 0;
+		}
+	}
+
 	friend std::ostream &operator<<(std::ostream &os, const LinearProber<S, T, AT> &ds) { return os << ds.table << ds.mask << ds.count; }
 	friend std::istream &operator>>(std::istream &is, LinearProber<S, T, AT> &ds) { return is >> ds.table >> ds.mask >> ds.count; }
 
