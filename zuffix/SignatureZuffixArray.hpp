@@ -15,9 +15,12 @@ using ::sux::util::Vector;
 template <typename T, template <typename U, AllocType AT> class RH, AllocType AT = MALLOC> class SignatureZuffixArray {
   private:
 	std::span<const T> text;
+	std::span<const T> pattern;
+
 	Vector<size_t, AT> sa;
 	Vector<ssize_t, AT> lcp;
 	Vector<size_t, AT> ct;
+
 	LinearProber<typename RH<T, AT>::signature_t, LInterval<size_t>, AT> z;
 	size_t maxnlen = 0, maxhlen = 0;
 
@@ -121,6 +124,12 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		return alpha;
 	}
 
+	LInterval<size_t> find() {
+		DEBUGDO(_find++);
+		auto [i, j] = fatBinarySearch(pattern);
+		return exit(pattern, i, j);
+	}
+
 	LInterval<size_t> find(std::span<const T> pattern) {
 		DEBUGDO(_find++);
 		hpattern.setString(pattern.data());
@@ -128,6 +137,12 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		// hpattern(pattern.size() - 1); // preload
 		auto [i, j] = fatBinarySearch(pattern);
 		return exit(pattern, i, j);
+	}
+
+	LInterval<size_t> find_prefix() {
+		DEBUGDO(_find++);
+		auto [i, j] = fatBinarySearch(pattern);
+		return exit_prefix(pattern, i, j);
 	}
 
 	LInterval<size_t> find_prefix(std::span<const T> pattern) {
@@ -138,6 +153,14 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	}
 
 	std::span<const T> getText() const { return text; }
+
+	void setPattern(std::span<const T> p) {
+		pattern = p;
+		hpattern.setString(pattern.data());
+		hpattern(pattern.size() - 1);
+	}
+
+	std::span<const T> getPattern() const { return pattern; }
 
 	const Vector<size_t, AT> &getSA() const { return sa; }
 

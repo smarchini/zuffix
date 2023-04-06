@@ -48,7 +48,7 @@ BENCHMARKS = bin/benchmark/lambda          \
 			 bin/benchmark/findrandom      \
 			 bin/benchmark/nofindrandom    \
 			 bin/benchmark/findfile        \
-			 bin/benchmark/build           \
+			 #bin/benchmark/build           \
 
 UTILS = bin/util/generate_random_string \
 		bin/util/generate_fibonacci_string

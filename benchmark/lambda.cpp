@@ -74,19 +74,21 @@ static void args2(benchmark::internal::Benchmark *b) {
 #define BM(NAME, OP)                                                                                                                                                                                   \
 	static void BM_zuffix_##NAME(benchmark::State &state) {                                                                                                                                            \
 		size_t n = state.range(0), m = state.range(1);                                                                                                                                                 \
-		std::string sigma = "ACGT";                                                                                                                                                                    \
-		std::uniform_int_distribution<uint64_t> sigmadist(0, sigma.length() - 1);                                                                                                                      \
+		std::uniform_int_distribution<uint64_t> sigma(20, 126);                                                                                                                                        \
 		std::unique_ptr<char[]> string(new char[n]);                                                                                                                                                   \
-		for (size_t i = 0; i < n - 1; i++) string[i] = sigma[sigmadist(rng)];                                                                                                                          \
+		for (size_t i = 0; i < n - 1; i++) string[i] = sigma(rng);                                                                                                                                     \
 		string[n - 1] = std::numeric_limits<char>::max();                                                                                                                                              \
+		string[n - 2] = 0; \
 		auto text = std::span<char>(string.get(), n);                                                                                                                                                  \
-		zarr::MemcmpZuffixArray<char, zarr::WyHash> ds(text);                                                                                                                                          \
+		zarr::MemcmpZuffixArray<char, zarr::WyHash> ds(text);                                                                                                                                 \
 		std::uniform_int_distribution<size_t> dist(0, n - m - 1);                                                                                                                                      \
 		for (auto _ : state) {                                                                                                                                                                         \
 			state.PauseTiming();                                                                                                                                                                       \
 			size_t from = dist(rng);                                                                                                                                                                   \
 			auto pattern = text.subspan(from, m);                                                                                                                                                      \
-			benchmark::DoNotOptimize(pattern);                                                                                                                                                         \
+			ds.setPattern(pattern);                                                                                                                                                  \
+			benchmark::DoNotOptimize(pattern.data());                                                                                                                                                  \
+			benchmark::ClobberMemory();                                                                                                                                                                \
 			state.ResumeTiming();                                                                                                                                                                      \
 			benchmark::DoNotOptimize(ds.OP(pattern));                                                                                                                                                  \
 		}                                                                                                                                                                                              \
