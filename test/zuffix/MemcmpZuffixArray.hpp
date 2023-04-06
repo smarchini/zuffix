@@ -49,6 +49,7 @@ TEST(MemcmpZuffixArray, abracadabra) {
 	TEST(MemcmpZuffixArray, NAME) {                                                                                                                                                                    \
 		using namespace zarr;                                                                                                                                                                          \
 		std::string text = fibonacci(10);                                                                                                                                                              \
+		text.push_back(std::numeric_limits<char>::max());                                                                                                                                              \
 		MemcmpZuffixArray<char, RabinKarpHash> zuffix{text};                                                                                                                                           \
 		for (size_t i = 1; i <= 10; i++) {                                                                                                                                                             \
 			auto match = zuffix.find(fibonacci(i));                                                                                                                                                    \
