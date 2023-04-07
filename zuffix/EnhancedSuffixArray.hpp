@@ -38,7 +38,7 @@ template <typename T, AllocType AT = MALLOC> class EnhancedSuffixArray {
 			r = (lcp[r] != lcp[ct[r]] || lcp[r] > lcp[r + 1]) ? j : ct[r];
 		}
 
-		if (sa[l] + d >= text.size() || text[sa[l] + d] != c) return {1, 0};
+		if (unlikely(sa[l] + d >= text.size() || text[sa[l] + d] != c)) return {1, 0};
 
 		return {l, r};
 	}
