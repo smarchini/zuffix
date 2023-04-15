@@ -7,7 +7,7 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename T, AllocType AT = MALLOC, size_t C = 48 * 10> class WyHash {
+template <typename T, AllocType AT = sux::util::MALLOC, size_t C = 48 * 10> class WyHash {
   public:
     using signature_t = uint64_t;
     static_assert(C % 48 == 0, "C should be a multiple of 48");

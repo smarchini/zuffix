@@ -7,7 +7,7 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename T, AllocType AT = MALLOC, size_t C = 1 << 8> class RabinKarpHash {
+template <typename T, AllocType AT = sux::util::MALLOC, size_t C = 1 << 8> class RabinKarpHash {
   public:
 	using signature_t = uint64_t;
 	const uint64_t m = 0x100000001b3;      // FNV prime

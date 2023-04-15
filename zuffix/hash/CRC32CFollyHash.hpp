@@ -8,7 +8,7 @@ namespace zarr {
 using ::sux::util::AllocType;
 using ::sux::util::Vector;
 
-template <typename T, AllocType AT = MALLOC, size_t C = 1 << 9> class CRC32CFollyHash {
+template <typename T, AllocType AT = sux::util::MALLOC, size_t C = 1 << 9> class CRC32CFollyHash {
   public:
     using signature_t = uint32_t;
 
@@ -71,7 +71,7 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 9> class CRC32CFoll
 
   private:
     // NOTE: we force the hardware-accelerated implementation, without runtime tests.
-    uint32_t crc32c(const uint8_t *data, size_t nbytes, uint32_t startingChecksum = ~0U) {
+    static uint32_t crc32c(const uint8_t *data, size_t nbytes, uint32_t startingChecksum = ~0U) {
 #ifdef __SSE4_2__
         return folly::detail::crc32c_hw(data, nbytes, startingChecksum);
 #else
@@ -80,7 +80,7 @@ template <typename T, AllocType AT = MALLOC, size_t C = 1 << 9> class CRC32CFoll
     }
 
     // NOTE: we force the hardware-accelerated implementation, without runtime tests.
-    uint32_t crc32c_combine(uint32_t crc1, uint32_t crc2, size_t crc2len) {
+    static uint32_t crc32c_combine(uint32_t crc1, uint32_t crc2, size_t crc2len) {
 #ifdef __SSE4_2__
         uint8_t data[4] = {0, 0, 0, 0};
         auto len = crc2len & 3;

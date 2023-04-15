@@ -15,7 +15,7 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename T, AllocType AT = MALLOC, size_t C = 1 << 16> class XXH3Hash {
+template <typename T, AllocType AT = sux::util::MALLOC, size_t C = 1 << 16> class XXH3Hash {
   public:
 	using signature_t =  XXH128_hash_t;
 

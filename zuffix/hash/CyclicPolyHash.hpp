@@ -7,7 +7,7 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename T, size_t sigma, AllocType AT = MALLOC, size_t C = 1 << 12> class CyclicPolyHash {
+template <typename T, size_t sigma, AllocType AT = sux::util::MALLOC, size_t C = 1 << 12> class CyclicPolyHash {
   public:
 	using signature_t = uint64_t;
 

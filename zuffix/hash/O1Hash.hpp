@@ -6,7 +6,7 @@
 namespace zarr {
 using ::sux::util::AllocType;
 
-template <typename T, AllocType AT = MALLOC> class O1Hash {
+template <typename T, AllocType AT = sux::util::MALLOC> class O1Hash {
   public:
 	using signature_t = uint64_t;
 
