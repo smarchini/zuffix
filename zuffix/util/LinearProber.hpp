@@ -10,7 +10,7 @@ namespace zarr {
 using ::sux::util::Vector;
 using ::sux::util::AllocType;
 
-template <typename S, typename T, AllocType AT = MALLOC> class LinearProber {
+template <typename S, typename T, AllocType AT = sux::util::MALLOC> class LinearProber {
   private:
 	Vector<std::tuple<S, T>, AT> table;
 	size_t mask, count = 0;
@@ -18,9 +18,9 @@ template <typename S, typename T, AllocType AT = MALLOC> class LinearProber {
   public:
 	LinearProber() : LinearProber(32) {}
 
-	LinearProber(size_t size) : table(round_pow2(size)), mask(round_pow2(size) - 1) {}
+	LinearProber(size_t size) : table(sux::round_pow2(size)), mask(sux::round_pow2(size) - 1) {}
 
-	LinearProber(LinearProber<S, T, AT> &old, size_t size) : table(round_pow2(size)), mask(round_pow2(size) - 1) {
+	LinearProber(LinearProber<S, T, AT> &old, size_t size) : table(sux::round_pow2(size)), mask(sux::round_pow2(size) - 1) {
 		size_t oldsize = old.size();
 		for (size_t i = 0; i < oldsize; i++) {
 			auto [signature, value] = old.table[i];
@@ -65,7 +65,7 @@ template <typename S, typename T, AllocType AT = MALLOC> class LinearProber {
 
 	void resize(size_t size) {
 		DEBUGDO(_resize++);
-		size = round_pow2(size);
+		size = sux::round_pow2(size);
 		table.resize(size);
 		mask = size - 1;
 	}

@@ -77,4 +77,8 @@ mv utils pizzachili
 cd "$DESTPATH"/pizzachili || exit
 make
 
-# TODO sdsl-lite
+# sdsl-lite
+cd "$DESTPATH" || exit
+git clone --recursive git@github.com:xxsds/sdsl-lite.git
+cd "$DESTPATH"/sdsl-lite || exit
+./install.sh ./installed

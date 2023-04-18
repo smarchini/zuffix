@@ -29,6 +29,7 @@
 #include <zuffix/EnhancedSuffixArray.hpp>
 #include <zuffix/MemcmpZuffixArray.hpp>
 #include <zuffix/SignatureZuffixArray.hpp>
+#include <zuffix/MemcmpZSdsl.hpp>
 #include <zuffix/NothingZuffixArray.hpp>
 
 template <typename T> using CyclicPoly4Hash = zarr::CyclicPolyHash<T, 4>;

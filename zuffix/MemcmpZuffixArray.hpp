@@ -64,7 +64,9 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		size_t nlen = 1 + max(lcp[i], lcp[j]);
 		size_t elen = j - i == 1 ? text.size() - sa[i] : getlcp(i, j);
 		size_t end = min(elen, pattern.size()) - nlen;
-		// NOTE: The following comparison can be quite expensive
+		// NOTE: The following comparison can be quite expensive. We can start
+		// it from hlen (instead of nlen), but then is the fatBinarySearch
+		// memcmy to be potentially expensive // TODO: rivedere!
 		if (memcmp(pattern.data() + nlen, text.data() + sa[i] + nlen, end * sizeof(T))) return {1, 0};
 		if (elen < pattern.size()) {
 			auto [l, r] = getChild(i, j, pattern[elen]);
