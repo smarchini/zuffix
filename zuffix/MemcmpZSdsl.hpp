@@ -53,7 +53,7 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
 
     // TODO credo che sia qui l'errore
     std::tuple<size_t, size_t, size_t> fatBinarySearch(std::span<const T> pattern) {
-        LInterval<size_t> alpha = {0, text.size()};
+        auto alpha = cst.root();
         size_t l = 0, r = std::min(pattern.size(), maxnlen); // maxhlen
         int64_t m = -1ULL << (lambda(l ^ r) + 1);
         while (l < r) {
@@ -65,26 +65,27 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
                 r = f - 1;
                 continue;
             }
-            auto betanode = cst.inv_id(*betaid);
-            LInterval<size_t> beta = LInterval<size_t>(betanode.i, betanode.j);
-            size_t elen = cst.depth(betanode) + 1;
-            size_t nlen = 1 + (beta.to == cst.lcp.size() ? cst.lcp[beta.from] : std::max(cst.lcp[beta.from], cst.lcp[beta.to]));
+            auto beta = cst.inv_id(*betaid);
+            size_t nlen = 1 + (beta.j + 1 == cst.lcp.size() ? cst.lcp[beta.i] : std::max(cst.lcp[beta.i], cst.lcp[beta.j + 1]));
+            size_t elen = cst.depth(beta) + 1;
             size_t hlen = twoFattestLR(nlen, elen);
             if (hlen != f) {
                 r = f - 1;
-            } else if (!alpha.contains(beta)) {
+            } else if (alpha.i < beta.i && beta.j < alpha.j) {
                 l = elen;
             } else {
                 l = elen - 1;
                 alpha = beta;
             }
         }
-        size_t nlen = 1 + (alpha.to == cst.lcp.size() ? cst.lcp[alpha.from] : std::max(cst.lcp[alpha.from], cst.lcp[alpha.to]));
-        size_t end = std::min(nlen, pattern.size());
-        if (memcmp(pattern.data(), text.data() + cst.csa[alpha.from], end * sizeof(T))) {
+        size_t nlen = 1 + (alpha.j + 1 == cst.lcp.size() ? cst.lcp[alpha.i] : std::max(cst.lcp[alpha.i], cst.lcp[alpha.j + 1]));
+        size_t elen = cst.depth(alpha) + 1;
+        size_t hlen = zarr::twoFattestLR(nlen, elen);
+        size_t end = std::min(elen, pattern.size());
+        if (memcmp(pattern.data(), text.data() + cst.csa[alpha.i], end * sizeof(T))) {
             return {0, text.size(), 0};
         }
-        return {alpha.from, alpha.to, nlen}; // TODO: This can totally be hlen (and maybe it should be!)
+        return {alpha.i, alpha.j + 1, elen}; // TODO: This can totally be hlen (instead of nlen) and maybe it should be!
     }
 
     size_t count_forward(std::span<const T> pattern) {

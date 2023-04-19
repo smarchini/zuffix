@@ -29,13 +29,18 @@ static void BM_run(benchmark::State &state) {
     for (auto _ : state) {
         state.PauseTiming();
         size_t from = dist(rng);
-        auto p = text.subspan(from, m);
+        auto p = text.subspan(from, m - 1); // TODO: ricordarsi di cambiarlo anche negli altri
         auto expected = reference.find(p).length();
         empty += expected == 0;
         occurrences += expected;
         benchmark::DoNotOptimize(p);
         state.ResumeTiming();
         benchmark::DoNotOptimize(errors += ds.SDSL_COUNT_OP(p) != expected);
+        if (errors == 1) {
+            std::cout << "Pattern: ";
+            for (SIGMA_T car: p) std::cout << (char)car;
+            std::cout << "\n";
+        }
     }
     state.counters["empty"] = empty;
     state.counters["errors"] = errors;
