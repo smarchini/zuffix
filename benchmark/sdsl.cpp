@@ -40,6 +40,7 @@ static void BM_run(benchmark::State &state) {
             std::cout << "Pattern: ";
             for (SIGMA_T car: p) std::cout << (char)car;
             std::cout << "\n";
+            exit(1);
         }
     }
     state.counters["empty"] = empty;

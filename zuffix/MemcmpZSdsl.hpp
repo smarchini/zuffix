@@ -19,7 +19,8 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
     cst_t cst;
     std::span<const T> text;
     RH<T> htext, hpattern;
-    LinearProber<typename RH<T>::signature_t, typename cst_t::size_type> z;
+    //LinearProber<typename RH<T>::signature_t, typename cst_t::size_type> z;
+    LinearProber<typename RH<T>::signature_t, std::tuple<size_t, size_t, size_t>> z;
     size_t maxnlen = 0, maxhlen = 0;
 
   public:
@@ -46,46 +47,50 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
             if (maxnlen <= nlen) maxnlen = nlen;
             if (maxhlen <= hlen) maxhlen = hlen;
 
-            z.store(htext(cst.csa[i], hlen), cst.id(*it));
-            if (z.elements() * 3 / 2 > z.size()) z = LinearProber<typename RH<T>::signature_t, typename cst_t::size_type>(z, z.size() * 2);
+            //z.store(htext(cst.csa[i], hlen), cst.id(*it));
+            z.store(htext(cst.csa[i], hlen), {i, j, elen});
+            if (z.elements() * 3 / 2 > z.size()) {
+                // z = LinearProber<typename RH<T>::signature_t, typename cst_t::size_type>(z, z.size() * 2);
+                z = LinearProber<typename RH<T>::signature_t, std::tuple<size_t, size_t, size_t>>(z, z.size() * 2);
+            }
         }
     }
 
     // TODO credo che sia qui l'errore
     std::tuple<size_t, size_t, size_t> fatBinarySearch(std::span<const T> pattern) {
-        auto alpha = cst.root();
+        size_t alphai = 0, alphaj = text.size(), alphalen = 0;
         size_t l = 0, r = std::min(pattern.size(), maxnlen); // maxhlen
         int64_t m = -1ULL << (lambda(l ^ r) + 1);
         while (l < r) {
             while ((m & l) == (m & r)) m >>= 1;
             size_t f = m & r;
             assert(f == twoFattestR(l, r) && "wrong 2-fattest number");
-            auto betaid = z[hpattern(f)];
-            if (betaid == std::nullopt) {
+            auto beta = z[hpattern(f)];
+            if (beta == std::nullopt) {
                 r = f - 1;
                 continue;
             }
-            auto beta = cst.inv_id(*betaid);
-            size_t nlen = 1 + (beta.j + 1 == cst.lcp.size() ? cst.lcp[beta.i] : std::max(cst.lcp[beta.i], cst.lcp[beta.j + 1]));
-            size_t elen = cst.depth(beta) + 1;
+            auto [betai, betaj, betalen] = *beta;
+            size_t nlen = 1 + (betaj == cst.lcp.size() ? cst.lcp[betai] : std::max(cst.lcp[betai], cst.lcp[betaj]));
+            size_t elen = betalen;
             size_t hlen = twoFattestLR(nlen, elen);
             if (hlen != f) {
                 r = f - 1;
-            } else if (alpha.i < beta.i && beta.j < alpha.j) {
+            } else if (alphai <= betai && betaj <= alphaj && (alphai != betai || alphaj != betaj)) {
                 l = elen;
             } else {
                 l = elen - 1;
-                alpha = beta;
+                alphai = betai; alphaj = betaj; alphalen = betalen;
             }
         }
-        size_t nlen = 1 + (alpha.j + 1 == cst.lcp.size() ? cst.lcp[alpha.i] : std::max(cst.lcp[alpha.i], cst.lcp[alpha.j + 1]));
-        size_t elen = cst.depth(alpha) + 1;
+        size_t nlen = 1 + (alphaj == cst.lcp.size() ? cst.lcp[alphai] : std::max(cst.lcp[alphai], cst.lcp[alphaj]));
+        size_t elen = alphalen;
         size_t hlen = zarr::twoFattestLR(nlen, elen);
-        size_t end = std::min(elen, pattern.size());
-        if (memcmp(pattern.data(), text.data() + cst.csa[alpha.i], end * sizeof(T))) {
+        size_t end = std::min(hlen, pattern.size());
+        if (memcmp(pattern.data(), text.data() + cst.csa[alphai], end * sizeof(T))) {
             return {0, text.size(), 0};
         }
-        return {alpha.i, alpha.j + 1, elen}; // TODO: This can totally be hlen (instead of nlen) and maybe it should be!
+        return {alphai, alphaj, end}; // TODO: This can totally be hlen (instead of nlen) and maybe it should be!
     }
 
     size_t count_forward(std::span<const T> pattern) {
