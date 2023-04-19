@@ -2,7 +2,7 @@
 SCRIPT=$(realpath "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 DESTPATH="$SCRIPTPATH"/dependencies
-
+ 
 # libdivsufsort
 cd "$DESTPATH" || exit
 git clone git@github.com:y-256/libdivsufsort.git

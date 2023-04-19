@@ -7,6 +7,7 @@ using namespace sux::util;
 std::mt19937 rng(2023);
 std::span<SIGMA_T> text;
 static constexpr size_t textsize = 200ULL << 20; // TODO: trovare un modo di prenderlo da text (all'interno di args)
+std::string filename;
 
 static void args(benchmark::internal::Benchmark *b) {
     for (size_t k = 1; k * 10 < textsize; k *= 10)
@@ -16,14 +17,11 @@ static void args(benchmark::internal::Benchmark *b) {
 static void BM_run(benchmark::State &state) {
     static bool is_built = false;
     static auto begin = std::chrono::high_resolution_clock::now();
-    static SDSL_STRUCTURE_T ds(text);
+    static SDSL_STRUCTURE_T ds(filename, text);
     static auto end = std::chrono::high_resolution_clock::now();
     static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
-    if (!is_built) {
-        std::cout << "Data structureconstruction time: " << time << " ns" << std::endl;
-        text.data()[text.size() - 1] = std::numeric_limits<SIGMA_T>::max();
-        is_built = true;
-    }
+    if (!is_built) std::cout << "Data structureconstruction time: " << time << " ns" << std::endl;
+    is_built = true;
     static EnhancedSuffixArray<SIGMA_T> reference(text);
     size_t m = state.range(0);
     std::uniform_int_distribution<uint64_t> dist(0, text.size() - m - 1);
@@ -47,6 +45,7 @@ static void BM_run(benchmark::State &state) {
 BENCHMARK(BM_run)->Apply(args)->Iterations(10000);
 
 int main(int argc, char **argv) {
+    filename = argv[1];
     std::ifstream file(argv[1], std::ios::in);
     file.seekg(0, file.end);
     size_t filesize = file.tellg();
@@ -56,7 +55,7 @@ int main(int argc, char **argv) {
     size_t length = filesize / sizeof(SIGMA_T) + 1;
     sux::util::Vector<SIGMA_T> buffer(length);
     file.read((char *)&buffer, filesize);
-    buffer[length - 1] = 0; // std::numeric_limits<SIGMA_T>::max();
+    buffer[length - 1] = std::numeric_limits<SIGMA_T>::max();
     text = std::span<SIGMA_T>(&buffer, length); // global variable
 
     // Google Benchmark's stuff

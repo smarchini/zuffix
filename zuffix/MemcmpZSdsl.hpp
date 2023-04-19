@@ -23,10 +23,12 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
     size_t maxnlen = 0, maxhlen = 0;
 
   public:
-    MemcmpZSdsl(const std::span<const T> string)
+    MemcmpZSdsl(std::string filename, const std::span<const T> string)
         : text(std::move(string)),
           htext(text.data(), text.size()) {
-        sdsl::construct_im(cst, string.data(), sizeof(T)); // TODO: test if it works!
+        std::cout << "filename = " << filename << "std::endl";
+        sdsl::construct(cst, filename, sizeof(T)); // TODO: ugly ugly
+        //sdsl::construct(cst, string.data(), sizeof(T)); // TODO: doesn't work
 
         // typedef sdsl::cst_dfs_const_forward_iterator<cst_t> iterator;
         typedef sdsl::cst_bfs_iterator<cst_t> iterator;
@@ -49,6 +51,7 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
         }
     }
 
+    // TODO credo che sia qui l'errore
     std::tuple<size_t, size_t, size_t> fatBinarySearch(std::span<const T> pattern) {
         LInterval<size_t> alpha = {0, text.size()};
         size_t l = 0, r = std::min(pattern.size(), maxnlen); // maxhlen
