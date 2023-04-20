@@ -37,7 +37,7 @@ static void BM_run(benchmark::State &state) {
         state.ResumeTiming();
         benchmark::DoNotOptimize(errors += ds.SDSL_COUNT_OP(p) != expected);
         if (errors == 1) {
-            std::cout << "Pattern: ";
+            std::cout << "Error on pattern: ";
             for (SIGMA_T car: p) std::cout << (char)car;
             std::cout << "\n";
             exit(1);
