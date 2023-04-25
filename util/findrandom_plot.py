@@ -13,6 +13,7 @@ def to_si(n):
 
 date = sys.argv[1]
 title = sys.argv[2]
+ylim = int(sys.argv[3]) if sys.argv[3] else None
 prefixdir = '.'
 
 benchmarks = [
@@ -48,7 +49,8 @@ for (file, line, color) in benchmarks:
     y = list(table['cpu_time'])
     lbl = list(table['errors'])
     iterations = int(table['iterations'][0])
-    ax.loglog(x, y, label=name, linestyle=line, color=color)
+    if not ylim: ax.loglog(x, y, label=name, linestyle=line, color=color)
+    else: ax.semilogx(x, y, label=name, linestyle=line, color=color)
     if name == 'enhanced':
         topax = ax.secondary_xaxis('top')
         topax.tick_params(axis='x', direction='inout')
@@ -59,6 +61,7 @@ for (file, line, color) in benchmarks:
         if lblval != 0: ax.annotate(lblval, xy=(xval, yval), ha='left', rotation=60)
 
 plt.xlim([1, 100 * (1 << 20)])
+if ylim: plt.ylim([100, ylim ])
 ax.xaxis.get_major_locator().set_params(numticks=99)
 ax.xaxis.get_minor_locator().set_params(numticks=99, subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9])
 plt.legend(loc="lower right", ncols=2)

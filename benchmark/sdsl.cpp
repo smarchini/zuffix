@@ -7,7 +7,7 @@ using namespace sux::util;
 std::mt19937 rng(2023);
 std::span<SIGMA_T> text;
 static constexpr size_t textsize = 200ULL << 20; // TODO: trovare un modo di prenderlo da text (all'interno di args)
-std::string filename;
+std::string idxfile;
 
 static void args(benchmark::internal::Benchmark *b) {
     for (size_t k = 1; k * 10 < textsize; k *= 10)
@@ -17,7 +17,7 @@ static void args(benchmark::internal::Benchmark *b) {
 static void BM_run(benchmark::State &state) {
     static bool is_built = false;
     static auto begin = std::chrono::high_resolution_clock::now();
-    static SDSL_STRUCTURE_T ds(filename, text);
+    static SDSL_STRUCTURE_T ds(idxfile, text);
     static auto end = std::chrono::high_resolution_clock::now();
     static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
     if (!is_built) std::cout << "Data structureconstruction time: " << time << " ns" << std::endl;
@@ -51,8 +51,8 @@ static void BM_run(benchmark::State &state) {
 BENCHMARK(BM_run)->Apply(args)->Iterations(10000);
 
 int main(int argc, char **argv) {
-    filename = argv[1];
     std::ifstream file(argv[1], std::ios::in);
+    idxfile = argv[2];
     file.seekg(0, file.end);
     size_t filesize = file.tellg();
     file.seekg(0, file.beg);

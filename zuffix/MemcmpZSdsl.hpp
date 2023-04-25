@@ -1,6 +1,8 @@
+#include <utility>
+
+#include <zuffix/util/common.hpp>
 #include <zuffix/util/LInterval.hpp>
 #include <zuffix/util/LinearProber.hpp>
-#include <zuffix/util/common.hpp>
 
 #include <sdsl/suffix_trees.hpp>
 #include <sdsl/suffix_tree_algorithm.hpp>
@@ -12,9 +14,8 @@ namespace zarr {
 //     hold different values than our implementation;
 //  2) closed ranges (i.e.,  [l .. r]) instead than half-open (ie., [l .. r));
 //  3) the length of LCP is n - 1, so it doesn't start and ends for -1.
-//
-sdsl::cst_sct3 dummything;
-using sdsl_sct3 = decltype(dummything); // TODO: I don't know how to do it yet
+
+using sdsl_sct3 = sdsl::cst_sct3<>;
 
 template <class cst_t, typename T, template <typename U> class RH> class MemcmpZSdsl {
     cst_t cst;
@@ -24,11 +25,12 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
     size_t maxnlen = 0, maxhlen = 0;
 
   public:
-    MemcmpZSdsl(std::string filename, const std::span<const T> string)
+    MemcmpZSdsl(std::string idxfile, const std::span<const T> string)
         : text(std::move(string)),
           htext(text.data(), text.size()) {
-        std::cout << "filename = " << filename << "std::endl";
-        sdsl::construct(cst, filename, sizeof(T)); // TODO: ugly ugly
+        //std::cout << "filename = " << filename << "std::endl";
+        sdsl::load_from_file(cst, idxfile); // TODO: ugly ugly
+        //sdsl::construct(cst, filename, sizeof(T)); // TODO: ugly ugly
         //sdsl::construct(cst, string.data(), sizeof(T)); // TODO: doesn't work
 
         // typedef sdsl::cst_dfs_const_forward_iterator<cst_t> iterator;
@@ -81,11 +83,11 @@ template <class cst_t, typename T, template <typename U> class RH> class MemcmpZ
         size_t nlen = 1 + (alpha.j + 1 == cst.lcp.size() ? cst.lcp[alpha.i] : std::max(cst.lcp[alpha.i], cst.lcp[alpha.j + 1]));
         size_t elen = cst.depth(alpha) + 1;
         size_t hlen = zarr::twoFattestLR(nlen, elen);
-        size_t end = std::min(nlen, pattern.size());
+        size_t end = std::min(hlen, pattern.size());
         if (memcmp(pattern.data(), text.data() + cst.csa[alpha.i], end * sizeof(T))) {
             return {cst.root(), 0};
         }
-        return {alpha, end}; // TODO: This can totally be hlen (instead of nlen) and maybe it should be!
+        return {alpha, end};
     }
 
     size_t count_forward(std::span<const T> pattern) {
