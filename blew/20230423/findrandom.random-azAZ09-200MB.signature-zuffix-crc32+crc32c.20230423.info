@@ -1,0 +1,9 @@
+2023-04-23T09:48:13+02:00
+Running /home/marchini/zuffix/bin/benchmark/findrandom/signature-zuffix-crc32+crc32c
+Run on (20 X 3601 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 1280 KiB (x10)
+  L3 Unified 25600 KiB (x1)
+Load Average: 3.26, 2.97, 1.94

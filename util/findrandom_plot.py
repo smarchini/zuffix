@@ -13,7 +13,7 @@ def to_si(n):
 
 date = sys.argv[1]
 title = sys.argv[2]
-ylim = int(sys.argv[3]) if sys.argv[3] else None
+ylim = int(sys.argv[3]) if len(sys.argv) > 3 else None
 prefixdir = '.'
 
 benchmarks = [

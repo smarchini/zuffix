@@ -1,0 +1,36 @@
+2023-04-21T17:18:30+02:00
+Running /home/marchini/zuffix/bin/benchmark/findrandom/memcmp-zuffix-crc32cfolly
+Run on (20 X 3601 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 1280 KiB (x10)
+  L3 Unified 25600 KiB (x1)
+Load Average: 2.75, 1.73, 1.27
+--------------------------------------------------------------------------------
+MemcmpZuffixArray.hpp: Construction
+- construction_depth: 165
+- construction_maxnlen: 2931
+- construction_maxhlen: 65536
+- getChild: 0
+- exit: 0
+- fatBinarySearch: 0
+- find: 0
+- fatBinarySearch_while_reps: 0
+- fatBinarySearch_beta_beta_empty: 0
+- fatBinarySearch_wrong_beta_by_contains: 0
+- fatBinarySearch_wrong_beta_by_hlen: 0
+- fatBinarySearch_beta_ok: 0
+- fatBinarySearch_mischivious_collisions: 0
+--------------------------------------------------------------------------------
+LinearProber.hpp: 
+- table.size(): 268435456
+- store: 142332613
+- get: 0
+- resize: 0
+- store_maxstride: 163
+- store_collisions: 2302567
+- get_notfound: 0
+- get_found: 0
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------

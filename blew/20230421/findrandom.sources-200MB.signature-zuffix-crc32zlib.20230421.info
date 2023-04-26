@@ -1,0 +1,36 @@
+2023-04-21T19:12:19+02:00
+Running /home/marchini/zuffix/bin/benchmark/findrandom/signature-zuffix-crc32zlib
+Run on (20 X 800 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 1280 KiB (x10)
+  L3 Unified 25600 KiB (x1)
+Load Average: 2.63, 1.81, 1.39
+--------------------------------------------------------------------------------
+SignatureZuffixArray.hpp: Construction
+- construction_depth: 3237
+- construction_maxnlen: 98621
+- construction_maxhlen: 262144
+- getChild: 0
+- exit: 0
+- fatBinarySearch: 0
+- find: 0
+- fatBinarySearch_while_reps: 0
+- fatBinarySearch_beta_beta_empty: 0
+- fatBinarySearch_wrong_beta_by_contains: 0
+- fatBinarySearch_wrong_beta_by_hlen: 0
+- fatBinarySearch_beta_ok: 0
+- fatBinarySearch_mischivious_collisions: 0
+--------------------------------------------------------------------------------
+LinearProber.hpp: 
+- table.size(): 268435456
+- store: 131629778
+- get: 0
+- resize: 0
+- store_maxstride: 158
+- store_collisions: 1994653
+- get_notfound: 0
+- get_found: 0
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
