@@ -1,0 +1,4 @@
+Data structureconstruction time: 1627707557807 ns
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"empty","errors","length","occurrences"
+"BM_run/1",4822392,144.103,145.029,ns,,,,,,0,0,1,1.01133e+15
+Error on pattern: ÿ

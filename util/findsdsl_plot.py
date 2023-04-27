@@ -18,21 +18,16 @@ ylim = int(sys.argv[4]) if len(sys.argv) > 4 else None
 prefixdir = '.'
 
 benchmarks = [
-    (f'{prefixdir}/{date}/findrandom.{title}.simple.{date}.csv', '-', 'grey'),
-    (f'{prefixdir}/{date}/findrandom.{title}.enhanced.{date}.csv', '-', 'black'),
-    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-wyhash.{date}.csv', '-', 'red'),
-    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-xxh3.{date}.csv', '-', 'purple'),
-    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-crc32cfolly.{date}.csv', '-', 'blue'),
-    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-crc32zlib.{date}.csv', '-', 'green'),
-    (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-crc32+crc32c.{date}.csv', '-', 'brown'),
-    (f'{prefixdir}/{date}/findrandom.{title}.signature-zuffix-crc32cfolly.{date}.csv', '-.', 'blue'),
-    (f'{prefixdir}/{date}/findrandom.{title}.signature-zuffix-crc32zlib.{date}.csv', '-.', 'green'),
-    (f'{prefixdir}/{date}/findrandom.{title}.signature-zuffix-crc32+crc32c.{date}.csv', '-.', 'brown'),
-    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-wyhash.{date}.csv', ':', 'red'),
-    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-xxh3.{date}.csv', ':', 'purple'),
-    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-crc32zlib.{date}.csv', ':', 'green'),
-    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-crc32+crc32c.{date}.csv', ':', 'brown'),
-    (f'{prefixdir}/{date}/findrandom.{title}.nothing-zuffix-crc32cfolly.{date}.csv', ':', 'blue'),
+    #(f'{prefixdir}/{date}/findsdsl.{title}.sct3-backward.{date}.csv', '-', 'grey'),
+    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-forward.{date}.csv', '-', 'black'),
+    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-wyhash.{date}.csv', '-', 'red'),
+    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-xxh3.{date}.csv', '-', 'purple'),
+    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32cfolly.{date}.csv', '-', 'blue'),
+    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32zlib.{date}.csv', '-', 'green'),
+    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32+crc32c.{date}.csv', '-', 'brown'),
+    #(f'{prefixdir}/{date}/findsdsl.{title}.signature-zuffix-crc32cfolly.{date}.csv', '-.', 'blue'),
+    #(f'{prefixdir}/{date}/findsdsl.{title}.signature-zuffix-crc32zlib.{date}.csv', '-.', 'green'),
+    #(f'{prefixdir}/{date}/findsdsl.{title}.signature-zuffix-crc32+crc32c.{date}.csv', '-.', 'brown'),
 ]
 
 fig = plt.figure(figsize=(16,9))
@@ -50,8 +45,9 @@ for (file, line, color) in benchmarks:
     y = list(table['cpu_time'])
     lbl = list(table['errors'])
     iterations = int(table['iterations'][0])
-    if not ylim: ax.loglog(x, y, label=name, linestyle=line, color=color)
-    else: ax.semilogx(x, y, label=name, linestyle=line, color=color)
+    ax.loglog(x, y, label=name, linestyle=line, color=color)
+    #if not ylim: ax.loglog(x, y, label=name, linestyle=line, color=color)
+    #else: ax.semilogx(x, y, label=name, linestyle=line, color=color)
     if name == 'enhanced':
         topax = ax.secondary_xaxis('top')
         topax.tick_params(axis='x', direction='inout')
