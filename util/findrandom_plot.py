@@ -18,6 +18,7 @@ ylim = int(sys.argv[4]) if len(sys.argv) > 4 else None
 prefixdir = '.'
 
 benchmarks = [
+    (f'{prefixdir}/no.search.memcmp.csv', ':', 'black'),
     (f'{prefixdir}/{date}/findrandom.{title}.simple.{date}.csv', '-', 'grey'),
     (f'{prefixdir}/{date}/findrandom.{title}.enhanced.{date}.csv', '-', 'black'),
     (f'{prefixdir}/{date}/findrandom.{title}.memcmp-zuffix-wyhash.{date}.csv', '-', 'red'),
@@ -44,15 +45,15 @@ ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
 
 for (file, line, color) in benchmarks:
     if not os.path.exists(file): continue
-    name = file.split('/')[-1].split('.')[2]
+    name = file.split('/')[-1].split('.')[2].replace('zuffix-', '')
     table = pd.read_csv(file, skiprows=1)
     x = table['length']
     y = list(table['cpu_time'])
-    lbl = list(table['errors'])
-    iterations = int(table['iterations'][0])
+    lbl = list(table['errors']) if name != "memcmp" else [0]*len(y)
+    iterations = int(table['iterations'][0]) if name != "memcmp" else [0]*len(y)
     if not ylim: ax.loglog(x, y, label=name, linestyle=line, color=color)
     else: ax.semilogx(x, y, label=name, linestyle=line, color=color)
-    if name == 'enhanced':
+    if False and name == 'enhanced':
         topax = ax.secondary_xaxis('top')
         topax.tick_params(axis='x', direction='inout')
         avg_occurrences = map(lambda x: x[0]/x[1], zip(table['occurrences'], table['iterations']))
@@ -61,8 +62,10 @@ for (file, line, color) in benchmarks:
     for (xval, yval, lblval) in zip(x, y, lbl):
         if lblval != 0: ax.annotate(lblval, xy=(xval, yval), ha='left', rotation=60)
 
-if xlim: plt.xlim([1, xlim])
-if ylim: plt.ylim([100, ylim])
+plt.xlim(left=1)
+plt.ylim(bottom=100)
+if xlim: plt.xlim(right=xlim)
+if ylim: plt.ylim(top=ylim)
 ax.xaxis.get_major_locator().set_params(numticks=99)
 ax.xaxis.get_minor_locator().set_params(numticks=99, subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9])
 plt.legend(loc="lower right", ncols=2)

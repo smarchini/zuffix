@@ -1,0 +1,13 @@
+Data structureconstruction time: 1733534636901 ns
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"empty","errors","length","occurrences"
+"BM_run/1",4713287,157.56,148.134,ns,,,,,,0,0,1,9.88448e+14
+"BM_run/2",366908,2003.82,1907.78,ns,,,,,,0,0,2,1.99364e+13
+"BM_run/3",350511,2097.76,1996.48,ns,,,,,,0,0,3,5.11327e+12
+"BM_run/4",180121,4127.76,3891.19,ns,,,,,,0,0,4,7.17212e+11
+"BM_run/5",242578,3037.95,2887.66,ns,,,,,,0,0,5,2.65488e+11
+"BM_run/6",122055,5905.59,5602.58,ns,,,,,,0,0,6,3.72173e+10
+"BM_run/7",104364,7084.57,6726.5,ns,,,,,,0,0,7,8.99288e+09
+"BM_run/8",69927,10605.8,9980.68,ns,,,,,,0,0,8,1.78954e+09
+"BM_run/9",166033,4449.5,4224.3,ns,,,,,,0,0,9,1.35855e+09
+"BM_run/10",109793,6865.18,6410.22,ns,,,,,,0,0,10,3.40319e+08
+Error on pattern: TATACCGATCCCGTCTGTC

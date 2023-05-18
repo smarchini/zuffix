@@ -1,0 +1,9 @@
+2023-04-28T04:15:48+02:00
+Running /home/marchini/zuffix/bin/benchmark/nofindrandom/memcmp-zuffix-crc32cfolly
+Run on (20 X 4900 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 1280 KiB (x10)
+  L3 Unified 25600 KiB (x1)
+Load Average: 1.00, 1.00, 1.00

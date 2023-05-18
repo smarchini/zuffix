@@ -3,11 +3,11 @@
     "mini-compile-commands": {
       "flake": false,
       "locked": {
-        "lastModified": 1676165558,
-        "narHash": "sha256-6Jenivk1QnTWzI6kOBppppcQLtfQYgSGRjt08dbyiik=",
+        "lastModified": 1680908860,
+        "narHash": "sha256-OwbxqGAACwtkhGvkr7qLQXHT8Ssq6P0NJ7kbDhQyn5g=",
         "owner": "danielbarter",
         "repo": "mini_compile_commands",
-        "rev": "3551cd34b5111b9564b0eb6fb397c55c09d16d42",
+        "rev": "604faa4e90c08f0372f7bb9b423ac74c9928893a",
         "type": "github"
       },
       "original": {
@@ -18,16 +18,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1676389109,
-        "narHash": "sha256-uaQnoxBp/JLL9fqQjaeJlg+cQn0I3stm/qFWvnWjUsM=",
+        "lastModified": 1682634126,
+        "narHash": "sha256-2CsOZhUelGgx2scaMgp6dzJebK2YeYlV0rQ/cItvI4U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "fddb91b022423bd30984db0c741ff5e386cd623a",
+        "rev": "cfc4c957706ec37c67ed6800148fab6c72f1367d",
         "type": "github"
       },
       "original": {
         "owner": "NixOS",
-        "ref": "master",
+        "ref": "pull/228606/head",
         "repo": "nixpkgs",
         "type": "github"
       }

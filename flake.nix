@@ -1,6 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/master";
+    #nixpkgs.url = "github:NixOS/nixpkgs/master";
+    nixpkgs.url = "github:NixOS/nixpkgs/pull/228606/head";
     mini-compile-commands = { url = github:danielbarter/mini_compile_commands; flake = false; };
   };
 

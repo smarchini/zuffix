@@ -12,7 +12,7 @@ int main(int argc, char const *argv[]) {
     }
 
     size_t n = atoi(argv[1]);
-    std::string prec = "a", curr = "ab";
+    std::string prec = "a", curr = "b";
 
     if (n == 0) {
         std::cout << prec;

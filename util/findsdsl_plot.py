@@ -22,8 +22,8 @@ benchmarks = [
     (f'{prefixdir}/{date}/findsdsl.{title}.sct3-forward.{date}.csv', '-', 'black'),
     (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-wyhash.{date}.csv', '-', 'red'),
     (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-xxh3.{date}.csv', '-', 'purple'),
-    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32cfolly.{date}.csv', '-', 'blue'),
-    (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32zlib.{date}.csv', '-', 'green'),
+    #(f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32cfolly.{date}.csv', '-', 'blue'),
+    #(f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32zlib.{date}.csv', '-', 'green'),
     (f'{prefixdir}/{date}/findsdsl.{title}.sct3-zfast-forward-crc32+crc32c.{date}.csv', '-', 'brown'),
     #(f'{prefixdir}/{date}/findsdsl.{title}.signature-zuffix-crc32cfolly.{date}.csv', '-.', 'blue'),
     #(f'{prefixdir}/{date}/findsdsl.{title}.signature-zuffix-crc32zlib.{date}.csv', '-.', 'green'),
@@ -62,7 +62,7 @@ if ylim: plt.ylim([100, ylim])
 ax.xaxis.get_major_locator().set_params(numticks=99)
 ax.xaxis.get_minor_locator().set_params(numticks=99, subs=[.1, .2, .3, .4, .5, .6, .7, .8, .9])
 plt.legend(loc="lower right", ncols=2)
-plt.title(f'{title} ({iterations} iterations)', fontsize='xx-large')
+plt.title(f'{title}', fontsize='xx-large')
 plt.xlabel("Pattern length (Bytes)", fontsize='large')
 plt.ylabel("Time (ns)", fontsize='large')
 

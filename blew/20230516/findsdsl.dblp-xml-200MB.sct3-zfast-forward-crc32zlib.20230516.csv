@@ -1,0 +1,11 @@
+Data structureconstruction time: 2505025078448 ns
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"empty","errors","length","occurrences"
+"BM_run/1",4725791,155.249,148.411,ns,,,,,,0,0,1,9.9107e+14
+"BM_run/2",307990,2434.91,2278.87,ns,,,,,,0,0,2,2.2546e+12
+"BM_run/3",226348,3261.07,3097.46,ns,,,,,,0,0,3,2.76817e+11
+"BM_run/4",97851,7636.67,7190.28,ns,,,,,,0,0,4,5.71994e+10
+"BM_run/5",129222,5585.62,5295.65,ns,,,,,,0,0,5,4.79414e+10
+"BM_run/6",66592,10873.2,10487.7,ns,,,,,,0,0,6,1.91791e+10
+"BM_run/7",58189,12727.9,12079.3,ns,,,,,,0,0,7,1.36147e+10
+"BM_run/8",40284,18249.1,17313.1,ns,,,,,,0,0,8,7.48893e+09
+Error on pattern: >1-2</nu

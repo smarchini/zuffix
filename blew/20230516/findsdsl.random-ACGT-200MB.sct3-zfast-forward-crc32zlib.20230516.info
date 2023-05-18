@@ -1,0 +1,9 @@
+2023-05-16T12:33:51+02:00
+Running /home/marchini/zuffix/bin/benchmark/sdsl/sct3-zfast-forward-crc32zlib
+Run on (20 X 800 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x10)
+  L1 Instruction 32 KiB (x10)
+  L2 Unified 1280 KiB (x10)
+  L3 Unified 25600 KiB (x1)
+Load Average: 2.39, 2.14, 2.04

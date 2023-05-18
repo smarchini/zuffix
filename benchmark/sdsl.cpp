@@ -1,5 +1,6 @@
 #include "common.hpp"
 #include <benchmark/benchmark.h>
+#include <unistd.h>
 
 using namespace zarr;
 using namespace sux::util;
@@ -7,6 +8,7 @@ using namespace sux::util;
 std::mt19937 rng(2023);
 std::span<SIGMA_T> text;
 static constexpr size_t textsize = 200ULL << 20; // TODO: trovare un modo di prenderlo da text (all'interno di args)
+// static constexpr size_t textsize = 14930352;   // fibonacci-34
 std::string idxfile;
 
 static void args(benchmark::internal::Benchmark *b) {
@@ -20,8 +22,12 @@ static void BM_run(benchmark::State &state) {
     static SDSL_STRUCTURE_T ds(idxfile, text);
     static auto end = std::chrono::high_resolution_clock::now();
     static auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(end - begin).count();
-    if (!is_built) std::cout << "Data structureconstruction time: " << time << " ns" << std::endl;
-    is_built = true;
+    if (!is_built) {
+        std::cout << "Data structureconstruction time: " << time << " ns" << std::endl;
+        is_built = true;
+        // std::cout << "Run `perf record -g -p " << ::getpid() << "` and press enter" << std::endl;
+        // std::cin.ignore();
+    }
     static EnhancedSuffixArray<SIGMA_T> reference(text);
     size_t m = state.range(0);
     std::uniform_int_distribution<uint64_t> dist(0, text.size() - m - 1);
@@ -38,7 +44,7 @@ static void BM_run(benchmark::State &state) {
         benchmark::DoNotOptimize(errors += ds.SDSL_COUNT_OP(p) != expected);
         if (errors == 1) {
             std::cout << "Error on pattern: ";
-            for (SIGMA_T car: p) std::cout << (char)car;
+            for (SIGMA_T car : p) std::cout << (char)car;
             std::cout << "\n";
             exit(1);
         }
@@ -48,7 +54,7 @@ static void BM_run(benchmark::State &state) {
     state.counters["occurrences"] = occurrences;
     state.counters["length"] = m;
 }
-BENCHMARK(BM_run)->Apply(args)->Iterations(10000);
+BENCHMARK(BM_run)->Apply(args); //->Iterations(10000);
 
 int main(int argc, char **argv) {
     std::ifstream file(argv[1], std::ios::in);

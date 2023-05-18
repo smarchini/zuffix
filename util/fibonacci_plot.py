@@ -16,6 +16,7 @@ date = sys.argv[1]
 prefixdir = '.'
 
 benchmarks = [
+    (f'{prefixdir}/nosearch.memcmp.csv', ':', 'black'),
     (f'{prefixdir}/{date}/fibonacci.simple.{date}.csv', '-', 'grey'),
     (f'{prefixdir}/{date}/fibonacci.enhanced.{date}.csv', '-', 'black'),
     (f'{prefixdir}/{date}/fibonacci.memcmp-zuffix-wyhash.{date}.csv', '-', 'red'),
@@ -42,8 +43,11 @@ for (file, line, color) in benchmarks:
     table = pd.read_csv(file, skiprows=1)
     x = table['length']
     y = list(table['cpu_time'])
-    lbl = list(table['errors'])
-    iterations = int(table['iterations'][0])
+    #lbl = list(table['errors'])
+    #iterations = int(table['iterations'][0])
+    print(name)
+    lbl = list(table['errors']) if name != "memcmp" else [0]*len(y)
+    iterations = int(table['iterations'][0]) if name != "memcmp" else [0]*len(y)
     ax.loglog(x, y, label=name, linestyle=line, color=color)
     if name == 'enhanced':
         topax = ax.secondary_xaxis('top')
@@ -54,6 +58,8 @@ for (file, line, color) in benchmarks:
     for (xval, yval, lblval) in zip(x, y, lbl):
         if lblval != 0: ax.annotate(lblval, xy=(xval, yval), ha='left', rotation=60)
 
+plt.xlim([1, 6*10**6])
+plt.ylim(bottom=100)
 plt.legend(loc="lower right", ncols=2)
 plt.title(f'Fibonacci strings', fontsize='xx-large')
 plt.xlabel("Pattern length (Bytes)", fontsize='large')

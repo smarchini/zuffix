@@ -42,6 +42,7 @@ TESTS = bin/test/random \
 
 BENCHMARKS = bin/benchmark/lambda          \
 			 bin/benchmark/saca            \
+			 bin/benchmark/memcmp          \
 			 bin/benchmark/hash_block_size \
 			 bin/benchmark/hash            \
 			 bin/benchmark/interactive     \
@@ -103,6 +104,10 @@ benchmark: $(BENCHMARKS)
 	# ./bin/benchmark/fibonacci --benchmark_color=yes
 
 bin/benchmark/saca: benchmark/saca.cpp $(DEPENDENCIES)
+	@mkdir -p bin/benchmark
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
+
+bin/benchmark/memcmp: benchmark/memcmp.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
 
@@ -197,16 +202,13 @@ bin/benchmark/nofindrandom: benchmark/nofindrandom.cpp $(DEPENDENCIES)
 
 bin/benchmark/sdsl: benchmark/sdsl.cpp $(DEPENDENCIES)
 	@mkdir -p $@
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-zfast-backward-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=zfast_count_backward  -DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-backward                       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=count_backward        -DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-forward                        $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=count_forward 	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32CFollyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-zfast-forward-xxh3             $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=zfast_count_forward  	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,XXH3Hash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-zfast-forward-wyhash           $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=zfast_count_forward  	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,WyHash\>
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-zfast-forward-crc32zlib        $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=zfast_count_forward  	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32ZlibHash\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-zfast-forward-crc32cfolly      $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=zfast_count_forward  	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32CFollyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-forward-crc32cfolly     	$< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=count_forward 	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32CFollyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-backward-crc32cfolly     	$< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=count_backward   	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32CFollyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-xxh3            $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=$(SDSL_COUNT_OP) -DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,XXH3Hash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-wyhash          $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=$(SDSL_COUNT_OP) -DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,WyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32zlib       $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=$(SDSL_COUNT_OP) -DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32ZlibHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32cfolly     $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=$(SDSL_COUNT_OP) -DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32CFollyHash\>
-	#$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/memcmp-zuffix-crc32+crc32c    $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=$(SDSL_COUNT_OP) -DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32Plus32CFollyHash\>
-
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/sct3-zfast-forward-crc32+crc32c     $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DSDSL_COUNT_OP=zfast_count_forward  	-DSDSL_STRUCTURE_T=MemcmpZSdsl\<sdsl_sct3,SIGMA_T\,CRC32Plus32CFollyHash\>
 
 
 # TODO Test operator<< and operator>> they are likely wrong.

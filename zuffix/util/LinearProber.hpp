@@ -1,10 +1,12 @@
 #pragma once
 
+#include "common.hpp"
+#include "../hash/XXH3Hash.hpp"
+
+#include <sux/util/Vector.hpp>
+
 #include <optional>
 #include <tuple>
-
-#include "../hash/XXH3Hash.hpp"
-#include <sux/util/Vector.hpp>
 
 namespace zarr {
 using ::sux::util::Vector;

@@ -1,0 +1,11 @@
+Data structureconstruction time: 3103721937052 ns
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message,"empty","errors","length","occurrences"
+"BM_run/1",4717158,152.4,148.188,ns,,,,,,0,0,1,9.8926e+14
+"BM_run/2",310516,2391.52,2257.04,ns,,,,,,0,0,2,3.85097e+12
+"BM_run/3",239290,3102.08,2925.5,ns,,,,,,0,0,3,1.79802e+11
+"BM_run/4",104031,6980.58,6681.71,ns,,,,,,0,0,4,4.89152e+09
+"BM_run/5",170723,4291.39,4109.49,ns,,,,,,0,0,5,5.97878e+08
+"BM_run/6",101587,7184.88,6815.12,ns,,,,,,0,0,6,6.3086e+07
+"BM_run/7",71133,10121.7,9593,ns,,,,,,0,0,7,2.5202e+07
+"BM_run/8",35878,21133.2,19744.8,ns,,,,,,0,0,8,1.10783e+07
+Error on pattern: VVELIIVL

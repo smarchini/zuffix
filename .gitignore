@@ -3,6 +3,7 @@ dataset/
 pattern/
 results/
 texts/
+indices/
 dependencies/
 compile_commands.*
 .envrc
