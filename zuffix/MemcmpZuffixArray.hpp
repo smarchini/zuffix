@@ -5,7 +5,6 @@
 
 #include "util/LInterval.hpp"
 #include "util/LinearProber.hpp"
-#include "util/String.hpp"
 #include "util/common.hpp"
 
 #include <chrono>
@@ -290,6 +289,10 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
+		// std::cout << "nlen = " << nlen << " => ";
+		// std::cout << "elen = " << elen << " => ";
+		// for (size_t kk = 0; kk < elen; kk++) std::cout << (char)text[sa[i] + kk];
+		// std::cout << "\n";
 
 		if (maxnlen <= nlen) maxnlen = nlen;
 		if (maxhlen <= hlen) maxhlen = hlen;

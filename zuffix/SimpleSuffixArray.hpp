@@ -4,7 +4,6 @@
 #include <sux/util/Vector.hpp>
 
 #include "util/LInterval.hpp"
-#include "util/String.hpp"
 #include "util/common.hpp"
 
 namespace zarr {

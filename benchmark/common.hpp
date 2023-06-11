@@ -9,16 +9,12 @@
 
 #include <sux/util/Vector.hpp>
 
-#include <zuffix/random/xoroshiro128plus_engine.hpp>
-
 #include <zuffix/util/common.hpp>
-#include <zuffix/util/String.hpp>
 
 #include <zuffix/hash/WyHash.hpp>
 #include <zuffix/hash/CRC32Plus32CFollyHash.hpp>
 #include <zuffix/hash/CRC32CFollyHash.hpp>
 #include <zuffix/hash/CRC32ZlibHash.hpp>
-#include <zuffix/hash/CRC32Hash.hpp>
 #include <zuffix/hash/CyclicPolyHash.hpp>
 #include <zuffix/hash/O1Hash.hpp>
 #include <zuffix/hash/RabinKarpHash.hpp>
@@ -32,25 +28,21 @@
 #include <zuffix/MemcmpZSdsl.hpp>
 #include <zuffix/NothingZuffixArray.hpp>
 
+#ifndef ALLOC_TYPE
+#define ALLOC_TYPE MALLOC
+#endif
+
+static std::mt19937 rng(2023);
+
 template <typename T> using CyclicPoly4Hash = zarr::CyclicPolyHash<T, 4>;
 template <typename T> using CyclicPoly128Hash = zarr::CyclicPolyHash<T, 128>;
 
-zarr::String<uint8_t> random(size_t n, const uint8_t *charset, size_t sigma) {
-	zarr::String<uint8_t> result(n);
-	std::mt19937 rng(2023);
-	std::uniform_int_distribution<uint64_t> dist(0, sigma - 1);
-	for (size_t i = 0; i < n; i++) result[i] = charset[dist(rng)];
-	return result;
-}
-
-zarr::String<char> fibonacci(size_t n, bool dollar = false) {
-	std::string prec = "a", curr = "ab";
-	for (size_t i = 0; i < n; i++) {
-		std::string tmp = prec;
-		prec = curr;
-		curr += tmp;
-	}
-	return zarr::String<char>(curr, dollar);
+sux::util::Vector<char, sux::util::ALLOC_TYPE> randword(size_t n) {
+	std::string s;
+	s.reserve(n);
+	std::uniform_int_distribution<char> dist('0', 'z');
+	for (size_t i = 0; i < n; i++) s += dist(rng);
+    return sux::util::Vector<char, sux::util::ALLOC_TYPE>(s.c_str(), s.length());
 }
 
 template <class T> std::string pretty(T value) {
@@ -58,46 +50,6 @@ template <class T> std::string pretty(T value) {
 	ss.imbue(std::locale(""));
 	ss << std::fixed << value;
 	return ss.str();
-}
-
-template <typename T, sux::util::AllocType AT = sux::util::MALLOC> std::tuple<std::string, size_t, size_t, std::vector<zarr::String<T, AT>>> load_pizzachili_patterns(std::string filename) {
-	std::vector<zarr::String<T, AT>> res;
-	std::ifstream file(filename, std::ios::in);
-
-	std::string header;
-	std::getline(file, header);
-
-	auto get = [&header](std::string item) {
-		auto from = header.find(item) + item.length() + 1;
-		auto len = header.substr(from).find(" ");
-		return header.substr(from, len);
-	};
-
-	auto number = std::atoi(get("number").c_str());
-	auto length = std::atoi(get("length").c_str());
-
-	res.reserve(number);
-	std::unique_ptr<char[]> buffer(new char[length]);
-
-	for (int i = 0; i < number; i++) {
-		file.read(buffer.get(), length);
-		res.push_back(zarr::String<T, AT>(buffer.get(), length));
-	}
-
-	return std::make_tuple(get("file"), number, length, std::move(res));
-}
-
-template <typename T, sux::util::AllocType AT = sux::util::MALLOC> zarr::String<T, AT> file_to_string(std::string filename, bool dollar = false) {
-	std::ifstream file(filename, std::ios::in);
-	file.seekg(0, file.end);
-	int filesize = file.tellg();
-	file.seekg(0, file.beg);
-
-	assert(filesize % sizeof(T) == 0 && "Bad size: bytes should be a multiple of sizeof(T)");
-
-	std::unique_ptr<char[]> buffer(new char[filesize]);
-	file.read(buffer.get(), filesize);
-	return zarr::String<T, AT>(buffer.get(), filesize, dollar);
 }
 
 std::tuple<std::chrono::nanoseconds::rep, std::chrono::nanoseconds::rep> median(std::vector<std::chrono::nanoseconds::rep> record) {

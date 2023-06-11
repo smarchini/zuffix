@@ -63,12 +63,14 @@ template <class T> class LInterval {
 	/** Serialize the interval in a human-readable format */
 	friend std::ostream &operator<<(std::ostream &os, const LInterval<T> &interval) { return os << "[" << interval.from << ", " << interval.to << ")"; }
 
-	/** Enable C++17 syntasx
-	 * - auto [from, to] = something();
-	 * - std::tie(from, to) = something();
+	/** Enable C++17 syntax
+	 *
+	 * For example:
+	 * auto [from, to] = something();
+	 * std::tie(from, to) = something();
 	 *
 	 **/
-	operator std::tuple<T &, T &>() { return std::tie(from, to); } // Not an hack
+	operator std::tuple<T &, T &>() { return std::tie(from, to); }
 };
 
 } // namespace zarr

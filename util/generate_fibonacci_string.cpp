@@ -1,11 +1,7 @@
 #include <cstring>
 #include <iostream>
-#include <random>
 
 int main(int argc, char const *argv[]) {
-    std::random_device rd;
-    std::mt19937 rng(rd());
-
     if (argc < 2) {
         std::cerr << "Not enough parameters: <length>\n";
         return -1;

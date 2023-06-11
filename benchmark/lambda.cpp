@@ -5,8 +5,6 @@
 using namespace zarr;
 using namespace sux::util;
 
-std::mt19937 rng(2023);
-
 size_t lambdabased(int64_t n) {
 	std::uniform_int_distribution<int64_t> offset(0, 10);
 	int64_t cnt = 0;

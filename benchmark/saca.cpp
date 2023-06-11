@@ -5,7 +5,6 @@
 using namespace zarr;
 using namespace sux::util;
 
-std::mt19937 rng(2023);
 std::string sigma = "abcdefghijklmnopqrstuvwxyz";
 std::uniform_int_distribution<uint64_t> dist(0, sigma.length() - 1);
 

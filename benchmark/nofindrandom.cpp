@@ -4,7 +4,6 @@
 using namespace zarr;
 using namespace sux::util;
 
-std::mt19937 rng(2023);
 std::span<const SIGMA_T> text;
 static constexpr size_t textsize = 200ULL << 20; // TODO: trovare un modo di prenderlo da text (all'interno di args)
 

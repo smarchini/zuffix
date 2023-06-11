@@ -2,13 +2,12 @@
 #include <iostream>
 #include <memory>
 #include <random>
-#include <zuffix/random/xoroshiro128plus_engine.hpp>
 
 using namespace std;
 
 int main(int argc, char const *argv[]) {
 	random_device rd;
-    std::mt19937 rng(dev());
+    std::mt19937 rng(rd());
 
 	if (argc < 4) {
 		cerr << "Not enough parameters: <text file> <bytes per symbol> <symbols>\n";

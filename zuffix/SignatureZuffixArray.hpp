@@ -5,7 +5,6 @@
 
 #include "util/LInterval.hpp"
 #include "util/LinearProber.hpp"
-#include "util/String.hpp"
 #include "util/common.hpp"
 
 namespace zarr {
@@ -133,8 +132,6 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 	LInterval<size_t> find(std::span<const T> pattern) {
 		DEBUGDO(_find++);
 		hpattern.setString(pattern.data());
-		// TODO: Testare se si guadagna/perde qualcosa
-		// hpattern(pattern.size() - 1); // preload
 		auto [i, j] = fatBinarySearch(pattern);
 		return exit(pattern, i, j);
 	}

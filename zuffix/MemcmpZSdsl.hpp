@@ -7,7 +7,7 @@
 
 namespace zarr {
 
-//  WARNING: BE CAREFUL ABOUT FEW SUBTLE DIFFERENCES
+//  WARNING: BE CAREFUL ABOUT A FEW SUBTLE DIFFERENCES
 //  1) strings ends in 0 instead than in numeric_limits<T>::max, thus in SDSL
 //     the value of SA & LCP is different than in our implementation;
 //  2) closed ranges (i.e.,  [l .. r]) instead than half-open (ie., [l .. r));

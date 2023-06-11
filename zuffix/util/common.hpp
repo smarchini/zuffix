@@ -1,6 +1,5 @@
 #pragma once
 
-#include "String.hpp"
 #include <span>
 #include <cstdint>
 #include <divsufsort64.h>
@@ -9,14 +8,9 @@
 #include <sux/util/Vector.hpp>
 
 #ifdef DEBUG
-#define DEBUGDO(statement)                                                                                                                                                                             \
-	do {                                                                                                                                                                                               \
-		statement;                                                                                                                                                                                     \
-	} while (0)
+#define DEBUGDO(statement) do { statement; } while (0)
 #else
-#define DEBUGDO(statement)                                                                                                                                                                             \
-	do {                                                                                                                                                                                               \
-	} while (0)
+#define DEBUGDO(statement) do {} while (0)
 #endif
 
 namespace zarr {
@@ -113,6 +107,54 @@ template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConst
 	return result;
 }
 
+/** LCP array construction algorithm by Karkkainen Psi algorithm
+ *
+ * @return The array LCP
+ */
+template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConstructByKarkkainenPsi(std::span<const T> string, const Vector<size_t, AT> &sa) {
+	// using namespace std;
+	size_t n = sa.size();
+	Vector<size_t, AT> plcp(n + 1);
+	for (size_t i = 0, sai = n; i < n; sai = sa[i], i++) plcp[sa[i]] = sai;
+	// for (size_t i = 0; i < n; i++) cout << "plcp[" << i << "] = " <<  plcp[i] << endl;
+
+	size_t maxl = 0;
+	for (size_t i = 0, l = 0; i < n; i++) {
+		while (string[i + l] == string[plcp[i] + l]) l++;
+		plcp[i] = l;
+		if (l) {
+			maxl = max(maxl, l);
+			l--;
+		}
+	}
+
+	Vector<ssize_t, AT> lcp(n + 1);
+	for (size_t i = 1; i < n; i++) lcp[i] = plcp[sa[i]];
+	lcp[0] = lcp[n] = -1;
+	return lcp;
+}
+
+/** LCP array construction algorithm using Grebnov's SAIS algorithm
+ *
+ * @return The array LCP
+ */
+template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConstructByGrebnovSAIS(std::span<const T> string, const Vector<size_t, AT> &sa) {
+	size_t n = sa.size();
+	Vector<int64_t, AT> plcp(n);
+	Vector<ssize_t, AT> lcp(n + 1);
+
+#if defined(_OPENMP)
+	libsais64_plcp_omp((const uint8_t *)string.data(), (const int64_t *)&sa, (int64_t *)&plcp, n, 0);
+	libsais64_lcp_omp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n, 0);
+#else
+	libsais64_plcp((const uint8_t *)string.data(), (const int64_t *)&sa, (int64_t *)&plcp, n);
+	libsais64_lcp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n);
+#endif
+
+	lcp[0] = lcp[n] = -1;
+	return lcp;
+}
+
 /** CT (child table) array construction algorithm by Abouelhoda's paper
  *
  * @return The array CT
@@ -141,44 +183,5 @@ template <AllocType AT = MALLOC> inline Vector<size_t, AT> CTConstructByAbouelho
 	return result;
 }
 
-template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConstructByKarkkainenPsi(std::span<const T> string, const Vector<size_t, AT> &sa) {
-	// using namespace std;
-	size_t n = sa.size();
-	Vector<size_t, AT> plcp(n + 1);
-	for (size_t i = 0, sai = n; i < n; sai = sa[i], i++) plcp[sa[i]] = sai;
-	// for (size_t i = 0; i < n; i++) cout << "plcp[" << i << "] = " <<  plcp[i] << endl;
-
-	size_t maxl = 0;
-	for (size_t i = 0, l = 0; i < n; i++) {
-		while (string[i + l] == string[plcp[i] + l]) l++;
-		plcp[i] = l;
-		if (l) {
-			maxl = max(maxl, l);
-			l--;
-		}
-	}
-
-	Vector<ssize_t, AT> lcp(n + 1);
-	for (size_t i = 1; i < n; i++) lcp[i] = plcp[sa[i]];
-	lcp[0] = lcp[n] = -1;
-	return lcp;
-}
-
-template <typename T, AllocType AT = MALLOC> inline Vector<ssize_t, AT> LCPConstructByGrebnovSAIS(std::span<const T> string, const Vector<size_t, AT> &sa) {
-	size_t n = sa.size();
-	Vector<int64_t, AT> plcp(n);
-	Vector<ssize_t, AT> lcp(n + 1);
-
-#if defined(_OPENMP)
-	libsais64_plcp_omp((const uint8_t *)string.data(), (const int64_t *)&sa, (int64_t *)&plcp, n, 0);
-	libsais64_lcp_omp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n, 0);
-#else
-	libsais64_plcp((const uint8_t *)string.data(), (const int64_t *)&sa, (int64_t *)&plcp, n);
-	libsais64_lcp((const int64_t *)&plcp, (const int64_t *)&sa, (int64_t *)&lcp, n);
-#endif
-
-	lcp[0] = lcp[n] = -1;
-	return lcp;
-}
 
 } // namespace zarr

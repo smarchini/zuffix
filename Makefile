@@ -35,8 +35,7 @@ FIND_OP?=find_prefix
 
 all: test benchmark util
 
-TESTS = bin/test/random \
-		bin/test/hash   \
+TESTS = bin/test/hash   \
 		bin/test/saca   \
 		bin/test/zuffix \
 
@@ -59,14 +58,9 @@ UTILS = bin/util/generate_random_string \
 
 # TEST
 test: $(TESTS)
-	# ./bin/test/random --gtest_color=yes
-	# ./bin/test/hash --gtest_color=yes
-	# ./bin/test/saca --gtest_color=yes
-	# ./bin/test/zuffix --gtest_color=yes
-
-bin/test/random: test/random/test.cpp $(DEPENDENCIES)
-	@mkdir -p bin/test
-	$(CXX) $(CXXFLAGS) $(DEBUG) -o $@ $< $(LDLIBS)
+	./bin/test/hash --gtest_color=yes
+	./bin/test/saca --gtest_color=yes
+	./bin/test/zuffix --gtest_color=yes
 
 bin/test/hash: test/hash/test.cpp $(DEPENDENCIES)
 	@mkdir -p bin/test
@@ -121,7 +115,7 @@ bin/benchmark/hash_block_size: benchmark/hash_block_size.cpp $(DEPENDENCIES)
 
 bin/benchmark/hash: benchmark/hash.cpp $(DEPENDENCIES)
 	@mkdir -p bin/benchmark
-	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS)
+	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@ $< $(LDLIBS) -DALLOC_TYPE=$(ALLOC_TYPE)
 
 bin/benchmark/interactive: benchmark/interactive.cpp $(DEPENDENCIES)
 	@mkdir -p $@

@@ -53,7 +53,7 @@ for (file, line, color) in benchmarks:
     iterations = int(table['iterations'][0]) if name != "memcmp" else [0]*len(y)
     if not ylim: ax.loglog(x, y, label=name, linestyle=line, color=color)
     else: ax.semilogx(x, y, label=name, linestyle=line, color=color)
-    if False and name == 'enhanced':
+    if name == 'enhanced':
         topax = ax.secondary_xaxis('top')
         topax.tick_params(axis='x', direction='inout')
         avg_occurrences = map(lambda x: x[0]/x[1], zip(table['occurrences'], table['iterations']))
