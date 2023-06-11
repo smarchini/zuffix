@@ -5,9 +5,9 @@ EXTERNAL_INCLUDES = -I ./dependencies/sux \
 					-I ./dependencies/xxHash/build/include \
 					-I ./dependencies/zlib/build/include \
 					-I ./dependencies/sdsl-lite/include \
-					#-I ./dependencies/benchmark/installed/include \
-					#-I ./dependencies/folly/installed/folly/include \
-					#-I ./dependencies/folly/installed/fmt/include
+					-I ./dependencies/folly/installed/folly/include \
+					-I ./dependencies/folly/installed/fmt/include \
+					#-I ./dependencies/benchmark/installed/include 
 
 EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivsufsort.a \
 					   $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivsufsort64.a \
@@ -15,16 +15,16 @@ EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/libdivsufsort/build/lib/libdivs
 					   $(shell pwd)/dependencies/xxHash/build/lib/libxxhash.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais64.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais.a \
-					   #$(shell pwd)/dependencies/benchmark/installed/lib64/libbenchmark.a \
-					   #$(shell pwd)/dependencies/folly/installed/folly/lib/libfolly.a \
-					   #$(shell pwd)/dependencies/folly/installed/fmt/lib64/libfmt.a
+					   $(shell pwd)/dependencies/folly/installed/folly/lib/libfolly.a \
+					   $(shell pwd)/dependencies/folly/installed/fmt/lib64/libfmt.a \
+					   #$(shell pwd)/dependencies/benchmark/installed/lib64/libbenchmark.a 
 
 CXXFLAGS += -std=c++20 -march=native -mtune=native -fomit-frame-pointer -flto -fopenmp -Wall -Wextra -I ./ $(EXTERNAL_INCLUDES) $(EXTERNAL_SOURCES)
 ifeq ($(CXX), clang++)
 	# NOTE: https://clang.llvm.org/cxx_status.html#p0522
 	CXXFLAGS += -frelaxed-template-template-args
 endif
-LDLIBS += -flto -Bstatic -lgtest -lpthread $(EXTERNAL_STATIC_LIBS) -lbenchmark -lfolly
+LDLIBS += -flto -Bstatic -lgtest -lpthread $(EXTERNAL_STATIC_LIBS) -lbenchmark 
 DEPENDENCIES = $(shell find . -name "*.[ch]pp")
 DEBUG := -g3 -O3 # -DDEBUG
 RELEASE := -O3 -DNDEBUG
