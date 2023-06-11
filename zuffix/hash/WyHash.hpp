@@ -38,7 +38,6 @@ template <typename T, AllocType AT = sux::util::MALLOC, size_t C = 48 * 10> clas
         statetable.resize(1);
     }
 
-    // TODO probabilmente manca un sizeof(T) da qualche parte
     void reserve(size_t size) { statetable.reserve(size / C); }
 
     signature_t operator()(size_t to) {

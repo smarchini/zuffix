@@ -47,7 +47,6 @@ static void args(benchmark::internal::Benchmark *b) {
 // WARNING: It's very likely that the block size should actually be evaluated in
 // Bytes, and not in symbols; thus, the best value sould be something like:
 // (1 << 12) / sizeof(T)
-// TODO: test it!
 
 BM_SIMULATION(CRC32CFolly_16B,  CRC32CFollyHash<char COMMA ALLOC_TYPE COMMA 1 << 4>)
 BM_SIMULATION(CRC32CFolly_32B,  CRC32CFollyHash<char COMMA ALLOC_TYPE COMMA 1 << 5>)

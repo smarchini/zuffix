@@ -77,7 +77,6 @@ int main(int argc, char **argv) {
 			//}
 			auto end = chrono::high_resolution_clock::now();
 			sum += result.length();
-			// cout << result << endl; // TODO remove me
 			time.push_back(chrono::duration_cast<chrono::nanoseconds>(end - begin).count());
 		}
 

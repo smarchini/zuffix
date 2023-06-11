@@ -29,7 +29,7 @@ static void BM_run(benchmark::State &state) {
     for (auto _ : state) {
         state.PauseTiming();
         size_t from = dist(rng);
-        auto p = text.subspan(from, m);
+        auto p = text.subspan(from, m - 1);
         auto expected = reference.FIND_OP(p);
         empty += expected.isEmpty();
         occurrences += expected.length();

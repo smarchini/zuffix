@@ -68,7 +68,6 @@ static void args2(benchmark::internal::Benchmark *b) {
 	for (int i = 15; i < 20; i++) b->Args({1L << 21, 1L << i});
 }
 
-// TODO: Don't use a random-generated text!
 #define BM(NAME, OP)                                                                                                                                                                                   \
 	static void BM_zuffix_##NAME(benchmark::State &state) {                                                                                                                                            \
 		size_t n = state.range(0), m = state.range(1);                                                                                                                                                 \
