@@ -15,13 +15,17 @@ int main(int argc, char **argv) {
 	file.seekg(0, file.beg);
 	assert(filesize % sizeof(SIGMA_T) == 0 && "Bad file size.");
 
-    size_t length = filesize / sizeof(SIGMA_T) + 1;
-    sux::util::Vector<SIGMA_T, ALLOC_TYPE> buffer(length);
-    file.read((char *)&buffer, filesize);
-    buffer[length - 1] = std::numeric_limits<SIGMA_T>::max();
+	size_t length = filesize / sizeof(SIGMA_T) + 1;
+	sux::util::Vector<SIGMA_T, ALLOC_TYPE> buffer(length);
+	file.read((char *)&buffer, filesize);
+	buffer[length - 1] = std::numeric_limits<SIGMA_T>::max();
 
 	STRUCTURE_T ds(span<SIGMA_T>(&buffer, length));
-	// cout << ds; // TODO: Do it properly
 
+	auto begin = chrono::high_resolution_clock::now();
+	ds.dummyDFS();
+	auto end = chrono::high_resolution_clock::now();
+	cout << chrono::duration_cast<chrono::nanoseconds>(end - begin).count() << " ns" << endl;
+	
 	return 0;
 }

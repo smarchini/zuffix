@@ -1,5 +1,5 @@
 diff --git a/sux/util/Vector.hpp b/sux/util/Vector.hpp
-index 53b350e..9718fc5 100644
+index 53b350e..3ea2432 100644
 --- a/sux/util/Vector.hpp
 +++ b/sux/util/Vector.hpp
 @@ -93,18 +93,18 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
@@ -22,19 +22,28 @@ index 53b350e..9718fc5 100644
  				free(data);
  			} else {
 -				int result = munmap(data, _capacity);
-+				int result = munmap(data, page_aligned(_capacity));
++				int result = munmap(data, page_aligned(_capacity * sizeof(T)));
  				assert(result == 0 && "mmunmap failed");
  			}
  		}
-@@ -257,8 +257,10 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
+@@ -250,15 +250,17 @@ template <typename T, AllocType AT = MALLOC> class Vector : public Expandable {
+ 			mem = _capacity == 0 ? malloc(space) : realloc(data, space);
+ 			assert(mem != NULL && "malloc failed");
+ 		} else {
+-			space = page_aligned(size);
++			space = page_aligned(size * sizeof(T));
+ 			if (_capacity == 0)
+ 				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
+ 			else {
  #ifndef MREMAP_MAYMOVE
  				mem = mmap(nullptr, space, PROT, FLAGS, -1, 0);
- 				memcpy(mem, data, page_aligned(_capacity));
-+				int resunmap = munmap(data, page_aligned(_capacity));
+-				memcpy(mem, data, page_aligned(_capacity));
++				memcpy(mem, data, page_aligned(_capacity * sizeof(T)));
++				int resunmap = munmap(data, page_aligned(_capacity * sizeof(T)));
 +				assert(resunmap == 0 && "mmunmap (remapping) failed");
  #else
 -				mem = mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE, -1, 0);
-+				mem = mremap(data, page_aligned(_capacity), space, MREMAP_MAYMOVE); //, -1, 0);
++				mem = mremap(data, page_aligned(_capacity * sizeof(T)), space, MREMAP_MAYMOVE); //, -1, 0);
  #endif
  			}
  			assert(mem != MAP_FAILED && "mmap failed");

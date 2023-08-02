@@ -13,8 +13,7 @@ namespace zarr {
 //  2) closed ranges (i.e.,  [l .. r]) instead than half-open (ie., [l .. r));
 //  3) the length of LCP is n - 1, so it doesn't start and ends for -1.
 
-sdsl::cst_sct3 dummything;
-using sdsl_sct3 = decltype(dummything); // TODO: I don't know how to do it yet
+using sdsl_sct3 = typename sdsl::cst_sct3<>;
 
 template <class cst_t, typename T, template <typename U> class RH> class MemcmpZSdsl {
     cst_t cst;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <benchmark/benchmark.h>
+
 #include <sux/support/common.hpp>
 #include <sux/util/Vector.hpp>
 
@@ -38,7 +40,7 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		assert(text.data()[text.size() - 1] == std::numeric_limits<T>::max() && "Missing $-terminator");
 		// z.resize(ceil_pow2(text.size()) << 1); // TODO: tweak me to improve construction performance
 		RH<T, AT> htext(text.data(), text.size());
-		ZFillByDFS(0, text.size(), 0, htext); // Alternatively: ZFillByBottomUp();
+		// ZFillByDFS(0, text.size(), 0, htext); // Alternatively: ZFillByBottomUp();
 		hpattern.reserve(text.size());
 		DEBUGDO(print_stats("Construction"));
 	}
@@ -279,6 +281,32 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 			+ hpattern.bitCount() - sizeof(hpattern) * 8;
 	}
 
+	// Used for accurate (i.e., allocation free) measurement of construction time.
+	void dummyDFS() { 
+		RH<T, AT> htext(text.data(), text.size());
+		dummyDFS(0, text.size(), 0, htext); 
+	}
+	void dummyDFS(size_t i, size_t j, size_t nlen, RH<T, AT> &htext, size_t depth = 0) {
+		if (j - i <= 1) return; 
+		size_t l = i;
+		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
+		ssize_t elen = lcp[r];
+		size_t hlen = twoFattestLR(nlen, elen);
+
+		if (maxnlen <= nlen) maxnlen = nlen;
+		if (maxhlen <= hlen) maxhlen = hlen;
+
+		benchmark::DoNotOptimize(htext(sa[i], hlen));
+
+		do {
+			dummyDFS(l, r, elen + 1, htext, depth + 1);
+			l = r;
+			r = ct[r];
+		} while (lcp[l] == lcp[ct[l]] && lcp[l] <= lcp[l + 1]);
+		return dummyDFS(l, j, elen + 1, htext, depth + 1);
+	}
+
+
   private:
 	inline ssize_t getlcp(size_t i, size_t j) const { return lcp[i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i]]; }
 
@@ -289,10 +317,6 @@ template <typename T, template <typename U, AllocType AT> class RH, AllocType AT
 		size_t r = i < ct[j - 1] && ct[j - 1] < j ? ct[j - 1] : ct[i];
 		ssize_t elen = lcp[r];
 		size_t hlen = twoFattestLR(nlen, elen);
-		// std::cout << "nlen = " << nlen << " => ";
-		// std::cout << "elen = " << elen << " => ";
-		// for (size_t kk = 0; kk < elen; kk++) std::cout << (char)text[sa[i] + kk];
-		// std::cout << "\n";
 
 		if (maxnlen <= nlen) maxnlen = nlen;
 		if (maxhlen <= hlen) maxhlen = hlen;

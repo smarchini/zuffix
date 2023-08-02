@@ -6,7 +6,5 @@ texts/
 indices/
 dependencies/
 compile_commands.*
-.envrc
-.direnv/
 .cache/
 __pycache__/
