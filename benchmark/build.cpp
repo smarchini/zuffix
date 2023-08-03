@@ -23,9 +23,9 @@ int main(int argc, char **argv) {
 	STRUCTURE_T ds(span<SIGMA_T>(&buffer, length));
 
 	auto begin = chrono::high_resolution_clock::now();
-	ds.dummyDFS();
+	// ds.dummyDFS();
 	auto end = chrono::high_resolution_clock::now();
 	cout << chrono::duration_cast<chrono::nanoseconds>(end - begin).count() << " ns" << endl;
-	
+
 	return 0;
 }
