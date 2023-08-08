@@ -3,10 +3,8 @@ EXTERNAL_INCLUDES = -I ./dependencies/sux \
 					-I ./dependencies/libsais/build/include \
 					-I ./dependencies/xxHash/build/include \
 					-I ./dependencies/zlib/build/include \
-					-I ./dependencies/sdsl-lite/include \
 					-I ./dependencies/folly/installed/folly/include \
 					-I ./dependencies/folly/installed/fmt/include \
-					#-I ./dependencies/benchmark/installed/include 
 
 EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/zlib/build/lib/libz.a \
 					   $(shell pwd)/dependencies/xxHash/build/lib/libxxhash.a \
@@ -14,7 +12,6 @@ EXTERNAL_STATIC_LIBS = $(shell pwd)/dependencies/zlib/build/lib/libz.a \
 					   $(shell pwd)/dependencies/libsais/build/lib/libsais.a \
 					   $(shell pwd)/dependencies/folly/installed/folly/lib/libfolly.a \
 					   $(shell pwd)/dependencies/folly/installed/fmt/lib64/libfmt.a \
-					   #$(shell pwd)/dependencies/benchmark/installed/lib64/libbenchmark.a 
 
 CXXFLAGS += -std=c++20 -march=native -mtune=native -fomit-frame-pointer -flto -fopenmp -Wall -Wextra -I ./ $(EXTERNAL_INCLUDES) $(EXTERNAL_SOURCES)
 ifeq ($(CXX), clang++)

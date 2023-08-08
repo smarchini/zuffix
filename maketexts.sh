@@ -48,7 +48,7 @@ download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.200MB.gz"
 
 # fibonacci
 mkdir -p "$DESTPATH"
-"$SCRIPTPATH"/bin/util/generate_fibonacci_string 34 > "$DESTPATH/texts/fibonacci-34.txt"
+"$SCRIPTPATH"/bin/util/generate_fibonacci_string 34 > "$DESTPATH/fibonacci-34.txt"
 
 # random
 mkdir -p "$DESTPATH"

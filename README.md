@@ -1,5 +1,7 @@
 # Engineering Zuffix Arrays
 
+The following guidelines have been tested in Fedora Linux 38 (Workstation Edition).
+
 ## Requirements
 
 Install [googletest], [benchmark] (the -devel packages), and all the
