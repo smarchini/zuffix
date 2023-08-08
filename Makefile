@@ -102,7 +102,7 @@ bin/benchmark/fibonacci: benchmark/fibonacci.cpp $(DEPENDENCIES)
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32zlib    $< $(LDLIBS) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32ZlibHash,ALLOC_TYPE\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/signature-zuffix-crc32cfolly  $< $(LDLIBS) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=SignatureZuffixArray\<char\,CRC32CFollyHash,ALLOC_TYPE\>
 
-bin/benchmark/findfile: benchmark/findfile.cpp benchmark/findfile_errors.cpp $(DEPENDENCIES)
+bin/benchmark/findfile: benchmark/findfile.cpp $(DEPENDENCIES)
 	@mkdir -p $@
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/simple                        $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=find       -DSTRUCTURE_T=SimpleSuffixArray\<SIGMA_T,ALLOC_TYPE\>
 	$(CXX) $(CXXFLAGS) $(RELEASE) -o $@/enhanced                      $< $(LDLIBS) -DSIGMA_T=$(SIGMA_T) -DALLOC_TYPE=$(ALLOC_TYPE) -DFIND_OP=$(FIND_OP) -DSTRUCTURE_T=EnhancedSuffixArray\<SIGMA_T,ALLOC_TYPE\>
