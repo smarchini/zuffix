@@ -13,10 +13,8 @@ benchmark() {
     "$SCRIPTPATH"/bin/benchmark/fibonacci/memcmp-zuffix-xxh3            --benchmark_format=csv > "$DESTPATH/fibonacci.memcmp-zuffix-xxh3.$DATE.csv"            2>  "$DESTPATH/fibonacci.memcmp-zuffix-xxh3.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/fibonacci/memcmp-zuffix-crc32cfolly     --benchmark_format=csv > "$DESTPATH/fibonacci.memcmp-zuffix-crc32cfolly.$DATE.csv"     2>  "$DESTPATH/fibonacci.memcmp-zuffix-crc32cfolly.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/fibonacci/memcmp-zuffix-crc32zlib       --benchmark_format=csv > "$DESTPATH/fibonacci.memcmp-zuffix-crc32zlib.$DATE.csv"       2>  "$DESTPATH/fibonacci.memcmp-zuffix-crc32zlib.$DATE.info"
-    "$SCRIPTPATH"/bin/benchmark/fibonacci/memcmp-zuffix-crc32+crc32c    --benchmark_format=csv > "$DESTPATH/fibonacci.memcmp-zuffix-crc32+crc32c.$DATE.csv"    2>  "$DESTPATH/fibonacci.memcmp-zuffix-crc32+crc32c.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/fibonacci/signature-zuffix-crc32cfolly  --benchmark_format=csv > "$DESTPATH/fibonacci.signature-zuffix-crc32cfolly.$DATE.csv"  2>  "$DESTPATH/fibonacci.signature-zuffix-crc32cfolly.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/fibonacci/signature-zuffix-crc32zlib    --benchmark_format=csv > "$DESTPATH/fibonacci.signature-zuffix-crc32zlib.$DATE.csv"    2>  "$DESTPATH/fibonacci.signature-zuffix-crc32zlib.$DATE.info"
-    "$SCRIPTPATH"/bin/benchmark/fibonacci/signature-zuffix-crc32+crc32c --benchmark_format=csv > "$DESTPATH/fibonacci.signature-zuffix-crc32+crc32c.$DATE.csv" 2>  "$DESTPATH/fibonacci.signature-zuffix-crc32+crc32c.$DATE.info"
 }
 
 benchmark "$1"

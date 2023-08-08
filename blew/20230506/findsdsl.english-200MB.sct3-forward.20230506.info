@@ -1,9 +1,0 @@
-2023-05-04T16:23:26+02:00
-Running /home/marchini/zuffix/bin/benchmark/sdsl/sct3-forward
-Run on (20 X 800.227 MHz CPU s)
-CPU Caches:
-  L1 Data 48 KiB (x10)
-  L1 Instruction 32 KiB (x10)
-  L2 Unified 1280 KiB (x10)
-  L3 Unified 25600 KiB (x1)
-Load Average: 2.02, 1.24, 1.08

@@ -8,11 +8,9 @@ TEST(saca, sa) {
 	text.push_back(std::numeric_limits<char>::max());
 
 	auto sort = SAConstructBySort<char>(text);
-	auto divsufsort = SAConstructByDivSufSort<char>(text);
 	auto sais = SAConstructByGrebnovSAIS<char>(text);
 
 	for (size_t i = 0; i < sort.size(); i++) {
-		EXPECT_EQ(sort[i], divsufsort[i]) << "at index " << i;
 		EXPECT_EQ(sort[i], sais[i]) << "at index " << i;
 	}
 }

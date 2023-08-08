@@ -5,7 +5,7 @@ using namespace zarr;
 using namespace sux::util;
 
 std::span<const SIGMA_T> text;
-static constexpr size_t textsize = 200ULL << 20; // TODO: trovare un modo di prenderlo da text (all'interno di args)
+static constexpr size_t textsize = 200ULL << 20; 
 
 static void args(benchmark::internal::Benchmark *b) {
     for (size_t k = 1; k * 10 < textsize; k *= 10)

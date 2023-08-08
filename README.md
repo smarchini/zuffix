@@ -1,33 +1,33 @@
-# Applications of Zuffix Arrays to String Search
-A very fast full-text index data structure.
+# Engineering Zuffix Arrays
+
+## Requirements
+
+Install [googletest], [benchmark] (the -devel packages), and all the
+dependencies of [folly]. The dependencies of [folly] can be listed
+with:
+```
+$ git clone https://github.com/facebook/folly.git
+$ cd folly
+$ git checkout 4dcb3c6d1
+$ ./build/fbcode_builder/getdeps.py install-system-deps --dry-run --recursive
+```
+or by following the guidelines at [https://github.com/facebook/folly#dependencies](https://github.com/facebook/folly#dependencies).
+
+Fetch and compile (with optimizations enabled) all the other
+dependencies using `./makedeps.sh`.
+
+## Dataset
+
+You can automatically download and extract (requires wget and gunzip)
+the Pizza&Chili corpus with:
+```
+$ make util
+$ ./maketexts.sh
+```
 
 ## Tests and benchmarks
-Install [googletest], [benchmark], and the dependencies of [folly]; then, fetch and
-compile all the other dependencies with `./makedeps.sh`. We suggest you to check
-if hardware accelerated CRC32 is supported, calling
-`CRC32CFollyHash::is_hw_supported()`.
-
-You can automatically download and extract the Pizza&Chili corpus with
-`./maketexts.sh`.
-
 - `make test`: run all the tests.
 - `make benchmark`: compile all the benchmarks.
-
-The binaries that use Google Test and Google Benchmark allow for some some
-(optional) command line arguments, for more information try `--help`.
-
-## A quick performance overview
-![performance evaluation](./blew/readme_image.png)
-More results are available in the `blew` directory.
-
-## Reference
-Paolo Boldi and Sebastiano Vigna. Kings, name days, lazy servants and magic. In
-Hiro Ito, Stefano Leonardi, Linda Pagli, and Giuseppe Prencipe, editors, 9th
-International Conference on Fun with Algorithms (FUN 2018), volume 100 of
-Leibniz International Proceedings in Informatics (LIPIcs), pages 10:1−10:13,
-Dagstuhl, Germany, 2018. Schloss Dagstuhl−Leibniz-Zentrum fuer Informatik.
-([url](http://drops.dagstuhl.de/opus/volltexte/2018/8801/pdf/LIPIcs-FUN-2018-10.pdf))
-([sux4j](http://sux4j.di.unimi.it/))
 
 [googletest]: https://github.com/google/googletest "GoogleTest - Google Testing and Mocking Framework"
 [benchmark]: https://github.com/google/benchmark "google/benchmark: A microbenchmark support library"

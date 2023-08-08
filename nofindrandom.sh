@@ -14,15 +14,8 @@ benchmark() {
     "$SCRIPTPATH"/bin/benchmark/nofindrandom/memcmp-zuffix-xxh3            "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.memcmp-zuffix-xxh3.$DATE.csv"
     "$SCRIPTPATH"/bin/benchmark/nofindrandom/memcmp-zuffix-crc32cfolly     "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.memcmp-zuffix-crc32cfolly.$DATE.csv"
     "$SCRIPTPATH"/bin/benchmark/nofindrandom/memcmp-zuffix-crc32zlib       "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.memcmp-zuffix-crc32zlib.$DATE.csv"
-    "$SCRIPTPATH"/bin/benchmark/nofindrandom/memcmp-zuffix-crc32+crc32c    "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.memcmp-zuffix-crc32+crc32c.$DATE.csv"
     "$SCRIPTPATH"/bin/benchmark/nofindrandom/signature-zuffix-crc32cfolly  "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.signature-zuffix-crc32cfolly.$DATE.csv"
     "$SCRIPTPATH"/bin/benchmark/nofindrandom/signature-zuffix-crc32zlib    "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.signature-zuffix-crc32zlib.$DATE.csv"
-    "$SCRIPTPATH"/bin/benchmark/nofindrandom/signature-zuffix-crc32+crc32c "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.signature-zuffix-crc32+crc32c.$DATE.csv"
-    "$SCRIPTPATH"/bin/benchmark/nofindrandom/nothing-zuffix-wyhash         "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.nothing-zuffix-wyhash.$DATE.csv"
-    "$SCRIPTPATH"/bin/benchmark/nofindrandom/nothing-zuffix-xxh3           "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.nothing-zuffix-xxh3.$DATE.csv"
-    "$SCRIPTPATH"/bin/benchmark/nofindrandom/nothing-zuffix-crc32cfolly    "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.nothing-zuffix-crc32cfolly.$DATE.csv"
-    "$SCRIPTPATH"/bin/benchmark/nofindrandom/nothing-zuffix-crc32zlib      "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.nothing-zuffix-crc32zlib.$DATE.csv"
-    "$SCRIPTPATH"/bin/benchmark/nofindrandom/nothing-zuffix-crc32+crc32c   "$1" --benchmark_format=csv > "$DESTPATH/nofindrandom.$NAME.nothing-zuffix-crc32+crc32c.$DATE.csv"
 }
 
 benchmark "$1"

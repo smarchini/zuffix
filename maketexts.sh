@@ -46,6 +46,10 @@ download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.50MB.gz"
 download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.100MB.gz"
 download "http://pizzachili.dcc.uchile.cl/texts/xml/dblp.xml.200MB.gz"
 
+# fibonacci
+mkdir -p "$DESTPATH"
+"$SCRIPTPATH"/bin/util/generate_fibonacci_string 34 > "$DESTPATH/texts/fibonacci-34.txt"
+
 # random
 mkdir -p "$DESTPATH"
 "$SCRIPTPATH"/bin/util/generate_random_string  $((200 << 20)) "ACGT" > "$DESTPATH/random-ACGT-200MB.txt"

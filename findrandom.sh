@@ -14,10 +14,8 @@ benchmark() {
     "$SCRIPTPATH"/bin/benchmark/findrandom/memcmp-zuffix-xxh3            "$1" --benchmark_format=csv > "$DESTPATH/findrandom.$NAME.memcmp-zuffix-xxh3.$DATE.csv"            2> "$DESTPATH/findrandom.$NAME.memcmp-zuffix-xxh3.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/findrandom/memcmp-zuffix-crc32cfolly     "$1" --benchmark_format=csv > "$DESTPATH/findrandom.$NAME.memcmp-zuffix-crc32cfolly.$DATE.csv"     2> "$DESTPATH/findrandom.$NAME.memcmp-zuffix-crc32cfolly.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/findrandom/memcmp-zuffix-crc32zlib       "$1" --benchmark_format=csv > "$DESTPATH/findrandom.$NAME.memcmp-zuffix-crc32zlib.$DATE.csv"       2> "$DESTPATH/findrandom.$NAME.memcmp-zuffix-crc32zlib.$DATE.info"
-    "$SCRIPTPATH"/bin/benchmark/findrandom/memcmp-zuffix-crc32+crc32c    "$1" --benchmark_format=csv > "$DESTPATH/findrandom.$NAME.memcmp-zuffix-crc32+crc32c.$DATE.csv"    2> "$DESTPATH/findrandom.$NAME.memcmp-zuffix-crc32+crc32c.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/findrandom/signature-zuffix-crc32cfolly  "$1" --benchmark_format=csv > "$DESTPATH/findrandom.$NAME.signature-zuffix-crc32cfolly.$DATE.csv"  2> "$DESTPATH/findrandom.$NAME.signature-zuffix-crc32cfolly.$DATE.info"
     "$SCRIPTPATH"/bin/benchmark/findrandom/signature-zuffix-crc32zlib    "$1" --benchmark_format=csv > "$DESTPATH/findrandom.$NAME.signature-zuffix-crc32zlib.$DATE.csv"    2> "$DESTPATH/findrandom.$NAME.signature-zuffix-crc32zlib.$DATE.info"
-    "$SCRIPTPATH"/bin/benchmark/findrandom/signature-zuffix-crc32+crc32c "$1" --benchmark_format=csv > "$DESTPATH/findrandom.$NAME.signature-zuffix-crc32+crc32c.$DATE.csv" 2> "$DESTPATH/findrandom.$NAME.signature-zuffix-crc32+crc32c.$DATE.info"
 }
 
 benchmark "$1"

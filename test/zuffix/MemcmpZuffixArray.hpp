@@ -59,8 +59,10 @@ TEST(MemcmpZuffixArray, abracadabra) {
 
 #define COMMA ,
 
+TS(XXH3, MemcmpZuffixArray<char COMMA XXH3Hash>)
+TS(Wyhash, MemcmpZuffixArray<char COMMA WyHash>)
+TS(CRC32CFolly, MemcmpZuffixArray<char COMMA CRC32CFollyHash>)
+TS(CRC32Zlib, MemcmpZuffixArray<char COMMA CRC32ZlibHash>)
 TS(RabinKarp, MemcmpZuffixArray<char COMMA RabinKarpHash>)
 TS(CyclicPoly128, MemcmpZuffixArray<char COMMA CyclicPoly128Hash>)
 TS(O1, MemcmpZuffixArray<char COMMA O1Hash>)
-TS(XXH3, MemcmpZuffixArray<char COMMA XXH3Hash>)
-TS(CRC32, MemcmpZuffixArray<char COMMA CRC32Hash>)

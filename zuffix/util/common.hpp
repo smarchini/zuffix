@@ -2,7 +2,6 @@
 
 #include <span>
 #include <cstdint>
-#include <divsufsort64.h>
 #include <libsais64.h>
 #include <stack>
 #include <sux/util/Vector.hpp>
@@ -59,17 +58,6 @@ template <typename T, AllocType AT = MALLOC> inline Vector<size_t, AT> SAConstru
 		while (string[lhs + i] == string[rhs + i]) i++;
 		return string[lhs + i] < string[rhs + i];
 	});
-	return result;
-}
-
-/** Suffix array construction algorithm: DivSufSort
- *
- * @return The array SA
- */
-template <typename T, AllocType AT = MALLOC> inline Vector<size_t, AT> SAConstructByDivSufSort(std::span<const T> string) {
-	size_t n = string.size();
-	Vector<size_t, AT> result(n);
-	divsufsort64((const unsigned char *)string.data(), (long int *)&result, n);
 	return result;
 }
 
